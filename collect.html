@@ -7,16 +7,18 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: sans-serif;
-            background: #f5f0e8;
-            user-select: none;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.5s;
-        }
+    font-family: sans-serif;
+    user-select: none;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background 0.5s;
+    /* 背景图 */
+    background: url('images/forest-bg.jpg') no-repeat center center;
+    background-size: cover;
+}
         #gameContainer {
             width: 100%;
             max-width: 420px;
@@ -196,10 +198,10 @@
 
         // ===== 背景图（可替换为真实图片路径）=====
         const areaBackgrounds = {
-            forest: 'linear-gradient(135deg, #2e7d32, #a5d6a7)', // 绿色
-            mountain: 'linear-gradient(135deg, #6d4c41, #bcaaa4)', // 棕色
-            field: 'linear-gradient(135deg, #f9a825, #fff176)'     // 黄色
-        };
+    forest: 'url("images/forest-bg.jpg")',
+    mountain: 'url("images/mountain-bg.jpg")',
+    field: 'url("images/field-bg.jpg")'
+};
 
         // ===== 关卡配置 =====
         const TARGET_KINDS = 3;           // 每关目标药材种类数
@@ -484,6 +486,8 @@
 
         // ===== 初始化背景和游戏 =====
         cardAreaEl.style.background = areaBackgrounds[currentArea];
+cardAreaEl.style.backgroundSize = 'cover';
+cardAreaEl.style.backgroundPosition = 'center';
         initLevel();
     </script>
 </body>

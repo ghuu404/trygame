@@ -12,29 +12,33 @@
         }
         body {
             font-family: sans-serif;
-            background: linear-gradient(180deg, #dcedc8 0%, #c5e1a5 50%, #aed581 100%);
             user-select: none;
             position: relative;
+            /* 背景图，把 url 换成你的图片路径即可 */
+            background: url('images/main-bg.jpg') no-repeat center center;
+            background-size: cover;
+            /* 如果没有图片，用下面的渐变作为后备 */
+            background-color: #dcedc8;
         }
         #title {
             position: absolute;
-            top: 4%;
+            top: 3%;
             left: 50%;
             transform: translateX(-50%);
             font-size: 22px;
             font-weight: bold;
-            color: #33691e;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
             white-space: nowrap;
         }
         .spot {
             position: absolute;
-            width: 90px;
-            height: 90px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            background: #f1f8e9;
+            background: rgba(241, 248, 233, 0.9);
             border: 3px solid #558b2f;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -42,49 +46,66 @@
             cursor: pointer;
             text-decoration: none;
             transition: transform 0.15s, box-shadow 0.15s;
+            overflow: hidden;
         }
         .spot:active {
             transform: scale(0.92);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
-        .spot .icon {
-            font-size: 30px;
-            line-height: 1;
+        /* 如果有图片，显示图片填满按钮 */
+        .spot img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
+        /* 文字浮在图片上方 */
         .spot .label {
-            font-size: 15px;
+            position: relative;
+            z-index: 2;
+            font-size: 16px;
             font-weight: bold;
-            color: #33691e;
-            margin-top: 4px;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            background: rgba(51, 105, 30, 0.7);
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-top: 50px;
         }
-        /* 五个地点位置 */
-        #spot-collect  { left: 12%; top: 16%; }
-        #spot-process  { left: 42%; top: 30%; }
-        #spot-diagnose { left: 22%; top: 58%; }
-        #spot-plant    { right: 12%; top: 46%; }
-        #spot-dispense { right: 22%; top: 72%; }
+        /* 五个地点的位置 */
+        #spot-collect  { left: 10%; top: 15%; }        /* 采药：左上 */
+        #spot-plant    { right: 10%; top: 15%; }       /* 种植：右上 */
+        #spot-diagnose { left: 50%; top: 48%; transform: translate(-50%, -50%); } /* 行医：正中间 */
+        #spot-process  { left: 10%; bottom: 12%; }     /* 炮制：左下 */
+        #spot-dispense { right: 10%; bottom: 12%; }    /* 抓药：右下 */
     </style>
 </head>
 <body>
     <div id="title">🌿 重生之我是赤脚医生</div>
+
     <a class="spot" id="spot-collect" href="collect.html">
-        <div class="icon">🌲</div>
+        <img src="images/spot-collect.jpg" alt="采药">
         <div class="label">采药</div>
     </a>
-    <a class="spot" id="spot-process" href="process.html">
-        <div class="icon">⚗️</div>
-        <div class="label">炮制</div>
-    </a>
-    <a class="spot" id="spot-diagnose" href="diagnose.html">
-        <div class="icon">🩺</div>
-        <div class="label">行医</div>
-    </a>
+
     <a class="spot" id="spot-plant" href="plant.html">
-        <div class="icon">🌱</div>
+        <img src="images/spot-plant.jpg" alt="种植">
         <div class="label">种植</div>
     </a>
+
+    <a class="spot" id="spot-diagnose" href="diagnose.html">
+        <img src="images/spot-diagnose.jpg" alt="行医">
+        <div class="label">行医</div>
+    </a>
+
+    <a class="spot" id="spot-process" href="process.html">
+        <img src="images/spot-process.jpg" alt="炮制">
+        <div class="label">炮制</div>
+    </a>
+
     <a class="spot" id="spot-dispense" href="dispense.html">
-        <div class="icon">📦</div>
+        <img src="images/spot-dispense.jpg" alt="抓药">
         <div class="label">抓药</div>
     </a>
 </body>
