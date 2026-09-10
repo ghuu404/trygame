@@ -14,27 +14,107 @@
             font-family: sans-serif;
             user-select: none;
             position: relative;
-            /* 背景图，把 url 换成你的图片路径即可 */
             background: url('images/main-bg.jpg') no-repeat center center;
             background-size: cover;
-            /* 如果没有图片，用下面的渐变作为后备 */
             background-color: #dcedc8;
         }
-        #title {
+
+        /* ===== 顶部信息栏 ===== */
+        #topBar {
             position: absolute;
-            top: 3%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 22px;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        /* 头像 */
+        #avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            border: 3px solid #558b2f;
+            background: #f1f8e9;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        #avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 名字和医力 */
+        #playerInfo {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        #playerName {
+            font-size: 16px;
             font-weight: bold;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            color: #33691e;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+        #playerPower {
+            font-size: 13px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        /* 铜币和体力 */
+        #resources {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-end;
+        }
+        .resource {
+            font-size: 13px;
+            background: rgba(255,255,255,0.85);
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid #a5d6a7;
+            font-weight: bold;
             white-space: nowrap;
         }
+
+        /* 头像下方三个小按钮 */
+        #subButtons {
+            position: absolute;
+            top: 82px;
+            left: 12px;
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+        .sub-btn {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #558b2f;
+            border-radius: 14px;
+            color: #33691e;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .sub-btn:active {
+            background: #aed581;
+            transform: scale(0.95);
+        }
+
+        /* ===== 中间散布地点 ===== */
         .spot {
             position: absolute;
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: rgba(241, 248, 233, 0.9);
             border: 3px solid #558b2f;
@@ -45,14 +125,12 @@
             justify-content: center;
             cursor: pointer;
             text-decoration: none;
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.15s;
             overflow: hidden;
         }
         .spot:active {
             transform: scale(0.92);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
-        /* 如果有图片，显示图片填满按钮 */
         .spot img {
             position: absolute;
             width: 100%;
@@ -60,53 +138,131 @@
             object-fit: cover;
             border-radius: 50%;
         }
-        /* 文字浮在图片上方 */
         .spot .label {
             position: relative;
             z-index: 2;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: bold;
             color: #fff;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
-            background: rgba(51, 105, 30, 0.7);
-            padding: 2px 10px;
-            border-radius: 10px;
-            margin-top: 50px;
+            background: rgba(51, 105, 30, 0.75);
+            padding: 1px 8px;
+            border-radius: 8px;
         }
-        /* 五个地点的位置 */
-        #spot-collect  { left: 10%; top: 15%; }        /* 采药：左上 */
-        #spot-plant    { right: 10%; top: 15%; }       /* 种植：右上 */
-        #spot-diagnose { left: 50%; top: 48%; transform: translate(-50%, -50%); } /* 行医：正中间 */
-        #spot-process  { left: 10%; bottom: 12%; }     /* 炮制：左下 */
-        #spot-dispense { right: 10%; bottom: 12%; }    /* 抓药：右下 */
+        /* 五个地点散布 - 不规整 */
+        #spot-collect  { left: 8%;  top: 18%; }        /* 采药：左偏上 */
+        #spot-plant    { right: 6%; top: 22%; }        /* 种植：右偏上 */
+        #spot-diagnose { left: 42%; top: 45%; }        /* 行医：中间偏左 */
+        #spot-process  { left: 12%; bottom: 22%; }     /* 炮制：左下 */
+        #spot-dispense { right: 14%; bottom: 18%; }    /* 抓药：右下 */
+
+        /* ===== 底部导航栏 ===== */
+        #bottomBar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(51, 105, 30, 0.9);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.15s;
+            flex: 1;
+        }
+        .nav-btn:active {
+            transform: scale(0.9);
+        }
+        .nav-btn .nav-icon {
+            font-size: 22px;
+            line-height: 1;
+        }
+        .nav-btn .nav-label {
+            font-size: 11px;
+            margin-top: 3px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <div id="title">🌿 重生之我是赤脚医生</div>
 
+    <!-- 顶部信息栏 -->
+    <div id="topBar">
+        <div id="avatar">
+            <img src="images/avatar.jpg" alt="头像">
+        </div>
+        <div id="playerInfo">
+            <div id="playerName">赤脚医生</div>
+            <div id="playerPower">医力：0 / 100</div>
+        </div>
+        <div id="resources">
+            <div class="resource">💰 铜币：0</div>
+            <div class="resource">⚡ 体力：5 / 5</div>
+        </div>
+    </div>
+
+    <!-- 头像下方三个小按钮 -->
+    <div id="subButtons">
+        <a class="sub-btn" href="daily.html">每日签到</a>
+        <a class="sub-btn" href="book-medical.html">医书</a>
+        <a class="sub-btn" href="book-herbal.html">药书</a>
+    </div>
+
+    <!-- 五个散布地点 -->
     <a class="spot" id="spot-collect" href="collect.html">
         <img src="images/spot-collect.jpg" alt="采药">
         <div class="label">采药</div>
     </a>
-
     <a class="spot" id="spot-plant" href="plant.html">
         <img src="images/spot-plant.jpg" alt="种植">
         <div class="label">种植</div>
     </a>
-
     <a class="spot" id="spot-diagnose" href="diagnose.html">
         <img src="images/spot-diagnose.jpg" alt="行医">
         <div class="label">行医</div>
     </a>
-
     <a class="spot" id="spot-process" href="process.html">
         <img src="images/spot-process.jpg" alt="炮制">
         <div class="label">炮制</div>
     </a>
-
     <a class="spot" id="spot-dispense" href="dispense.html">
         <img src="images/spot-dispense.jpg" alt="抓药">
         <div class="label">抓药</div>
     </a>
+
+    <!-- 底部导航栏 -->
+    <div id="bottomBar">
+        <a class="nav-btn" href="collect.html">
+            <span class="nav-icon">🌲</span>
+            <span class="nav-label">采药</span>
+        </a>
+        <a class="nav-btn" href="plant.html">
+            <span class="nav-icon">🌱</span>
+            <span class="nav-label">种植</span>
+        </a>
+        <a class="nav-btn" href="process.html">
+            <span class="nav-icon">⚗️</span>
+            <span class="nav-label">炮制</span>
+        </a>
+        <a class="nav-btn" href="diagnose.html">
+            <span class="nav-icon">🩺</span>
+            <span class="nav-label">行医</span>
+        </a>
+        <a class="nav-btn" href="dispense.html">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">抓药</span>
+        </a>
+    </div>
+
 </body>
 </html>
