@@ -1,478 +1,276 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>行医</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif;
-        }
-        body {
-            background: linear-gradient(180deg, #f5f0e8 0%, #ebe1d0 100%);
-            display: flex;
-            flex-direction: column;
-            user-select: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>行医</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box;
+    font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
+html, body { height: 100%; overflow: hidden; }
+body {
+    background: linear-gradient(180deg, #f5f0e8 0%, #ebe1d0 100%);
+    display: flex; flex-direction: column;
+    user-select: none; color: #3a2a1a;
+}
 
-        /* ===== 顶部栏 ===== */
-        #topBar {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 10px 12px;
-            background: rgba(255,255,255,0.85);
-            border-bottom: 2px solid #c5b89a;
-            flex-shrink: 0;
-        }
-        #playerBox {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        #avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 6px;
-            border: 2px solid #8b5e3c;
-            background: #f1f8e9;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        #avatar img { width: 100%; height: 100%; object-fit: cover; }
-        #playerText { display: flex; flex-direction: column; }
-        #playerName {
-            font-size: 14px;
-            font-weight: bold;
-            color: #3a2a1a;
-        }
-        #playerPower {
-            font-size: 12px;
-            color: #666;
-            margin-top: 2px;
-        }
-        #coinBox {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #b85c00;
-        }
-        #coinBox .coin-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #ffd54f;
-            border: 2px solid #b85c00;
-            font-size: 14px;
-        }
-        #coinGain {
-            position: absolute;
-            right: 30px;
-            top: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #558b2f;
-            opacity: 0;
-            transition: all 0.6s;
-        }
-        #coinGain.show {
-            opacity: 1;
-            transform: translateY(-20px);
-        }
+#backBtn {
+    position: absolute; top: 10px; left: 10px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: 2px solid #8b5e3c;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px; color: #3a2a1a;
+    z-index: 20;
+}
 
-        /* ===== 病人区域 ===== */
-        #patientArea {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 15px;
-            overflow: hidden;
-        }
+#topBar {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 10px 12px 10px 54px;
+    background: rgba(255,255,255,0.85);
+    border-bottom: 2px solid #c5b89a;
+    flex-shrink: 0; position: relative;
+}
+#playerBox { display: flex; align-items: center; gap: 8px; }
+#avatar {
+    width: 44px; height: 44px;
+    border-radius: 6px;
+    border: 2px solid #8b5e3c;
+    background: #f1f8e9;
+    overflow: hidden; flex-shrink: 0;
+}
+#avatar img { width: 100%; height: 100%; object-fit: cover; }
+#playerName { font-size: 14px; font-weight: bold; }
+#playerPower { font-size: 12px; color: #666; margin-top: 2px; }
+#coinBox {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 16px; font-weight: bold; color: #b85c00;
+}
+.coin-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #ffd54f; border: 2px solid #b85c00;
+    font-size: 12px; color: #8b5e3c;
+}
+#coinGain {
+    position: absolute; right: 20px; top: 40px;
+    font-size: 14px; font-weight: bold; color: #558b2f;
+    opacity: 0; transition: all 0.6s; pointer-events: none;
+}
+#coinGain.show { opacity: 1; transform: translateY(-20px); }
 
-        /* 排队病人 */
-        #queue {
-            position: absolute;
-            right: 15px;
-            top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            pointer-events: none;
-        }
-        .queue-figure {
-            width: 20px;
-            height: 28px;
-            opacity: 0.35;
-        }
-        .queue-figure::before {
-            content: '';
-            display: block;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #8b5e3c;
-            margin: 0 auto 2px;
-        }
-        .queue-figure::after {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 12px;
-            border-radius: 10px 10px 0 0;
-            background: #8b5e3c;
-        }
+/* 病人区域 */
+#patientArea {
+    flex: 1; position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 10px; overflow: hidden;
+}
+#queueInfo {
+    position: absolute; top: 12px; right: 14px;
+    font-size: 14px; font-weight: bold;
+    background: rgba(255,255,255,0.85);
+    padding: 3px 10px;
+    border-radius: 12px;
+    border: 2px solid #c5b89a;
+    color: #8b5e3c;
+}
+#patientStage {
+    position: relative;
+    width: 200px; height: 220px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+#patientFigure {
+    position: absolute; inset: 0;
+    transition: transform 0.55s ease, opacity 0.55s ease;
+}
+#patientFigure.enter {
+    animation: walkIn 0.55s ease-out forwards;
+}
+#patientFigure.exit {
+    animation: walkOut 0.55s ease-in forwards;
+}
+@keyframes walkIn {
+    from { transform: translateX(220px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes walkOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-220px); opacity: 0; }
+}
 
-        /* 当前病人 */
-        #currentPatient {
-            position: relative;
-            width: 200px;
-            height: 280px;
-            margin-top: 20px;
-        }
+.p-head {
+    position: absolute; left: 50%; top: 0;
+    transform: translateX(-50%);
+    width: 64px; height: 64px; border-radius: 50%;
+    background: #f5e6d3; border: 3px solid #3a2a1a;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+}
+.p-head.checked { background: #d4c4a8; cursor: default; }
+.p-head .face { font-size: 26px; line-height: 1; }
+.p-body {
+    position: absolute; left: 50%; top: 68px;
+    transform: translateX(-50%);
+    width: 84px; height: 92px;
+    border-radius: 40px 40px 20px 20px;
+    background: #a0785a; border: 3px solid #3a2a1a;
+    cursor: pointer; transition: all 0.2s;
+}
+.p-body.checked { background: #806040; cursor: default; }
+.p-wrist {
+    position: absolute; right: 10px; top: 105px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #f5e6d3; border: 3px solid #3a2a1a;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: bold;
+}
+.p-wrist.checked { background: #d4c4a8; cursor: default; }
+.p-legs {
+    position: absolute; left: 50%; top: 164px;
+    transform: translateX(-50%);
+    width: 66px; height: 56px;
+    border-radius: 0 0 30px 30px;
+    background: #6b4a30; border: 3px solid #3a2a1a;
+    cursor: pointer; transition: all 0.2s;
+}
+.p-legs.checked { background: #503620; cursor: default; }
 
-        /* 病人简笔画 */
-        .patient-body {
-            position: absolute;
-            inset: 0;
-        }
-        .p-head {
-            position: absolute;
-            left: 50%;
-            top: 10px;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: #f5e6d3;
-            border: 3px solid #3a2a1a;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            color: #3a2a1a;
-            font-weight: bold;
-        }
-        .p-head.checked {
-            background: #d4c4a8;
-            cursor: default;
-        }
-        .p-head .face {
-            font-size: 26px;
-            line-height: 1;
-        }
-        .p-body {
-            position: absolute;
-            left: 50%;
-            top: 82px;
-            transform: translateX(-50%);
-            width: 90px;
-            height: 110px;
-            border-radius: 40px 40px 20px 20px;
-            background: #a0785a;
-            border: 3px solid #3a2a1a;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .p-body.checked {
-            background: #806040;
-            cursor: default;
-        }
-        .p-wrist {
-            position: absolute;
-            right: -5px;
-            top: 130px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #f5e6d3;
-            border: 3px solid #3a2a1a;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            color: #3a2a1a;
-            font-weight: bold;
-        }
-        .p-wrist.checked {
-            background: #d4c4a8;
-            cursor: default;
-        }
-        .p-legs {
-            position: absolute;
-            left: 50%;
-            top: 195px;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 70px;
-            border-radius: 0 0 30px 30px;
-            background: #6b4a30;
-            border: 3px solid #3a2a1a;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .p-legs.checked {
-            background: #503620;
-            cursor: default;
-        }
+.hint {
+    position: absolute; background: #fff;
+    border: 2px solid #558b2f; border-radius: 10px;
+    padding: 3px 8px; font-size: 12px; font-weight: bold;
+    color: #33691e; box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    white-space: nowrap; animation: floatUp 0.4s ease-out; z-index: 5;
+}
+.hint.pulse-hint { right: -90px; top: 108px; }
+.hint.head-hint { left: -75px; top: 12px; }
+.hint.body-hint { left: -75px; top: 88px; }
+.hint.limbs-hint { left: -60px; top: 176px; }
+@keyframes floatUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-        /* 提示气泡 */
-        .hint {
-            position: absolute;
-            background: #fff;
-            border: 2px solid #558b2f;
-            border-radius: 12px;
-            padding: 4px 10px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #33691e;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-            animation: floatUp 0.5s ease-out;
-            white-space: nowrap;
-        }
-        .hint.pulse-hint { right: -100px; top: 130px; }
-        .hint.head-hint { left: -60px; top: 20px; }
-        .hint.body-hint { left: -70px; top: 100px; }
-        .hint.limbs-hint { left: -50px; top: 200px; }
+#symptomPanel {
+    width: 90%; max-width: 380px;
+    background: rgba(255,255,255,0.95);
+    border: 2px solid #c5b89a; border-radius: 12px;
+    padding: 8px 12px; min-height: 46px; max-height: 90px;
+    overflow-y: auto; font-size: 14px; line-height: 1.8;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-top: 8px;
+}
+#symptomPanel .placeholder { color: #999; font-style: italic; font-size: 13px; }
+#symptomPanel .sym-item {
+    display: inline-block; background: #fff3e0;
+    border: 1px solid #d4a574; border-radius: 6px;
+    padding: 1px 8px; margin: 2px 3px 2px 0;
+    font-weight: bold; color: #8b5e3c; font-size: 13px;
+}
 
-        @keyframes floatUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+#bottomArea { flex-shrink: 0; }
+#optionsBar {
+    display: flex; gap: 8px; padding: 10px 12px;
+    background: #fdf7ec;
+    border-top: 2px solid #d4c4a8;
+    border-bottom: 2px solid #d4c4a8;
+}
+.option-btn {
+    flex: 1; padding: 12px 6px;
+    background: #fff8e1;
+    border: 3px solid #8b5e3c; border-radius: 10px;
+    font-size: 17px; font-weight: bold; color: #3a2a1a;
+    cursor: pointer; transition: all 0.15s;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    font-family: inherit;
+}
+.option-btn:active { transform: scale(0.96); background: #dcedc8; }
+.option-btn.correct { background: #c8e6c9; border-color: #2e7d32; color: #2e7d32; }
+.option-btn.wrong { background: #ffcdd2; border-color: #c62828; color: #c62828; }
+.option-btn:disabled { cursor: default; opacity: 0.85; }
 
-        /* 症状显示区 */
-        #symptomPanel {
-            position: absolute;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            background: rgba(255,255,255,0.95);
-            border: 2px solid #c5b89a;
-            border-radius: 12px;
-            padding: 10px 14px;
-            min-height: 60px;
-            max-height: 140px;
-            overflow-y: auto;
-            font-size: 15px;
-            color: #3a2a1a;
-            line-height: 1.8;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-        #symptomPanel .placeholder {
-            color: #999;
-            font-style: italic;
-            font-size: 14px;
-        }
-        #symptomPanel .sym-item {
-            display: inline-block;
-            background: #fff3e0;
-            border: 1px solid #d4a574;
-            border-radius: 8px;
-            padding: 2px 10px;
-            margin: 2px 4px 2px 0;
-            font-weight: bold;
-            color: #8b5e3c;
-        }
+#tableArea {
+    height: 80px;
+    background: linear-gradient(180deg, #f5ede1 0%, #e8d9c2 60%, #d4b896 100%);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 30px; position: relative;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.08);
+}
+#tableArea::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: #8b5e3c;
+}
+.deco-doctor {
+    width: 60px; height: 70px;
+    position: relative;
+    display: flex; align-items: flex-end; justify-content: center;
+}
+.deco-doctor img { width: 100%; height: 100%; object-fit: contain; }
+.deco-doctor.fallback::before {
+    content: ''; position: absolute;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #f5e6d3; border: 2px solid #3a2a1a;
+    top: 0; left: 50%; transform: translateX(-50%);
+}
+.deco-doctor.fallback::after {
+    content: ''; position: absolute;
+    width: 46px; height: 34px;
+    border-radius: 24px 24px 0 0;
+    background: #d4a574; border: 2px solid #3a2a1a;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+}
+.deco-gourd {
+    width: 50px; height: 70px;
+    position: relative;
+    display: flex; align-items: flex-end; justify-content: center;
+}
+.deco-gourd img { width: 100%; height: 100%; object-fit: contain; }
+.deco-gourd.fallback::before { content: '🫙'; font-size: 46px; line-height: 1; }
+.deco-gourd.fallback::after {
+    content: ''; position: absolute;
+    width: 2px; height: 14px; background: #3a2a1a;
+    top: -8px; left: 50%;
+}
 
-        /* ===== 方证选项 ===== */
-        #optionsBar {
-            display: flex;
-            gap: 8px;
-            padding: 10px 12px;
-            background: rgba(255,255,255,0.95);
-            border-top: 2px solid #c5b89a;
-            flex-shrink: 0;
-        }
-        .option-btn {
-            flex: 1;
-            padding: 14px 6px;
-            background: #fff8e1;
-            border: 3px solid #8b5e3c;
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 18px;
-            font-weight: bold;
-            color: #3a2a1a;
-            cursor: pointer;
-            transition: all 0.15s;
-            text-align: center;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        }
-        .option-btn:active {
-            transform: scale(0.96);
-            background: #dcedc8;
-        }
-        .option-btn.correct {
-            background: #c8e6c9;
-            border-color: #2e7d32;
-            color: #2e7d32;
-        }
-        .option-btn.wrong {
-            background: #ffcdd2;
-            border-color: #c62828;
-            color: #c62828;
-        }
-        .option-btn:disabled {
-            cursor: default;
-            opacity: 0.85;
-        }
-
-        /* ===== 底部装饰（医生 + 葫芦）===== */
-        #bottomDeco {
-            position: relative;
-            height: 90px;
-            background: rgba(255,255,255,0.9);
-            border-top: 2px solid #c5b89a;
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-        }
-        .doctor-deco {
-            position: relative;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .doctor-deco::before {
-            content: '';
-            position: absolute;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #f5e6d3;
-            border: 2px solid #3a2a1a;
-            top: 0;
-        }
-        .doctor-deco::after {
-            content: '';
-            position: absolute;
-            width: 50px;
-            height: 40px;
-            border-radius: 30px 30px 0 0;
-            background: #d4a574;
-            border: 2px solid #3a2a1a;
-            bottom: 0;
-        }
-        .gourd-deco {
-            position: relative;
-            width: 40px;
-            height: 60px;
-        }
-        .gourd-deco::before {
-            content: '🫙';
-            font-size: 52px;
-            line-height: 1;
-        }
-        .gourd-string {
-            position: absolute;
-            width: 2px;
-            height: 18px;
-            background: #3a2a1a;
-            top: -10px;
-            left: 50%;
-        }
-
-        /* ===== 弹窗 ===== */
-        #modalOverlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-        }
-        #modalOverlay.active { display: flex; }
-        .modal-box {
-            background: #f5f0e8;
-            border-radius: 20px;
-            padding: 24px 28px;
-            text-align: center;
-            border: 3px solid #558b2f;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            max-width: 320px;
-            width: 85%;
-        }
-        .modal-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #33691e;
-            margin-bottom: 12px;
-        }
-        .modal-text {
-            font-size: 15px;
-            color: #555;
-            margin-bottom: 18px;
-            line-height: 1.6;
-        }
-        .modal-btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin: 6px 0;
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: bold;
-            background: #aed581;
-            color: #33691e;
-            border: 2px solid #558b2f;
-            border-radius: 12px;
-            cursor: pointer;
-        }
-        .modal-btn.secondary {
-            background: #e0e0e0;
-            border-color: #999;
-            color: #555;
-        }
-
-        /* 返回按钮 */
-        #backBtn {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.9);
-            border: 2px solid #8b5e3c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 18px;
-            color: #3a2a1a;
-            z-index: 20;
-        }
-        #backBtn:active { background: #dcedc8; }
-    </style>
+#modalOverlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center;
+    z-index: 999;
+}
+#modalOverlay.active { display: flex; }
+.modal-box {
+    background: #f5f0e8; border-radius: 18px;
+    padding: 22px 26px; text-align: center;
+    border: 3px solid #558b2f;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    max-width: 320px; width: 85%;
+}
+.modal-title { font-size: 20px; font-weight: bold; color: #33691e; margin-bottom: 12px; }
+.modal-text { font-size: 15px; color: #555; margin-bottom: 16px; line-height: 1.6; }
+.modal-btn {
+    display: block; width: 100%; padding: 10px; margin: 6px 0;
+    font-family: inherit; font-size: 15px; font-weight: bold;
+    background: #aed581; color: #33691e;
+    border: 2px solid #558b2f; border-radius: 10px;
+    cursor: pointer;
+}
+.modal-btn:active { transform: scale(0.97); }
+</style>
 </head>
 <body>
 
 <div id="backBtn" onclick="location.href='index.html'">←</div>
 
-<!-- 顶栏 -->
 <div id="topBar">
     <div id="playerBox">
         <div id="avatar"><img src="images/avatar.jpg" alt="头像" onerror="this.style.display='none'"></div>
-        <div id="playerText">
+        <div>
             <div id="playerName">赤脚医生</div>
             <div id="playerPower">医力 <span id="powerText">1.00</span>/100</div>
         </div>
@@ -484,451 +282,333 @@
 </div>
 <div id="coinGain"></div>
 
-<!-- 病人区域 -->
 <div id="patientArea">
-    <div id="queue"></div>
-
-    <div id="currentPatient">
-        <div class="patient-body" id="patientBody">
-            <div class="p-head" data-part="head"><span class="face">😣</span></div>
-            <div class="p-body" data-part="body"></div>
-            <div class="p-wrist" data-part="pulse">脉</div>
-            <div class="p-legs" data-part="limbs"></div>
-        </div>
-    </div>
-
+    <div id="queueInfo">👥 排队：<span id="queueCount">3</span></div>
+    <div id="patientStage"></div>
     <div id="symptomPanel">
         <span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>
     </div>
 </div>
 
-<!-- 方证选项 -->
-<div id="optionsBar">
-    <button class="option-btn" data-idx="0">—</button>
-    <button class="option-btn" data-idx="1">—</button>
-    <button class="option-btn" data-idx="2">—</button>
-</div>
-
-<!-- 底部装饰 -->
-<div id="bottomDeco">
-    <div class="doctor-deco"></div>
-    <div class="gourd-deco">
-        <div class="gourd-string"></div>
+<div id="bottomArea">
+    <div id="optionsBar">
+        <button class="option-btn" data-idx="0">—</button>
+        <button class="option-btn" data-idx="1">—</button>
+        <button class="option-btn" data-idx="2">—</button>
+    </div>
+    <div id="tableArea">
+        <div class="deco-doctor">
+            <img src="images/doctor.png" alt="" onerror="this.parentNode.classList.add('fallback');this.remove();">
+        </div>
+        <div class="deco-gourd">
+            <img src="images/gourd.png" alt="" onerror="this.parentNode.classList.add('fallback');this.remove();">
+        </div>
     </div>
 </div>
 
-<!-- 弹窗 -->
 <div id="modalOverlay">
     <div class="modal-box" id="modalBox"></div>
 </div>
 
 <script>
-// ==================== 方证数据 ====================
-// part: head(头) / body(身) / pulse(脉) / limbs(四肢)
-const FORMULAS = [
-    { name: '桂枝汤', symptoms: {
-        head: ['头痛'], body: ['发热', '汗出', '恶风'],
-        pulse: ['脉浮缓'], limbs: []
-    }},
-    { name: '麻黄汤', symptoms: {
-        head: ['头痛'], body: ['发热', '无汗', '恶风'],
-        pulse: ['脉浮紧'], limbs: ['身疼', '腰痛', '骨节疼痛']
-    }},
-    { name: '葛根汤', symptoms: {
-        head: ['项背强几几'], body: ['发热', '无汗', '恶风'],
-        pulse: ['脉浮'], limbs: []
-    }},
-    { name: '小青龙汤', symptoms: {
-        head: [], body: ['发热', '恶寒', '心下有水气', '咳'],
-        pulse: [], limbs: ['干呕']
-    }},
-    { name: '大青龙汤', symptoms: {
-        head: ['烦躁'], body: ['发热', '恶寒', '身疼痛', '不汗出'],
-        pulse: [], limbs: []
-    }},
-    { name: '小柴胡汤', symptoms: {
-        head: ['心烦'], body: ['往来寒热', '胸胁苦满', '不欲饮食'],
-        pulse: ['脉弦'], limbs: ['喜呕']
-    }},
-    { name: '大柴胡汤', symptoms: {
-        head: [], body: ['往来寒热', '心下痞硬', '呕吐', '下利'],
-        pulse: ['脉弦'], limbs: []
-    }},
-    { name: '白虎汤', symptoms: {
-        head: [], body: ['身大热', '汗大出', '口大渴'],
-        pulse: ['脉洪大'], limbs: []
-    }},
-    { name: '大承气汤', symptoms: {
-        head: ['潮热'], body: ['腹满痛', '大便不通'],
-        pulse: [], limbs: ['手足汗出']
-    }},
-    { name: '小承气汤', symptoms: {
-        head: ['微烦'], body: ['腹大满', '大便硬'],
-        pulse: [], limbs: []
-    }},
-    { name: '调胃承气汤', symptoms: {
-        head: [], body: ['蒸蒸发热', '腹胀满'],
-        pulse: [], limbs: []
-    }},
-    { name: '理中汤', symptoms: {
-        head: [], body: ['腹满', '吐利', '不欲食', '时腹自痛'],
-        pulse: [], limbs: []
-    }},
-    { name: '四逆汤', symptoms: {
-        head: [], body: ['下利清谷'],
-        pulse: ['脉微欲绝'], limbs: ['四肢厥逆']
-    }},
-    { name: '真武汤', symptoms: {
-        head: ['头眩'], body: ['心下悸', '身瞤动', '小便不利'],
-        pulse: [], limbs: []
-    }},
-    { name: '五苓散', symptoms: {
-        head: [], body: ['渴欲饮水', '水入则吐', '小便不利'],
-        pulse: [], limbs: []
-    }},
-    { name: '半夏泻心汤', symptoms: {
-        head: [], body: ['心下痞满', '呕而肠鸣', '下利'],
-        pulse: [], limbs: []
-    }},
-    { name: '栀子豉汤', symptoms: {
-        head: ['虚烦不得眠', '心中懊憹'], body: [],
-        pulse: [], limbs: []
-    }},
-    { name: '茵陈蒿汤', symptoms: {
-        head: [], body: ['身黄如橘子色', '小便不利', '腹微满'],
-        pulse: [], limbs: []
-    }},
-    { name: '当归四逆汤', symptoms: {
-        head: [], body: [],
-        pulse: ['脉细欲绝'], limbs: ['手足厥寒']
-    }},
-    { name: '小建中汤', symptoms: {
-        head: ['心中悸而烦'], body: ['腹中急痛'],
-        pulse: [], limbs: []
-    }},
-];
+(function() {
+    'use strict';
 
-// ==================== 常量 ====================
-const INITIAL_POWER = 1;
-const POWER_PER_CORRECT = 0.01;
-const POWER_UP_PER = 100; // 每答对100次弹窗
-const PATIENT_INTERVAL_BASE = 30 * 1000; // 首期病人间隔（这里先用30秒方便测试，正式改20分钟：20*60*1000）
+    // ============ 数据 ============
+    var FORMULAS = [
+        { name: '桂枝汤', s: { head: ['头痛'], body: ['发热','汗出','恶风'], pulse: ['脉浮缓'], limbs: [] } },
+        { name: '麻黄汤', s: { head: ['头痛'], body: ['发热','无汗','恶风'], pulse: ['脉浮紧'], limbs: ['身疼','腰痛','骨节疼痛'] } },
+        { name: '葛根汤', s: { head: ['项背强几几'], body: ['发热','无汗','恶风'], pulse: ['脉浮'], limbs: [] } },
+        { name: '小青龙汤', s: { head: [], body: ['发热','恶寒','心下有水气','咳'], pulse: [], limbs: ['干呕'] } },
+        { name: '大青龙汤', s: { head: ['烦躁'], body: ['发热','恶寒','身疼痛','不汗出'], pulse: [], limbs: [] } },
+        { name: '小柴胡汤', s: { head: ['心烦'], body: ['往来寒热','胸胁苦满','不欲饮食'], pulse: ['脉弦'], limbs: ['喜呕'] } },
+        { name: '大柴胡汤', s: { head: [], body: ['往来寒热','心下痞硬','呕吐','下利'], pulse: ['脉弦'], limbs: [] } },
+        { name: '白虎汤', s: { head: [], body: ['身大热','汗大出','口大渴'], pulse: ['脉洪大'], limbs: [] } },
+        { name: '大承气汤', s: { head: ['潮热'], body: ['腹满痛','大便不通'], pulse: [], limbs: ['手足汗出'] } },
+        { name: '小承气汤', s: { head: ['微烦'], body: ['腹大满','大便硬'], pulse: [], limbs: [] } },
+        { name: '调胃承气汤', s: { head: [], body: ['蒸蒸发热','腹胀满'], pulse: [], limbs: [] } },
+        { name: '理中汤', s: { head: [], body: ['腹满','吐利','不欲食','时腹自痛'], pulse: [], limbs: [] } },
+        { name: '四逆汤', s: { head: [], body: ['下利清谷'], pulse: ['脉微欲绝'], limbs: ['四肢厥逆'] } },
+        { name: '真武汤', s: { head: ['头眩'], body: ['心下悸','身瞤动','小便不利'], pulse: [], limbs: [] } },
+        { name: '五苓散', s: { head: [], body: ['渴欲饮水','水入则吐','小便不利'], pulse: [], limbs: [] } },
+        { name: '半夏泻心汤', s: { head: [], body: ['心下痞满','呕而肠鸣','下利'], pulse: [], limbs: [] } },
+        { name: '栀子豉汤', s: { head: ['虚烦不得眠','心中懊憹'], body: [], pulse: [], limbs: [] } },
+        { name: '茵陈蒿汤', s: { head: [], body: ['身黄如橘子色','小便不利','腹微满'], pulse: [], limbs: [] } },
+        { name: '当归四逆汤', s: { head: [], body: [], pulse: ['脉细欲绝'], limbs: ['手足厥寒'] } },
+        { name: '小建中汤', s: { head: ['心中悸而烦'], body: ['腹中急痛'], pulse: [], limbs: [] } }
+    ];
 
-// ==================== 数据存储 ====================
-function getCorrectCount() {
-    return parseInt(localStorage.getItem('diagnoseCorrect') || 0);
-}
-function addCorrectCount() {
-    const n = getCorrectCount() + 1;
-    localStorage.setItem('diagnoseCorrect', n);
-    return n;
-}
-function getPower() {
-    return INITIAL_POWER + getCorrectCount() * POWER_PER_CORRECT;
-}
-function getDiagnoseFee() {
-    // 诊费 = 1 + (医力整数部分 - 1) * 2
-    const powerInt = Math.floor(getPower());
-    return 1 + (powerInt - 1) * 2;
-}
-function getCoins() {
-    return parseInt(localStorage.getItem('coins') || 0);
-}
-function addCoins(n) {
-    const t = getCoins() + n;
-    localStorage.setItem('coins', t);
-}
+    var INITIAL_POWER = 1;
+    var POWER_PER_CORRECT = 0.01;
+    var POWER_UP_PER = 100;
 
-// 仓库
-function getWarehouse() {
-    try {
-        return JSON.parse(localStorage.getItem('warehouse')) ||
-            { herbs: {}, seeds: {}, materials: {}, processed: {} };
-    } catch(e) {
-        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    // ============ 数据读写 ============
+    function getCorrectCount() {
+        var v = localStorage.getItem('diagnoseCorrect');
+        return v ? parseInt(v) : 0;
     }
-}
+    function addCorrectCount() {
+        var n = getCorrectCount() + 1;
+        localStorage.setItem('diagnoseCorrect', String(n));
+        return n;
+    }
+    function getPower() {
+        return INITIAL_POWER + getCorrectCount() * POWER_PER_CORRECT;
+    }
+    function getDiagnoseFee() {
+        var p = Math.floor(getPower());
+        return 1 + (p - 1) * 2;
+    }
+    function getCoins() {
+        var v = localStorage.getItem('coins');
+        return v ? parseInt(v) : 0;
+    }
+    function addCoins(n) {
+        var t = getCoins() + n;
+        localStorage.setItem('coins', String(t));
+    }
 
-// ==================== 游戏状态 ====================
-let currentPatient = null;   // {formula, symptoms, checked: {head:false,...}}
-let selectedSymptoms = [];   // 已经查过的部位对应的症状
+    // ============ 元素 ============
+    var patientStage = document.getElementById('patientStage');
+    var symptomPanel = document.getElementById('symptomPanel');
+    var queueCountEl = document.getElementById('queueCount');
+    var optionBtns = document.querySelectorAll('.option-btn');
+    var powerText = document.getElementById('powerText');
+    var coinText = document.getElementById('coinText');
+    var coinGain = document.getElementById('coinGain');
+    var modalOverlay = document.getElementById('modalOverlay');
+    var modalBox = document.getElementById('modalBox');
 
-const symptomPanel = document.getElementById('symptomPanel');
-const patientBody = document.getElementById('patientBody');
-const optionBtns = document.querySelectorAll('.option-btn');
+    var state = null;
+    var queueCount = 3;
+    var waiting = false;
 
-// ==================== 顶部信息渲染 ====================
-function renderTop() {
-    document.getElementById('powerText').textContent = getPower().toFixed(2);
-    document.getElementById('coinText').textContent = getCoins();
-}
-renderTop();
+    // ============ 渲染顶部 ============
+    function renderTop() {
+        powerText.textContent = getPower().toFixed(2);
+        coinText.textContent = getCoins();
+    }
+    renderTop();
 
-// ==================== 生成新病人 ====================
-function spawnPatient() {
-    // 随机选一个方证
-    const formula = FORMULAS[Math.floor(Math.random() * FORMULAS.length)];
+    // ============ 创建病人小人 ============
+    function createPatientFigure() {
+        var fig = document.createElement('div');
+        fig.id = 'patientFigure';
+        fig.innerHTML =
+            '<div class="p-head" data-part="head"><span class="face">😣</span></div>' +
+            '<div class="p-body" data-part="body"></div>' +
+            '<div class="p-wrist" data-part="pulse">脉</div>' +
+            '<div class="p-legs" data-part="limbs"></div>';
+        return fig;
+    }
 
-    // 生成三个选项：正确 + 2个干扰
-    const others = FORMULAS.filter(f => f.name !== formula.name);
-    const shuffled = others.sort(() => Math.random() - 0.5);
-    const options = [formula.name, shuffled[0].name, shuffled[1].name];
-    options.sort(() => Math.random() - 0.5);
+    // ============ 生成病人 ============
+    function spawnPatient() {
+        // 清掉旧的
+        patientStage.innerHTML = '';
 
-    currentPatient = {
-    formula: formula,
-    options: options,
-    checked: { head: false, body: false, pulse: false, limbs: false },
-    attempts: 0
-};
+        var idx = Math.floor(Math.random() * FORMULAS.length);
+        var formula = FORMULAS[idx];
 
-    // 清空症状面板
-    symptomPanel.innerHTML = '<span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>';
+        // 生成干扰项
+        var pool = [];
+        for (var i = 0; i < FORMULAS.length; i++) {
+            if (i !== idx) pool.push(FORMULAS[i].name);
+        }
+        for (var j = pool.length - 1; j > 0; j--) {
+            var k = Math.floor(Math.random() * (j + 1));
+            var t1 = pool[j]; pool[j] = pool[k]; pool[k] = t1;
+        }
+        var options = [formula.name, pool[0], pool[1]];
+        for (var m = options.length - 1; m > 0; m--) {
+            var n = Math.floor(Math.random() * (m + 1));
+            var t2 = options[m]; options[m] = options[n]; options[n] = t2;
+        }
 
-    // 重置病人身上所有部位状态
-    patientBody.querySelectorAll('[data-part]').forEach(el => {
-        el.classList.remove('checked');
-    });
+        state = {
+            formula: formula,
+            checked: { head: false, body: false, pulse: false, limbs: false },
+            attempts: 0
+        };
 
-    // 移除旧气泡
-    patientBody.parentElement.querySelectorAll('.hint').forEach(el => el.remove());
+        // 重置症状面板
+        symptomPanel.innerHTML = '<span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>';
 
-    // ==================== 选择方证（两次机会）====================
-optionBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-        if (this.disabled) return;
-        if (!currentPatient) return;
-        if (currentPatient.attempts >= 2) return;
+        // 重置选项按钮
+        for (var p = 0; p < optionBtns.length; p++) {
+            optionBtns[p].textContent = options[p];
+            optionBtns[p].disabled = false;
+            optionBtns[p].className = 'option-btn';
+        }
 
-        const chosen = this.textContent;
-        const correct = currentPatient.formula.name;
+        // 创建病人并入场动画
+        var fig = createPatientFigure();
+        patientStage.appendChild(fig);
+        fig.classList.add('enter');
+        waiting = false;
+    }
 
-        if (chosen === correct) {
-            // ===== 答对 =====
-            this.classList.add('correct');
-            optionBtns.forEach(b => b.disabled = true);
+    // ============ 点击病人部位（事件委托）============
+    patientStage.addEventListener('click', function(e) {
+        if (!state) return;
 
-            // 计算奖励
-            const fee = getDiagnoseFee();
-            addCoins(fee);
-            renderTop();
+        var el = e.target;
+        while (el && el !== patientStage) {
+            if (el.getAttribute && el.getAttribute('data-part')) break;
+            el = el.parentNode;
+        }
+        if (!el || el === patientStage) return;
 
-            // 医力 +0.01
-            const newCount = addCorrectCount();
-            renderTop();
+        var part = el.getAttribute('data-part');
+        if (state.checked[part]) return;
+        state.checked[part] = true;
+        el.classList.add('checked');
 
-            showCoinGain(fee);
+        var symptoms = state.formula.s[part] || [];
 
-            if (newCount % POWER_UP_PER === 0) {
-                const newPowerInt = Math.floor(getPower());
-                setTimeout(() => {
-                    showModal(
-                        '🎉 恭喜！',
-                        `您的医力提升至 ${newPowerInt}/100<br>诊费已提升至 ${getDiagnoseFee()} 铜币`,
-                        '继续行医',
-                        () => { closeModal(); nextPatient(); }
-                    );
-                }, 700);
-            } else {
-                setTimeout(() => nextPatient(), 900);
-            }
+        // 显示气泡
+        var oldHints = patientStage.querySelectorAll('.hint');
+        for (var i = 0; i < oldHints.length; i++) {
+            if (oldHints[i].getAttribute('data-part') === part) oldHints[i].remove();
+        }
+        var hint = document.createElement('div');
+        hint.className = 'hint ' + part + '-hint';
+        hint.setAttribute('data-part', part);
+        if (symptoms.length === 0) {
+            hint.textContent = '（无异常）';
+            hint.style.color = '#999';
+            hint.style.borderColor = '#ccc';
         } else {
-            // ===== 答错 =====
-            currentPatient.attempts++;
-            this.classList.add('wrong');
-            this.disabled = true;
+            hint.textContent = symptoms.join('、');
+        }
+        patientStage.appendChild(hint);
 
-            if (currentPatient.attempts >= 2) {
-                // 两次都错 → 揭示答案，病人生气
-                optionBtns.forEach(b => {
-                    b.disabled = true;
-                    if (b.textContent === correct) b.classList.add('correct');
-                });
-                setTimeout(() => {
-                    showModal(
-                        '病人生气了！',
-                        `两次都诊断错误，病人生气离开。<br>正确方证是：<b>${correct}</b>`,
-                        '下一位病人',
-                        () => { closeModal(); nextPatient(); }
-                    );
-                }, 700);
-            } else {
-                // 第一次错 → 提示还有一次机会
-                showModal(
-                    '诊断有误',
-                    `您还有 <b>1 次</b> 机会，请再仔细看症状，选择正确的方证。`,
-                    '再试一次',
-                    () => { closeModal(); }
-                );
+        // 加到症状面板
+        if (symptoms.length > 0) {
+            var ph = symptomPanel.querySelector('.placeholder');
+            if (ph) symptomPanel.innerHTML = '';
+            for (var j = 0; j < symptoms.length; j++) {
+                var span = document.createElement('span');
+                span.className = 'sym-item';
+                span.textContent = symptoms[j];
+                symptomPanel.appendChild(span);
             }
         }
     });
-});
 
-// ==================== 点击病人部位 ====================
-patientBody.querySelectorAll('[data-part]').forEach(el => {
-    el.addEventListener('click', function() {
-        if (!currentPatient) return;
-        const part = this.dataset.part;
-        if (currentPatient.checked[part]) return;
-
-        currentPatient.checked[part] = true;
-        this.classList.add('checked');
-
-        // 显示症状气泡
-        const symptoms = currentPatient.formula.symptoms[part] || [];
-        showSymptomHint(part, symptoms);
-    });
-});
-
-function showSymptomHint(part, symptoms) {
-    // 移除该部位之前的气泡
-    patientBody.parentElement.querySelectorAll('.hint').forEach(el => {
-        if (el.dataset.part === part) el.remove();
-    });
-
-    const hint = document.createElement('div');
-    hint.className = `hint ${part}-hint`;
-    hint.dataset.part = part;
-    if (symptoms.length === 0) {
-        hint.textContent = '（无异常）';
-        hint.style.color = '#999';
-        hint.style.borderColor = '#ccc';
-    } else {
-        hint.textContent = symptoms.join('、');
+    // ============ 弹窗 ============
+    function showModal(title, html, btnText, callback) {
+        modalBox.innerHTML =
+            '<div class="modal-title">' + title + '</div>' +
+            '<div class="modal-text">' + html + '</div>' +
+            '<button class="modal-btn" id="modalActionBtn">' + btnText + '</button>';
+        modalOverlay.classList.add('active');
+        document.getElementById('modalActionBtn').onclick = callback;
     }
-    patientBody.parentElement.appendChild(hint);
+    function closeModal() {
+        modalOverlay.classList.remove('active');
+    }
 
-    // 把症状加到面板里
-    if (symptoms.length > 0) {
-        if (symptomPanel.querySelector('.placeholder')) {
-            symptomPanel.innerHTML = '';
-        }
-        symptoms.forEach(s => {
-            const span = document.createElement('span');
-            span.className = 'sym-item';
-            span.textContent = s;
-            symptomPanel.appendChild(span);
+    // ============ 铜币飘字 ============
+    function showCoinGain(n) {
+        coinGain.textContent = '+' + n;
+        coinGain.classList.remove('show');
+        void coinGain.offsetWidth;
+        coinGain.classList.add('show');
+        setTimeout(function() { coinGain.classList.remove('show'); }, 1200);
+    }
+
+    // ============ 病人离场 ============
+    function patientLeave(callback) {
+        var fig = document.getElementById('patientFigure');
+        if (!fig) { callback(); return; }
+        fig.classList.remove('enter');
+        fig.classList.add('exit');
+        setTimeout(callback, 550);
+    }
+
+    // ============ 下一位 ============
+    function nextPatient() {
+        // 减少排队人数
+        queueCount = Math.max(0, queueCount - 1);
+        // 有人走了，后面补一个
+        queueCount += 1;
+        queueCountEl.textContent = queueCount;
+
+        patientLeave(function() {
+            spawnPatient();
         });
     }
-}
 
-// ==================== 选择方证 ====================
-optionBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-        if (this.disabled) return;
-        if (!currentPatient) return;
+    // ============ 选项点击 ============
+    for (var b = 0; b < optionBtns.length; b++) {
+        (function(btn) {
+            btn.addEventListener('click', function() {
+                if (btn.disabled) return;
+                if (!state) return;
+                if (waiting) return;
+                if (state.attempts >= 2) return;
 
-        const chosen = this.textContent;
-        const correct = currentPatient.formula.name;
+                var chosen = btn.textContent;
+                var correct = state.formula.name;
 
-        if (chosen === correct) {
-            this.classList.add('correct');
-            optionBtns.forEach(b => b.disabled = true);
+                if (chosen === correct) {
+                    // 答对
+                    btn.classList.add('correct');
+                    for (var i = 0; i < optionBtns.length; i++) optionBtns[i].disabled = true;
 
-            // 计算奖励
-            const fee = getDiagnoseFee();
-            addCoins(fee);
-            renderTop();
+                    var fee = getDiagnoseFee();
+                    addCoins(fee);
+                    var newCount = addCorrectCount();
+                    renderTop();
+                    showCoinGain(fee);
 
-            // 医力 +0.01
-            const newCount = addCorrectCount();
-            renderTop();
+                    waiting = true;
 
-            // 铜币飘字
-            showCoinGain(fee);
+                    if (newCount % POWER_UP_PER === 0) {
+                        var newPowerInt = Math.floor(getPower());
+                        setTimeout(function() {
+                            showModal('🎉 恭喜！',
+                                '您的医力提升至 ' + newPowerInt + '/100<br>诊费已提升至 ' + getDiagnoseFee() + ' 铜币',
+                                '继续行医',
+                                function() { closeModal(); nextPatient(); });
+                        }, 700);
+                    } else {
+                        setTimeout(function() { nextPatient(); }, 900);
+                    }
+                } else {
+                    // 答错
+                    state.attempts++;
+                    btn.classList.add('wrong');
+                    btn.disabled = true;
 
-            // 判断是否触发医力升级弹窗
-            if (newCount % POWER_UP_PER === 0) {
-                const newPowerInt = Math.floor(getPower());
-                setTimeout(() => {
-                    showModal(
-                        '🎉 恭喜！',
-                        `您的医力提升至 ${newPowerInt}/100<br>诊费已提升至 ${getDiagnoseFee()} 铜币`,
-                        '继续行医',
-                        () => { closeModal(); nextPatient(); }
-                    );
-                }, 700);
-            } else {
-                setTimeout(() => nextPatient(), 900);
-            }
-        } else {
-            this.classList.add('wrong');
-            optionBtns.forEach(b => {
-                b.disabled = true;
-                if (b.textContent === correct) b.classList.add('correct');
+                    if (state.attempts >= 2) {
+                        for (var j = 0; j < optionBtns.length; j++) {
+                            optionBtns[j].disabled = true;
+                            if (optionBtns[j].textContent === correct) optionBtns[j].classList.add('correct');
+                        }
+                        waiting = true;
+                        setTimeout(function() {
+                            showModal('病人生气了！',
+                                '两次都诊断错误，病人生气离开。<br>正确方证是：<b>' + correct + '</b>',
+                                '下一位病人',
+                                function() { closeModal(); nextPatient(); });
+                        }, 700);
+                    } else {
+                        showModal('诊断有误',
+                            '您还有 <b>1 次</b> 机会，请再仔细看症状，选择正确的方证。',
+                            '再试一次',
+                            function() { closeModal(); });
+                    }
+                }
             });
-
-            setTimeout(() => {
-                showModal(
-                    '病人生气了！',
-                    `您诊断错误。<br>正确方证是：<b>${correct}</b>`,
-                    '下一位病人',
-                    () => { closeModal(); nextPatient(); }
-                );
-            }, 700);
-        }
-    });
-});
-
-// ==================== 铜币飘字 ====================
-function showCoinGain(n) {
-    const el = document.getElementById('coinGain');
-    el.textContent = `+${n}`;
-    el.classList.remove('show');
-    void el.offsetWidth;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 1200);
-}
-
-// ==================== 下一位病人 ====================
-function nextPatient() {
-    spawnPatient();
-}
-
-// ==================== 弹窗 ====================
-function showModal(title, html, btnText, callback) {
-    document.getElementById('modalBox').innerHTML = `
-        <div class="modal-title">${title}</div>
-        <div class="modal-text">${html}</div>
-        <button class="modal-btn" id="modalActionBtn">${btnText}</button>
-    `;
-    document.getElementById('modalOverlay').classList.add('active');
-    document.getElementById('modalActionBtn').onclick = callback;
-}
-function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('active');
-}
-
-// ==================== 排队小人 ====================
-function renderQueue() {
-    const q = document.getElementById('queue');
-    q.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-        const f = document.createElement('div');
-        f.className = 'queue-figure';
-        f.style.opacity = 0.4 - i * 0.06;
-        q.appendChild(f);
+        })(optionBtns[b]);
     }
-}
 
-// ==================== 病人到达定时器 ====================
-let patientTimer = null;
-function startPatientTimer() {
-    if (patientTimer) clearInterval(patientTimer);
-    // 当前间隔：医力1 → BASE；医力100 → 30秒
-    const powerInt = Math.floor(getPower());
-    const interval = Math.max(PATIENT_INTERVAL_BASE * (1 - (powerInt - 1) / 100), 30000);
-    patientTimer = setInterval(() => {
-        // 自动来下一个病人（如果当前病人还在，则忽略）
-    }, interval);
-}
-
-// ==================== 初始化 ====================
-renderQueue();
-spawnPatient();
-
-// 长时间没操作时，自动刷新下一个病人？（暂时不做）
+    // ============ 初始化 ============
+    queueCountEl.textContent = queueCount;
+    spawnPatient();
+})();
 </script>
 </body>
 </html>
