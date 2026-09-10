@@ -3,74 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>赤脚医生</title>
+    <title>重生之我是赤脚医生</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
         body {
-            background: #e8f5e9; /* 黄绿色调 */
             font-family: sans-serif;
-            height: 100vh;
+            background: linear-gradient(180deg, #dcedc8 0%, #c5e1a5 50%, #aed581 100%);
+            user-select: none;
+            position: relative;
+        }
+        #title {
+            position: absolute;
+            top: 4%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 22px;
+            font-weight: bold;
+            color: #33691e;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            white-space: nowrap;
+        }
+        .spot {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #f1f8e9;
+            border: 3px solid #558b2f;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            user-select: none;
-        }
-        h1 {
-            font-size: 28px;
-            color: #33691e;
-            margin-bottom: 10px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-        #mainMenu {
-            position: relative;
-            width: 90%;
-            max-width: 360px;
-            height: 500px;
-            background: #cddc39;
-            border-radius: 30px;
-            border: 4px solid #558b2f;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-        .btn {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background: #f0f4c3;
-            border: 3px solid #33691e;
-            border-radius: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #33691e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
             text-decoration: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            transition: all 0.2s;
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-        .btn:active {
-            transform: scale(0.95);
-            background: #dce775;
+        .spot:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        /* 五个按钮的位置 */
-        #btn-collect { top: 20px; left: 20px; }
-        #btn-process { top: 120px; left: 130px; }
-        #btn-diagnose { top: 240px; left: 80px; }
-        #btn-plant { top: 140px; right: 20px; }
-        #btn-dispense { bottom: 20px; left: 130px; }
+        .spot .icon {
+            font-size: 30px;
+            line-height: 1;
+        }
+        .spot .label {
+            font-size: 15px;
+            font-weight: bold;
+            color: #33691e;
+            margin-top: 4px;
+        }
+        /* 五个地点位置 */
+        #spot-collect  { left: 12%; top: 16%; }
+        #spot-process  { left: 42%; top: 30%; }
+        #spot-diagnose { left: 22%; top: 58%; }
+        #spot-plant    { right: 12%; top: 46%; }
+        #spot-dispense { right: 22%; top: 72%; }
     </style>
 </head>
 <body>
-    <h1>🌿 重生之我是赤脚医生</h1>
-    <div id="mainMenu">
-        <a class="btn" id="btn-collect" href="collect.html">采药</a>
-        <a class="btn" id="btn-process" href="process.html">炮制</a>
-        <a class="btn" id="btn-diagnose" href="diagnose.html">行医</a>
-        <a class="btn" id="btn-plant" href="plant.html">种植</a>
-        <a class="btn" id="btn-dispense" href="dispense.html">抓药</a>
-    </div>
+    <div id="title">🌿 重生之我是赤脚医生</div>
+    <a class="spot" id="spot-collect" href="collect.html">
+        <div class="icon">🌲</div>
+        <div class="label">采药</div>
+    </a>
+    <a class="spot" id="spot-process" href="process.html">
+        <div class="icon">⚗️</div>
+        <div class="label">炮制</div>
+    </a>
+    <a class="spot" id="spot-diagnose" href="diagnose.html">
+        <div class="icon">🩺</div>
+        <div class="label">行医</div>
+    </a>
+    <a class="spot" id="spot-plant" href="plant.html">
+        <div class="icon">🌱</div>
+        <div class="label">种植</div>
+    </a>
+    <a class="spot" id="spot-dispense" href="dispense.html">
+        <div class="icon">📦</div>
+        <div class="label">抓药</div>
+    </a>
 </body>
 </html>
