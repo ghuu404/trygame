@@ -303,22 +303,36 @@
     </div>
 
     <script>
-        // ===== 体力系统 =====
+        // ===== 体力系统（与主页面保持一致）=====
         const MAX_STAMINA = 5;
-        const STORAGE_KEY = 'playerStamina';
+        const STAMINA_RECOVER_MS = 10 * 60 * 1000;
 
         function getStamina() {
-            let s = localStorage.getItem(STORAGE_KEY);
-            if (s === null) {
-                localStorage.setItem(STORAGE_KEY, MAX_STAMINA);
+            const now = Date.now();
+            let stamina = parseInt(localStorage.getItem('stamina') || MAX_STAMINA);
+            let lastTime = parseInt(localStorage.getItem('staminaTime') || now);
+
+            if (stamina >= MAX_STAMINA) {
+                localStorage.setItem('staminaTime', now);
+                localStorage.setItem('stamina', MAX_STAMINA);
                 return MAX_STAMINA;
             }
-            return Math.min(parseInt(s), MAX_STAMINA);
-        }
 
+            const elapsed = now - lastTime;
+            if (elapsed >= STAMINA_RECOVER_MS) {
+                const gained = Math.floor(elapsed / STAMINA_RECOVER_MS);
+                stamina = Math.min(MAX_STAMINA, stamina + gained);
+                const remainder = elapsed % STAMINA_RECOVER_MS;
+                localStorage.setItem('staminaTime', (now - remainder).toString());
+            }
+
+            localStorage.setItem('stamina', stamina);
+            return stamina;
+        }
         function setStamina(v) {
             v = Math.max(0, Math.min(v, MAX_STAMINA));
-            localStorage.setItem(STORAGE_KEY, v);
+            localStorage.setItem('stamina', v);
+            localStorage.setItem('staminaTime', Date.now().toString());
         }
 
         // ===== 药材数据 =====
@@ -376,7 +390,7 @@
         const modalContinue = document.getElementById('modalContinue');
         const modalBack = document.getElementById('modalBack');
 
-        // ===== 开始界面 =====
+        // ===== 界面切换 =====
         function showStartScreen() {
             startScreenEl.style.display = 'flex';
             gameScreenEl.classList.remove('active');
@@ -397,7 +411,8 @@
             }
             setStamina(stamina - 1);
             showGameScreen();
-            initLevel();
+            // 等界面渲染完成后再生成卡片，保证位置计算准确
+            setTimeout(() => initLevel(), 50);
         }
 
         // ===== 弹窗 =====
@@ -484,6 +499,7 @@
             updateBlocked();
         }
 
+        // ===== 生成随机重叠位置 =====
         function generatePositions(count) {
             const positions = [];
             const areaWidth = cardAreaEl.clientWidth;
@@ -503,6 +519,7 @@
             return positions;
         }
 
+        // ===== 遮挡判断 =====
         function updateBlocked() {
             allCards.forEach(card => card.el.classList.remove('blocked'));
 
@@ -539,6 +556,7 @@
             return overlapArea > cardArea * 0.3;
         }
 
+        // ===== 点击卡片 =====
         function clickCard(cardEl, herbName) {
             if (slot.length >= SLOT_MAX) {
                 messageEl.textContent = '❌ 卡槽满了！';
@@ -555,6 +573,7 @@
             updateBlocked();
         }
 
+        // ===== 消除检查 =====
         function checkSlotMatch() {
             const counts = {};
             for (let name of slot) {
@@ -592,6 +611,7 @@
             }
         }
 
+        // ===== 胜利 =====
         function checkWin() {
             for (let [name, total] of Object.entries(currentGoal)) {
                 if ((collected[name] || 0) < total) return;
@@ -610,6 +630,7 @@
             }, 500);
         }
 
+        // ===== 渲染卡槽 =====
         function renderSlot() {
             slotEl.innerHTML = '';
             for (let name of slot) {
@@ -629,6 +650,7 @@
             }
         }
 
+        // ===== 奖励 =====
         function updateRewards() {
             if (Object.keys(totalRewards).length === 0) {
                 rewardsEl.textContent = '🏆 已获得：暂无';
@@ -651,7 +673,7 @@
             });
         });
 
-        // ===== 按钮事件 =====
+        // ===== 按钮 =====
         document.getElementById('btnStart').addEventListener('click', tryStart);
         document.getElementById('btnBack').addEventListener('click', () => {
             window.location.href = 'index.html';
@@ -666,7 +688,6 @@
             setStamina(stamina - 1);
             hideModal();
             initLevel();
-            messageEl.textContent = '';
         });
 
         modalBack.addEventListener('click', () => {
