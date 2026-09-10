@@ -6,10 +6,7 @@
     <title>重生之我是赤脚医生</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
+        html, body { height: 100%; overflow: hidden; }
         body {
             font-family: sans-serif;
             user-select: none;
@@ -19,56 +16,92 @@
             background-color: #dcedc8;
         }
 
-        /* ===== 顶部信息栏 ===== */
+        /* ===== 顶部栏 ===== */
         #topBar {
             position: absolute;
-            top: 12px;
-            left: 12px;
-            right: 12px;
+            top: 10px;
+            left: 10px;
+            right: 10px;
             display: flex;
+            justify-content: space-between;
             align-items: flex-start;
-            gap: 10px;
             z-index: 10;
         }
-
-        /* 头像 */
+        #leftPanel {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        #playerRow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         #avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
+            width: 54px;
+            height: 54px;
+            border-radius: 8px;
             border: 3px solid #558b2f;
             background: #f1f8e9;
             overflow: hidden;
             flex-shrink: 0;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
-        #avatar img {
+        #avatar img { width: 100%; height: 100%; object-fit: cover; }
+        #playerDetails { display: flex; flex-direction: column; }
+        #playerName {
+            font-size: 14px;
+            font-weight: bold;
+            color: #33691e;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.9);
+        }
+        #playerPower {
+            font-size: 11px;
+            color: #555;
+            margin-top: 2px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.8);
+            padding: 1px 6px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+        #subButtons {
+            display: flex;
+            gap: 4px;
+            margin-left: 2px;
+        }
+        .sub-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #558b2f;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .sub-btn:active { background: #aed581; transform: scale(0.93); }
+        .sub-btn img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 8px;
         }
-
-        /* 名字和医力 */
-        #playerInfo {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            flex-grow: 1;
-        }
-        #playerName {
-            font-size: 16px;
-            font-weight: bold;
+        .sub-btn .text {
+            font-size: 9px;
             color: #33691e;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            font-weight: bold;
+            position: absolute;
+            bottom: 2px;
+            text-shadow: 0 0 3px #fff, 0 0 3px #fff;
         }
-        #playerPower {
-            font-size: 13px;
-            color: #555;
-            margin-top: 2px;
-        }
-
-        /* 铜币和体力 */
-        #resources {
+        #rightPanel {
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -76,51 +109,25 @@
         }
         .resource {
             font-size: 13px;
-            background: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.88);
             padding: 3px 10px;
             border-radius: 12px;
-            border: 1px solid #a5d6a7;
+            border: 2px solid #a5d6a7;
             font-weight: bold;
             white-space: nowrap;
-        }
-
-        /* 头像下方三个小按钮 */
-        #subButtons {
-            position: absolute;
-            top: 82px;
-            left: 12px;
-            display: flex;
-            gap: 6px;
-            z-index: 10;
-        }
-        .sub-btn {
-            padding: 5px 12px;
-            font-size: 13px;
-            font-weight: bold;
-            background: rgba(255,255,255,0.9);
-            border: 2px solid #558b2f;
-            border-radius: 14px;
             color: #33691e;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .sub-btn:active {
-            background: #aed581;
-            transform: scale(0.95);
         }
 
-        /* ===== 中间散布地点 ===== */
+        /* ===== 五个地点 ===== */
         .spot {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 84px;
+            height: 84px;
             border-radius: 50%;
             background: rgba(241, 248, 233, 0.9);
             border: 3px solid #558b2f;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -128,9 +135,7 @@
             transition: transform 0.15s;
             overflow: hidden;
         }
-        .spot:active {
-            transform: scale(0.92);
-        }
+        .spot:active { transform: scale(0.92); }
         .spot img {
             position: absolute;
             width: 100%;
@@ -144,17 +149,20 @@
             font-size: 13px;
             font-weight: bold;
             color: #fff;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
-            background: rgba(51, 105, 30, 0.75);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+            background: rgba(51, 105, 30, 0.78);
             padding: 1px 8px;
             border-radius: 8px;
+            bottom: -28px;
         }
-        /* 五个地点散布 - 不规整 */
-        #spot-collect  { left: 8%;  top: 18%; }        /* 采药：左偏上 */
-        #spot-plant    { right: 6%; top: 22%; }        /* 种植：右偏上 */
-        #spot-diagnose { left: 42%; top: 45%; }        /* 行医：中间偏左 */
-        #spot-process  { left: 12%; bottom: 22%; }     /* 炮制：左下 */
-        #spot-dispense { right: 14%; bottom: 18%; }    /* 抓药：右下 */
+
+        /* 原布局：四角 + 中间行医，整体收拢一点点 */
+        /* 收拢 + 散乱：上下两行不对齐 */
+#spot-collect  { left: 16%; top: 21%; }        /* 采药：左上偏里 */
+#spot-plant    { right: 19%; top: 17%; }       /* 种植：右上，比采药高一点 */
+#spot-diagnose { left: 50%; top: 48%; transform: translate(-50%, -50%); } /* 行医：正中间 */
+#spot-process  { left: 19%; bottom: 20%; }     /* 炮制：左下，比抓药高一点 */
+#spot-dispense { right: 16%; bottom: 16%; }    /* 抓药：右下偏里 */
 
         /* ===== 底部导航栏 ===== */
         #bottomBar {
@@ -162,12 +170,12 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 70px;
-            background: rgba(51, 105, 30, 0.9);
+            height: 66px;
+            background: rgba(51, 105, 30, 0.92);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.25);
             z-index: 10;
         }
         .nav-btn {
@@ -180,11 +188,9 @@
             transition: transform 0.15s;
             flex: 1;
         }
-        .nav-btn:active {
-            transform: scale(0.9);
-        }
+        .nav-btn:active { transform: scale(0.9); }
         .nav-btn .nav-icon {
-            font-size: 22px;
+            font-size: 20px;
             line-height: 1;
         }
         .nav-btn .nav-label {
@@ -192,88 +198,395 @@
             margin-top: 3px;
             font-weight: bold;
         }
+
+        /* ===== 弹窗 ===== */
+        #modalOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        #modalOverlay.active { display: flex; }
+        .modal-box {
+            background: #f5f0e8;
+            border-radius: 20px;
+            padding: 22px 24px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            width: 88%;
+            max-width: 350px;
+            border: 3px solid #558b2f;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #33691e;
+            margin-bottom: 12px;
+        }
+        .modal-btn {
+            display: block;
+            width: 100%;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 10px;
+            margin: 6px 0;
+            border: 2px solid #558b2f;
+            border-radius: 12px;
+            background: #aed581;
+            color: #33691e;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .modal-btn:active { transform: scale(0.96); }
+        .modal-btn.secondary {
+            background: #e0e0e0;
+            border-color: #999;
+            color: #555;
+        }
+        .sign-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+        .sign-day {
+            background: #fff;
+            border: 2px solid #c5e1a5;
+            border-radius: 8px;
+            padding: 6px 3px;
+            font-size: 10px;
+            text-align: center;
+            min-height: 58px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #33691e;
+            line-height: 1.3;
+        }
+        .sign-day.active {
+            border-color: #558b2f;
+            background: #dcedc8;
+            box-shadow: 0 0 0 2px #aed581;
+        }
+        .sign-day.claimed {
+            background: #c8e6c9;
+            opacity: 0.65;
+        }
+        .sign-day .day-label {
+            font-weight: bold;
+            font-size: 10px;
+            color: #888;
+        }
+        .sign-day .reward {
+            font-weight: bold;
+            font-size: 10px;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- 顶部信息栏 -->
-    <div id="topBar">
-        <div id="avatar">
-            <img src="images/avatar.jpg" alt="头像">
+<div id="topBar">
+    <div id="leftPanel">
+        <div id="playerRow">
+            <div id="avatar"><img src="images/avatar.jpg" alt="头像" onerror="this.style.display='none'"></div>
+            <div id="playerDetails">
+                <div id="playerName">赤脚医生</div>
+                <div id="playerPower">医力：1 / 100</div>
+            </div>
         </div>
-        <div id="playerInfo">
-            <div id="playerName">赤脚医生</div>
-            <div id="playerPower">医力：0 / 100</div>
-        </div>
-        <div id="resources">
-            <div class="resource">💰 铜币：0</div>
-            <div class="resource" id="staminaText">⚡ 体力：5 / 5</div>
+        <div id="subButtons">
+            <div class="sub-btn" id="btnSign">
+                <img src="images/btn-sign.png" alt="签到" onerror="this.style.display='none';this.parentNode.innerHTML='📅<span class=\'text\'>签到</span>'">
+                <span class="text">签到</span>
+            </div>
+            <div class="sub-btn" id="btnMedBook">
+                <img src="images/btn-medbook.png" alt="医书" onerror="this.style.display='none';this.parentNode.innerHTML='📖<span class=\'text\'>医书</span>'">
+                <span class="text">医书</span>
+            </div>
+            <div class="sub-btn" id="btnHerbBook">
+                <img src="images/btn-herbbook.png" alt="药书" onerror="this.style.display='none';this.parentNode.innerHTML='📕<span class=\'text\'>药书</span>'">
+                <span class="text">药书</span>
+            </div>
         </div>
     </div>
-
-    <!-- 头像下方三个小按钮 -->
-    <div id="subButtons">
-        <a class="sub-btn" href="daily.html">每日签到</a>
-        <a class="sub-btn" href="book-medical.html">医书</a>
-        <a class="sub-btn" href="book-herbal.html">药书</a>
+    <div id="rightPanel">
+        <div class="resource">💰 <span id="coinText">0</span></div>
+        <div class="resource">⚡ <span id="staminaText">5/5</span></div>
     </div>
+</div>
 
-    <!-- 五个散布地点 -->
-    <a class="spot" id="spot-collect" href="collect.html">
-        <img src="images/spot-collect.jpg" alt="采药">
-        <div class="label">采药</div>
-    </a>
-    <a class="spot" id="spot-plant" href="plant.html">
-        <img src="images/spot-plant.jpg" alt="种植">
-        <div class="label">种植</div>
-    </a>
-    <a class="spot" id="spot-diagnose" href="diagnose.html">
-        <img src="images/spot-diagnose.jpg" alt="行医">
-        <div class="label">行医</div>
-    </a>
-    <a class="spot" id="spot-process" href="process.html">
-        <img src="images/spot-process.jpg" alt="炮制">
-        <div class="label">炮制</div>
-    </a>
-    <a class="spot" id="spot-dispense" href="dispense.html">
-        <img src="images/spot-dispense.jpg" alt="抓药">
-        <div class="label">抓药</div>
-    </a>
+<a class="spot" id="spot-collect" href="collect.html">
+    <img src="images/spot-collect.jpg" alt="采药" onerror="this.style.display='none'">
+    <div class="label">采药</div>
+</a>
+<a class="spot" id="spot-plant" href="plant.html">
+    <img src="images/spot-plant.jpg" alt="种植" onerror="this.style.display='none'">
+    <div class="label">种植</div>
+</a>
+<a class="spot" id="spot-diagnose" href="diagnose.html">
+    <img src="images/spot-diagnose.jpg" alt="行医" onerror="this.style.display='none'">
+    <div class="label">行医</div>
+</a>
+<a class="spot" id="spot-process" href="process.html">
+    <img src="images/spot-process.jpg" alt="炮制" onerror="this.style.display='none'">
+    <div class="label">炮制</div>
+</a>
+<a class="spot" id="spot-dispense" href="dispense.html">
+    <img src="images/spot-dispense.jpg" alt="抓药" onerror="this.style.display='none'">
+    <div class="label">抓药</div>
+</a>
 
-    <!-- 底部导航栏 -->
-    <div id="bottomBar">
-        <a class="nav-btn" href="collect.html">
-            <span class="nav-icon">🌲</span>
-            <span class="nav-label">采药</span>
-        </a>
-        <a class="nav-btn" href="plant.html">
-            <span class="nav-icon">🌱</span>
-            <span class="nav-label">种植</span>
-        </a>
-        <a class="nav-btn" href="process.html">
-            <span class="nav-icon">⚗️</span>
-            <span class="nav-label">炮制</span>
-        </a>
-        <a class="nav-btn" href="diagnose.html">
-            <span class="nav-icon">🩺</span>
-            <span class="nav-label">行医</span>
-        </a>
-        <a class="nav-btn" href="dispense.html">
-            <span class="nav-icon">📦</span>
-            <span class="nav-label">抓药</span>
-        </a>
-    </div>
+<!-- 底部导航栏 -->
+<div id="bottomBar">
+    <a class="nav-btn" href="collect.html">
+        <span class="nav-icon">🌲</span>
+        <span class="nav-label">采药</span>
+    </a>
+    <a class="nav-btn" href="plant.html">
+        <span class="nav-icon">🌱</span>
+        <span class="nav-label">种植</span>
+    </a>
+    <a class="nav-btn" href="process.html">
+        <span class="nav-icon">⚗️</span>
+        <span class="nav-label">炮制</span>
+    </a>
+    <a class="nav-btn" href="diagnose.html">
+        <span class="nav-icon">🩺</span>
+        <span class="nav-label">行医</span>
+    </a>
+    <a class="nav-btn" href="dispense.html">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">抓药</span>
+    </a>
+</div>
+
+<div id="modalOverlay">
+    <div class="modal-box" id="modalContent"></div>
+</div>
+
 <script>
-    const MAX_STAMINA = 5;
-    function getStamina() {
-        let s = localStorage.getItem('playerStamina');
-        if (s === null) {
-            localStorage.setItem('playerStamina', MAX_STAMINA);
-            return MAX_STAMINA;
-        }
-        return Math.min(parseInt(s), MAX_STAMINA);
+// ===== 常量 =====
+const MAX_STAMINA = 5;
+const STAMINA_RECOVER_MS = 10 * 60 * 1000;
+const MATERIALS = ['黄酒', '大米', '蜂蜜'];
+const SEED_POOL = ['生姜', '栀子', '芍药', '甘草', '白术', '泽泻', '半夏'];
+const MAX_DAYS = 7;
+
+// ===== 日期工具 =====
+function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function yesterdayStr() {
+    const d = new Date(Date.now() - 86400000);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ===== 体力系统 =====
+function getStamina() {
+    const now = Date.now();
+    let stamina = parseInt(localStorage.getItem('stamina') || MAX_STAMINA);
+    let lastTime = parseInt(localStorage.getItem('staminaTime') || now);
+
+    if (stamina >= MAX_STAMINA) {
+        localStorage.setItem('staminaTime', now);
+        localStorage.setItem('stamina', MAX_STAMINA);
+        return MAX_STAMINA;
     }
-    document.getElementById('staminaText').textContent = `⚡ 体力：${getStamina()} / ${MAX_STAMINA}`;
+
+    const elapsed = now - lastTime;
+    if (elapsed >= STAMINA_RECOVER_MS) {
+        const gained = Math.floor(elapsed / STAMINA_RECOVER_MS);
+        stamina = Math.min(MAX_STAMINA, stamina + gained);
+        const remainder = elapsed % STAMINA_RECOVER_MS;
+        localStorage.setItem('staminaTime', (now - remainder).toString());
+    }
+
+    localStorage.setItem('stamina', stamina);
+    return stamina;
+}
+function setStamina(v) {
+    v = Math.max(0, Math.min(v, MAX_STAMINA));
+    localStorage.setItem('stamina', v);
+    localStorage.setItem('staminaTime', Date.now().toString());
+}
+
+// ===== 铜币系统 =====
+function getCoins() { return parseInt(localStorage.getItem('coins') || 0); }
+function addCoins(n) {
+    const total = getCoins() + n;
+    localStorage.setItem('coins', total);
+    return total;
+}
+
+// ===== 签到系统 =====
+function getSignState() {
+    return {
+        lastDate: localStorage.getItem('signLastDate') || '',
+        day: parseInt(localStorage.getItem('signDay') || 0),
+        materialIdx: parseInt(localStorage.getItem('signMaterialIdx') || 0),
+        seedIdx: parseInt(localStorage.getItem('signSeedIdx') || 0),
+    };
+}
+function saveSignState(s) {
+    localStorage.setItem('signLastDate', s.lastDate);
+    localStorage.setItem('signDay', s.day);
+    localStorage.setItem('signMaterialIdx', s.materialIdx);
+    localStorage.setItem('signSeedIdx', s.seedIdx);
+}
+function isSignedToday() { return getSignState().lastDate === todayStr(); }
+function getNextSignDay() {
+    const s = getSignState();
+    if (s.lastDate === todayStr()) return s.day;
+    if (s.lastDate === yesterdayStr()) return (s.day % MAX_DAYS) + 1;
+    return 1;
+}
+function getSignReward(day, state) {
+    const r = { coins: 0, material: null, seed: null, seedCount: 0 };
+    switch (day) {
+        case 1: case 2: case 3: r.coins = 5; break;
+        case 4:
+            r.coins = 5;
+            r.material = MATERIALS[state.materialIdx % MATERIALS.length];
+            break;
+        case 5: case 6: r.coins = 8; break;
+        case 7:
+            r.coins = 10;
+            r.seedCount = 3;
+            r.seed = SEED_POOL[state.seedIdx % SEED_POOL.length];
+            break;
+    }
+    return r;
+}
+function addMaterial(name, count) {
+    const key = `material_${name}`;
+    localStorage.setItem(key, parseInt(localStorage.getItem(key) || 0) + count);
+}
+function addSeed(name, count) {
+    const key = `seed_${name}`;
+    localStorage.setItem(key, parseInt(localStorage.getItem(key) || 0) + count);
+}
+
+// ===== 渲染顶部 =====
+function renderTopBar() {
+    document.getElementById('coinText').textContent = getCoins();
+    document.getElementById('staminaText').textContent = `${getStamina()}/${MAX_STAMINA}`;
+}
+
+// ===== 签到弹窗 =====
+function openSignModal() {
+    const state = getSignState();
+    const signed = isSignedToday();
+    const nextDay = getNextSignDay();
+
+    let html = `<div class="modal-title">📅 每日签到</div>`;
+    html += `<div class="sign-grid">`;
+    for (let d = 1; d <= 7; d++) {
+        const reward = getSignReward(d, state);
+        let txt = `${reward.coins}💰`;
+        if (reward.material) txt += `<br>${reward.material}x1`;
+        if (reward.seed) txt += `<br>${reward.seed}x${reward.seedCount}`;
+
+        let cls = 'sign-day';
+        if (d <= state.day) cls += ' claimed';
+        if (!signed && d === nextDay) cls += ' active';
+
+        html += `<div class="${cls}">
+            <div class="day-label">第${d}天</div>
+            <div class="reward">${txt}</div>
+        </div>`;
+    }
+    html += `</div>`;
+
+    if (signed) {
+        html += `<div style="font-size:13px;color:#666;margin-bottom:10px;">今日已签到，明天再来～</div>`;
+        html += `<button class="modal-btn secondary" onclick="closeModal()">关闭</button>`;
+    } else {
+        const r = getSignReward(nextDay, state);
+        let desc = `${r.coins} 铜币`;
+        if (r.material) desc += ` + ${r.material} x1`;
+        if (r.seed) desc += ` + ${r.seed}种子 x${r.seedCount}`;
+        html += `<div style="font-size:13px;color:#33691e;margin-bottom:10px;">今日签到可得：${desc}</div>`;
+        html += `<button class="modal-btn" onclick="doSign()">立即签到</button>`;
+        html += `<button class="modal-btn secondary" onclick="closeModal()">取消</button>`;
+    }
+
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function doSign() {
+    const state = getSignState();
+    if (state.lastDate === todayStr()) { alert('今日已签到'); return; }
+
+    let newDay;
+    if (state.lastDate === yesterdayStr()) {
+        newDay = (state.day % MAX_DAYS) + 1;
+    } else {
+        newDay = 1;
+    }
+
+    const r = getSignReward(newDay, state);
+
+    if (r.coins) addCoins(r.coins);
+    if (r.material) { addMaterial(r.material, 1); state.materialIdx += 1; }
+    if (r.seed) { addSeed(r.seed, r.seedCount); state.seedIdx += 1; }
+
+    state.lastDate = todayStr();
+    state.day = newDay;
+    saveSignState(state);
+
+    let msg = `签到成功！\n获得 ${r.coins} 铜币`;
+    if (r.material) msg += `\n+ ${r.material} x1`;
+    if (r.seed) msg += `\n+ ${r.seed}种子 x${r.seedCount}`;
+    alert(msg);
+
+    renderTopBar();
+    openSignModal();
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+}
+
+// ===== 医书 / 药书 =====
+function openMedBook() {
+    document.getElementById('modalContent').innerHTML = `
+        <div class="modal-title">📖 医书</div>
+        <div style="font-size:13px;color:#555;text-align:left;line-height:1.7;">
+            <p>医书记录你行医时遇到的症状和对应的方证。</p>
+            <p style="margin-top:8px;color:#999;">目前还没有记录，去行医模块接诊病人吧。</p>
+        </div>
+        <button class="modal-btn secondary" onclick="closeModal()">关闭</button>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+function openHerbBook() {
+    document.getElementById('modalContent').innerHTML = `
+        <div class="modal-title">📕 药书</div>
+        <div style="font-size:13px;color:#555;text-align:left;line-height:1.7;">
+            <p>药书记录你炮制过的药材和使用的炮制方法。</p>
+            <p style="margin-top:8px;color:#999;">目前还没有记录，去炮制模块加工药材吧。</p>
+        </div>
+        <button class="modal-btn secondary" onclick="closeModal()">关闭</button>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+// ===== 初始化 =====
+renderTopBar();
+setInterval(renderTopBar, 60000);
+
+document.getElementById('btnSign').addEventListener('click', openSignModal);
+document.getElementById('btnMedBook').addEventListener('click', openMedBook);
+document.getElementById('btnHerbBook').addEventListener('click', openHerbBook);
 </script>
 </body>
 </html>
