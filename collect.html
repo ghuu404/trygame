@@ -7,40 +7,102 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-    font-family: sans-serif;
-    user-select: none;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: background 0.5s;
-    /* 背景图 */
-    background: url('images/forest-bg.jpg') no-repeat center center;
-    background-size: cover;
-}
-        #gameContainer {
-            width: 100%;
-            max-width: 420px;
-            height: 100%;
+            font-family: sans-serif;
+            user-select: none;
+            overflow: hidden;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px 0;
+            background: #f5f0e8;
+            position: relative;
         }
+
+        /* ===== 开始界面 ===== */
+        #startScreen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: url('images/forest-bg.jpg') no-repeat center center;
+            background-size: cover;
+            z-index: 5;
+        }
+        #startScreen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+        }
+        #startScreen > * { position: relative; z-index: 2; }
+        #startTitle {
+            font-size: 38px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+            margin-bottom: 25px;
+        }
+        #staminaDisplay {
+            font-size: 20px;
+            color: #fff;
+            background: rgba(51, 105, 30, 0.85);
+            padding: 8px 26px;
+            border-radius: 30px;
+            margin-bottom: 50px;
+            font-weight: bold;
+            border: 2px solid #aed581;
+        }
+        .start-btn {
+            font-size: 19px;
+            font-weight: bold;
+            padding: 14px 50px;
+            border: 3px solid #33691e;
+            border-radius: 30px;
+            background: #aed581;
+            color: #33691e;
+            cursor: pointer;
+            margin: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.15s;
+            min-width: 220px;
+        }
+        .start-btn:active { transform: scale(0.95); }
+        #btnBack {
+            background: rgba(224, 224, 224, 0.95);
+            border-color: #666;
+            color: #333;
+            font-size: 16px;
+            padding: 10px 40px;
+        }
+
+        /* ===== 游戏界面 ===== */
+        #gameScreen {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+        }
+        #gameScreen.active { display: flex; }
+
         h1 { font-size: 20px; color: #5a3e2b; margin-bottom: 5px; }
         #areaSelect {
             display: flex;
-            gap: 10px;
-            margin-bottom: 8px;
+            gap: 8px;
+            margin-bottom: 6px;
         }
         .areaBtn {
-            padding: 6px 16px;
-            border-radius: 20px;
+            padding: 5px 14px;
+            border-radius: 16px;
             border: 2px solid #8b5e3c;
             background: #fff;
             cursor: pointer;
             font-weight: bold;
+            font-size: 14px;
             transition: all 0.2s;
         }
         .areaBtn.active {
@@ -50,22 +112,22 @@
         #target {
             font-size: 14px;
             padding: 5px 12px;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.85);
             border-radius: 20px;
             border: 2px solid #d4a574;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         #message {
             font-size: 15px;
             height: 22px;
             font-weight: bold;
-            margin: 3px 0;
+            margin: 2px 0;
         }
         #cardArea {
             position: relative;
             width: 95%;
-            height: 50vh;
-            max-height: 420px;
+            height: 48vh;
+            max-height: 400px;
             margin: 5px auto;
             background: rgba(255,255,255,0.3);
             border-radius: 16px;
@@ -113,9 +175,7 @@
             border-color: #ff8c00;
             z-index: 100;
         }
-        #slotArea {
-            margin-top: 5px;
-        }
+        #slotArea { margin-top: 4px; }
         #slot {
             display: flex;
             justify-content: center;
@@ -149,12 +209,74 @@
         #rewards {
             font-size: 12px;
             color: #5a3e2b;
-            margin-top: 4px;
+            margin-top: 3px;
+        }
+
+        /* ===== 弹窗 ===== */
+        #modalOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        #modalOverlay.active { display: flex; }
+        .modal-box {
+            background: #f5f0e8;
+            border-radius: 20px;
+            padding: 28px 32px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            width: 80%;
+            max-width: 300px;
+            border: 3px solid #558b2f;
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #33691e;
+            margin-bottom: 8px;
+        }
+        .modal-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .modal-btn {
+            display: block;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #558b2f;
+            border-radius: 12px;
+            background: #aed581;
+            color: #33691e;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .modal-btn:active { transform: scale(0.96); }
+        .modal-btn.secondary {
+            background: #e0e0e0;
+            border-color: #999;
+            color: #555;
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
+    <!-- 开始界面 -->
+    <div id="startScreen">
+        <div id="startTitle">🌿 采药</div>
+        <div id="staminaDisplay">⚡ 体力：5 / 5</div>
+        <button class="start-btn" id="btnStart">开始采药（⚡1）</button>
+        <button class="start-btn" id="btnBack">返回主页面</button>
+    </div>
+
+    <!-- 游戏界面 -->
+    <div id="gameScreen">
         <h1>🌿 采药</h1>
         <div id="areaSelect">
             <div class="areaBtn active" data-area="forest">丛林</div>
@@ -170,24 +292,49 @@
         <div id="rewards">🏆 已获得：暂无</div>
     </div>
 
+    <!-- 弹窗 -->
+    <div id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">采药失败</div>
+            <div class="modal-text" id="modalText">继续采药需要消耗 1 点体力</div>
+            <button class="modal-btn" id="modalContinue">继续采药 ⚡1</button>
+            <button class="modal-btn secondary" id="modalBack">返回主页面</button>
+        </div>
+    </div>
+
     <script>
-        // ===== 药材数据（含区域和图片路径）=====
+        // ===== 体力系统 =====
+        const MAX_STAMINA = 5;
+        const STORAGE_KEY = 'playerStamina';
+
+        function getStamina() {
+            let s = localStorage.getItem(STORAGE_KEY);
+            if (s === null) {
+                localStorage.setItem(STORAGE_KEY, MAX_STAMINA);
+                return MAX_STAMINA;
+            }
+            return Math.min(parseInt(s), MAX_STAMINA);
+        }
+
+        function setStamina(v) {
+            v = Math.max(0, Math.min(v, MAX_STAMINA));
+            localStorage.setItem(STORAGE_KEY, v);
+        }
+
+        // ===== 药材数据 =====
         const herbs = [
-            // 丛林/森林
             { name: '桂枝', img: '', area: 'forest' },
             { name: '茯苓', img: '', area: 'forest' },
             { name: '葛根', img: '', area: 'forest' },
             { name: '黄连', img: '', area: 'forest' },
             { name: '人参', img: '', area: 'forest' },
             { name: '细辛', img: '', area: 'forest' },
-            // 山地
             { name: '麻黄', img: '', area: 'mountain' },
             { name: '杏仁', img: '', area: 'mountain' },
             { name: '柴胡', img: '', area: 'mountain' },
             { name: '黄芩', img: '', area: 'mountain' },
             { name: '知母', img: '', area: 'mountain' },
             { name: '附子', img: '', area: 'mountain' },
-            // 田野
             { name: '芍药', img: '', area: 'field' },
             { name: '甘草', img: '', area: 'field' },
             { name: '生姜', img: '', area: 'field' },
@@ -196,52 +343,77 @@
             { name: '茵陈', img: '', area: 'field' },
         ];
 
-        // ===== 背景图（可替换为真实图片路径）=====
         const areaBackgrounds = {
-    forest: 'url("images/forest-bg.jpg")',
-    mountain: 'url("images/mountain-bg.jpg")',
-    field: 'url("images/field-bg.jpg")'
-};
+            forest: 'url("images/forest-bg.jpg")',
+            mountain: 'url("images/mountain-bg.jpg")',
+            field: 'url("images/field-bg.jpg")'
+        };
 
-        // ===== 关卡配置 =====
-        const TARGET_KINDS = 3;           // 每关目标药材种类数
-        const CARDS_PER_TARGET = 9;       // 每种目标需要收集的卡片数
-        const TOTAL_KINDS = 6;            // 场景中出现的药材种类总数
+        const TARGET_KINDS = 3;
+        const CARDS_PER_TARGET = 9;
+        const TOTAL_KINDS = 6;
         const SLOT_MAX = 7;
 
-        let currentArea = 'forest';       // 当前区域
+        let currentArea = 'forest';
         let currentGoal = {};
         let slot = [];
         let collected = {};
         let totalRewards = {};
         let allCards = [];
 
+        const startScreenEl = document.getElementById('startScreen');
+        const gameScreenEl = document.getElementById('gameScreen');
+        const staminaDisplayEl = document.getElementById('staminaDisplay');
         const targetDisplay = document.getElementById('targetDisplay');
         const messageEl = document.getElementById('message');
         const cardAreaEl = document.getElementById('cardArea');
         const slotEl = document.getElementById('slot');
         const rewardsEl = document.getElementById('rewards');
 
-        // ===== 区域选择 =====
-        document.querySelectorAll('.areaBtn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.areaBtn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentArea = this.dataset.area;
-                // 切换背景
-                cardAreaEl.style.background = areaBackgrounds[currentArea];
-                initLevel();
-            });
-        });
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const modalContinue = document.getElementById('modalContinue');
+        const modalBack = document.getElementById('modalBack');
+
+        // ===== 开始界面 =====
+        function showStartScreen() {
+            startScreenEl.style.display = 'flex';
+            gameScreenEl.classList.remove('active');
+            staminaDisplayEl.textContent = `⚡ 体力：${getStamina()} / ${MAX_STAMINA}`;
+        }
+
+        function showGameScreen() {
+            startScreenEl.style.display = 'none';
+            gameScreenEl.classList.add('active');
+        }
+
+        // ===== 尝试开始采药 =====
+        function tryStart() {
+            const stamina = getStamina();
+            if (stamina < 1) {
+                alert('体力不足！等待恢复或明天再来吧～');
+                return;
+            }
+            setStamina(stamina - 1);
+            showGameScreen();
+            initLevel();
+        }
+
+        // ===== 弹窗 =====
+        function showModal(title, text) {
+            modalTitle.textContent = title;
+            modalText.textContent = text;
+            modalOverlay.classList.add('active');
+        }
+
+        function hideModal() {
+            modalOverlay.classList.remove('active');
+        }
 
         // ===== 初始化关卡 =====
         function initLevel() {
-            // 获取当前区域药材池
             const areaHerbs = herbs.filter(h => h.area === currentArea);
-            if (areaHerbs.length < TOTAL_KINDS) {
-                console.warn('当前区域药材不足，使用全部');
-            }
-            // 随机选择目标（3种）
             const shuffled = [...areaHerbs].sort(() => Math.random() - 0.5);
             const targetHerbs = shuffled.slice(0, Math.min(TARGET_KINDS, shuffled.length));
             currentGoal = {};
@@ -252,8 +424,9 @@
             createCards(areaHerbs);
             renderSlot();
             messageEl.textContent = '';
-            // 设置背景
             cardAreaEl.style.background = areaBackgrounds[currentArea];
+            cardAreaEl.style.backgroundSize = 'cover';
+            cardAreaEl.style.backgroundPosition = 'center';
         }
 
         function updateTargetDisplay() {
@@ -265,29 +438,22 @@
             targetDisplay.textContent = parts.join('  ');
         }
 
-        // ===== 创建卡片 =====
         function createCards(areaHerbs) {
             cardAreaEl.innerHTML = '';
             allCards = [];
 
             let cardList = [];
-            // 目标药材卡片
             for (let [name] of Object.entries(currentGoal)) {
                 const herb = areaHerbs.find(h => h.name === name);
                 for (let i = 0; i < CARDS_PER_TARGET; i++) cardList.push(herb);
             }
-            // 干扰药材卡片（从同区域非目标药材中选）
             const nonTargets = areaHerbs.filter(h => !(h.name in currentGoal));
             const shuffledNonTargets = nonTargets.sort(() => Math.random() - 0.5);
-            const disturbanceHerbs = shuffledNonTargets.slice(0, TOTAL_KINDS - TARGET_KINDS);
-            disturbanceHerbs.forEach(herb => {
+            shuffledNonTargets.slice(0, TOTAL_KINDS - TARGET_KINDS).forEach(herb => {
                 for (let i = 0; i < CARDS_PER_TARGET; i++) cardList.push(herb);
             });
 
-            // 打乱
             cardList.sort(() => Math.random() - 0.5);
-
-            // 生成随机位置
             const positions = generatePositions(cardList.length);
 
             cardList.forEach((herb, index) => {
@@ -318,13 +484,12 @@
             updateBlocked();
         }
 
-        // ===== 生成随机位置 =====
         function generatePositions(count) {
             const positions = [];
             const areaWidth = cardAreaEl.clientWidth;
             const areaHeight = cardAreaEl.clientHeight;
             const cardW = Math.min(80, areaWidth * 0.2);
-            const cardH = cardW * 1.2; // 保持比例
+            const cardH = cardW * 1.2;
 
             for (let i = 0; i < count; i++) {
                 const x = Math.random() * (areaWidth - cardW);
@@ -338,7 +503,6 @@
             return positions;
         }
 
-        // ===== 遮挡判断 =====
         function updateBlocked() {
             allCards.forEach(card => card.el.classList.remove('blocked'));
 
@@ -375,7 +539,6 @@
             return overlapArea > cardArea * 0.3;
         }
 
-        // ===== 点击卡片 =====
         function clickCard(cardEl, herbName) {
             if (slot.length >= SLOT_MAX) {
                 messageEl.textContent = '❌ 卡槽满了！';
@@ -392,7 +555,6 @@
             updateBlocked();
         }
 
-        // ===== 消除检查 =====
         function checkSlotMatch() {
             const counts = {};
             for (let name of slot) {
@@ -425,13 +587,11 @@
                 messageEl.textContent = '❌ 卡槽满了，失败！';
                 messageEl.style.color = 'red';
                 setTimeout(() => {
-                    alert('重新开始本关');
-                    initLevel();
-                }, 500);
+                    showModal('采药失败', '卡槽已满，继续采药需要消耗 1 点体力');
+                }, 400);
             }
         }
 
-        // ===== 胜利 =====
         function checkWin() {
             for (let [name, total] of Object.entries(currentGoal)) {
                 if ((collected[name] || 0) < total) return;
@@ -446,12 +606,10 @@
             updateRewards();
 
             setTimeout(() => {
-                alert('过关！奖励已发放');
-                initLevel();
-            }, 800);
+                showModal('采药成功', '已获得奖励，继续采药需要消耗 1 点体力');
+            }, 500);
         }
 
-        // ===== 渲染卡槽 =====
         function renderSlot() {
             slotEl.innerHTML = '';
             for (let name of slot) {
@@ -471,7 +629,6 @@
             }
         }
 
-        // ===== 奖励 =====
         function updateRewards() {
             if (Object.keys(totalRewards).length === 0) {
                 rewardsEl.textContent = '🏆 已获得：暂无';
@@ -484,11 +641,41 @@
             }
         }
 
-        // ===== 初始化背景和游戏 =====
-        cardAreaEl.style.background = areaBackgrounds[currentArea];
-cardAreaEl.style.backgroundSize = 'cover';
-cardAreaEl.style.backgroundPosition = 'center';
-        initLevel();
+        // ===== 区域切换 =====
+        document.querySelectorAll('.areaBtn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.areaBtn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentArea = this.dataset.area;
+                initLevel();
+            });
+        });
+
+        // ===== 按钮事件 =====
+        document.getElementById('btnStart').addEventListener('click', tryStart);
+        document.getElementById('btnBack').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        modalContinue.addEventListener('click', () => {
+            const stamina = getStamina();
+            if (stamina < 1) {
+                alert('体力不足！等待恢复或明天再来吧～');
+                return;
+            }
+            setStamina(stamina - 1);
+            hideModal();
+            initLevel();
+            messageEl.textContent = '';
+        });
+
+        modalBack.addEventListener('click', () => {
+            hideModal();
+            window.location.href = 'index.html';
+        });
+
+        // ===== 初始化 =====
+        showStartScreen();
     </script>
 </body>
 </html>

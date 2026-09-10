@@ -207,7 +207,7 @@
         </div>
         <div id="resources">
             <div class="resource">💰 铜币：0</div>
-            <div class="resource">⚡ 体力：5 / 5</div>
+            <div class="resource" id="staminaText">⚡ 体力：5 / 5</div>
         </div>
     </div>
 
@@ -263,6 +263,17 @@
             <span class="nav-label">抓药</span>
         </a>
     </div>
-
+<script>
+    const MAX_STAMINA = 5;
+    function getStamina() {
+        let s = localStorage.getItem('playerStamina');
+        if (s === null) {
+            localStorage.setItem('playerStamina', MAX_STAMINA);
+            return MAX_STAMINA;
+        }
+        return Math.min(parseInt(s), MAX_STAMINA);
+    }
+    document.getElementById('staminaText').textContent = `⚡ 体力：${getStamina()} / ${MAX_STAMINA}`;
+</script>
 </body>
 </html>
