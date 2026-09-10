@@ -1,649 +1,1146 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>行医</title>
+<title>行医 · 问诊</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box;
-    font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
-html, body { height: 100%; overflow: hidden; }
-body {
-    background: linear-gradient(180deg, #f5f0e8 0%, #ebe1d0 100%);
-    display: flex; flex-direction: column;
-    user-select: none; color: #3a2a1a;
-}
-
-#backBtn {
-    position: absolute; top: 10px; left: 10px;
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    border: 2px solid #8b5e3c;
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    user-select: none; background: #2a1a0a;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  #app {
+    width: 100%; max-width: 440px; height: 100%;
+    display: flex; flex-direction: column; position: relative;
+    background: #f5f0e8;
+  }
+  #topBar {
+    height: 46px; display: flex; align-items: center;
+    padding: 0 12px; gap: 10px;
+    background: linear-gradient(180deg, #6d4c2a 0%, #4a2f1a 100%);
+    color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    flex-shrink: 0; z-index: 5;
+  }
+  .icon-btn {
+    background: rgba(255,255,255,0.15); border: none; color: #fff;
+    font-size: 18px; width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
+  }
+  .icon-btn:active { transform: scale(0.92); }
+  #progress { flex: 1; text-align: center; font-size: 14px; font-weight: bold; letter-spacing: 1px; }
+  #coinTag {
+    font-size: 13px; font-weight: bold;
+    background: rgba(255,215,0,0.2); color: #ffd700;
+    border: 1px solid rgba(255,215,0,0.5);
+    padding: 4px 10px; border-radius: 12px;
+  }
+  #stage {
+    flex: 1; position: relative; overflow: hidden;
+    background: #3a2a1a;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 18px; color: #3a2a1a;
-    z-index: 20;
-}
-
-#topBar {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    padding: 10px 12px 10px 54px;
-    background: rgba(255,255,255,0.85);
-    border-bottom: 2px solid #c5b89a;
-    flex-shrink: 0; position: relative;
-}
-#playerBox { display: flex; align-items: center; gap: 8px; }
-#avatar {
-    width: 44px; height: 44px;
-    border-radius: 6px;
-    border: 2px solid #8b5e3c;
-    background: #f1f8e9;
-    overflow: hidden; flex-shrink: 0;
-}
-#avatar img { width: 100%; height: 100%; object-fit: cover; }
-#playerName { font-size: 14px; font-weight: bold; }
-#playerPower { font-size: 12px; color: #666; margin-top: 2px; }
-#coinBox {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 16px; font-weight: bold; color: #b85c00;
-}
-.coin-icon {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 24px; height: 24px; border-radius: 50%;
-    background: #ffd54f; border: 2px solid #b85c00;
-    font-size: 12px; color: #8b5e3c;
-}
-#coinGain {
-    position: absolute; right: 20px; top: 40px;
-    font-size: 14px; font-weight: bold; color: #558b2f;
-    opacity: 0; transition: all 0.6s; pointer-events: none;
-}
-#coinGain.show { opacity: 1; transform: translateY(-20px); }
-
-/* 病人区域 */
-#patientArea {
-    flex: 1; position: relative;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 10px; overflow: hidden;
-}
-#queueInfo {
-    position: absolute; top: 12px; right: 14px;
-    font-size: 14px; font-weight: bold;
-    background: rgba(255,255,255,0.85);
-    padding: 3px 10px;
-    border-radius: 12px;
-    border: 2px solid #c5b89a;
-    color: #8b5e3c;
-}
-#patientStage {
-    position: relative;
-    width: 200px; height: 220px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-}
-#patientFigure {
-    position: absolute; inset: 0;
-    transition: transform 0.55s ease, opacity 0.55s ease;
-}
-#patientFigure.enter {
-    animation: walkIn 0.55s ease-out forwards;
-}
-#patientFigure.exit {
-    animation: walkOut 0.55s ease-in forwards;
-}
-@keyframes walkIn {
-    from { transform: translateX(220px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-@keyframes walkOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(-220px); opacity: 0; }
-}
-
-.p-head {
-    position: absolute; left: 50%; top: 0;
-    transform: translateX(-50%);
-    width: 64px; height: 64px; border-radius: 50%;
-    background: #f5e6d3; border: 3px solid #3a2a1a;
-    cursor: pointer; transition: all 0.2s;
+  }
+  #sceneWrap {
+    width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
-}
-/* 病人部位上的贴图：铺满整个部位，不拦截点击 */
-.p-head img,
-.p-body img,
-.p-wrist img,
-.p-legs img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-    border-radius: inherit;
-}
+  }
+  #sceneWrap svg { width: 100%; height: 100%; display: block; }
 
-/* 有贴图时隐藏简笔画元素 */
-.p-head:has(img) .face { display: none; }
-.p-wrist:has(img) .pulse-label { display: none; }
-.p-head.checked { background: #d4c4a8; cursor: default; }
-.p-head .face { font-size: 26px; line-height: 1; }
-.p-body {
-    position: absolute; left: 50%; top: 68px;
+  @keyframes shiver {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+  }
+  .shiver { animation: shiver 0.3s infinite; }
+  @keyframes breathe {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-2.5px); }
+  }
+  .breathe { animation: breathe 3s ease-in-out infinite; }
+  .patient-group { transform-origin: 180px 340px; }
+
+  .hotspot { cursor: pointer; pointer-events: all; }
+  .hotspot .hotspot-ring {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulseRing 1.4s infinite ease-out;
+  }
+  @keyframes pulseRing {
+    0% { transform: scale(0.7); opacity: 0.85; }
+    100% { transform: scale(1.55); opacity: 0; }
+  }
+  .hotspot .hotspot-dot { animation: dotBlink 1.4s infinite ease-in-out; }
+  @keyframes dotBlink {
+    0%,100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  #bubble {
+    position: absolute; top: 14px; left: 50%;
+    transform: translateX(-50%) scale(0.9);
+    background: #fffdf5; border: 2px solid #6d4c2a;
+    border-radius: 14px; padding: 10px 16px;
+    font-size: 14px; color: #3a2a1a; font-weight: bold;
+    max-width: 82%; line-height: 1.4;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    opacity: 0; transition: all 0.25s ease;
+    z-index: 3; text-align: center;
+  }
+  #bubble::after {
+    content: ''; position: absolute; bottom: -10px; left: 50%;
     transform: translateX(-50%);
-    width: 84px; height: 92px;
-    border-radius: 40px 40px 20px 20px;
-    background: #a0785a; border: 3px solid #3a2a1a;
-    cursor: pointer; transition: all 0.2s;
-}
-.p-body.checked { background: #806040; cursor: default; }
-.p-wrist {
-    position: absolute; right: 10px; top: 105px;
-    width: 34px; height: 34px; border-radius: 50%;
-    background: #f5e6d3; border: 3px solid #3a2a1a;
-    cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: bold;
-}
-.p-wrist.checked { background: #d4c4a8; cursor: default; }
-.p-legs {
-    position: absolute; left: 50%; top: 164px;
-    transform: translateX(-50%);
-    width: 66px; height: 56px;
-    border-radius: 0 0 30px 30px;
-    background: #6b4a30; border: 3px solid #3a2a1a;
-    cursor: pointer; transition: all 0.2s;
-}
-.p-legs.checked { background: #503620; cursor: default; }
+    border: 8px solid transparent;
+    border-top-color: #6d4c2a;
+  }
+  #bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
 
-.hint {
-    position: absolute; background: #fff;
-    border: 2px solid #558b2f; border-radius: 10px;
-    padding: 3px 8px; font-size: 12px; font-weight: bold;
-    color: #33691e; box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-    white-space: nowrap; animation: floatUp 0.4s ease-out; z-index: 5;
-}
-.hint.pulse-hint { right: -90px; top: 108px; }
-.hint.head-hint { left: -75px; top: 12px; }
-.hint.body-hint { left: -75px; top: 88px; }
-.hint.limbs-hint { left: -60px; top: 176px; }
-@keyframes floatUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+  #casePanel {
+    background: #fffaf0; border-top: 3px solid #6d4c2a;
+    padding: 8px 14px; min-height: 62px; max-height: 96px;
+    overflow-y: auto; font-size: 12px; color: #5a4a30;
+    flex-shrink: 0;
+  }
+  .case-title { font-size: 12px; font-weight: bold; color: #6d4c2a; margin-bottom: 4px; }
+  #caseContent { line-height: 1.6; }
+  #caseContent .sym { color: #b34100; font-weight: bold; }
+  #caseContent .pulse { color: #1565c0; font-weight: bold; }
 
-#symptomPanel {
-    width: 90%; max-width: 380px;
-    background: rgba(255,255,255,0.95);
-    border: 2px solid #c5b89a; border-radius: 12px;
-    padding: 8px 12px; min-height: 46px; max-height: 90px;
-    overflow-y: auto; font-size: 14px; line-height: 1.8;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-top: 8px;
-}
-#symptomPanel .placeholder { color: #999; font-style: italic; font-size: 13px; }
-#symptomPanel .sym-item {
-    display: inline-block; background: #fff3e0;
-    border: 1px solid #d4a574; border-radius: 6px;
-    padding: 1px 8px; margin: 2px 3px 2px 0;
-    font-weight: bold; color: #8b5e3c; font-size: 13px;
-}
+  #actionArea {
+    padding: 10px 14px 16px; background: #f0e6d0;
+    border-top: 2px solid #d4c4a8; flex-shrink: 0;
+    min-height: 76px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .action-tip {
+    font-size: 13px; color: #6b5a3a; text-align: center;
+    font-weight: bold; line-height: 1.4;
+  }
+  .action-btn {
+    display: block; width: 100%; font-size: 15px; font-weight: bold;
+    padding: 11px; border: 2px solid #6d4c2a; border-radius: 12px;
+    background: linear-gradient(180deg, #d4a574 0%, #b8845a 100%);
+    color: #3a2a1a; cursor: pointer; transition: all 0.15s;
+    box-shadow: 0 3px 0 #6d4c2a;
+  }
+  .action-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #6d4c2a; }
+  .option-btn {
+    display: block; width: 100%; text-align: left;
+    font-size: 15px; font-weight: bold;
+    padding: 12px 16px; margin-bottom: 6px;
+    border: 2px solid #8b7355; border-radius: 12px;
+    background: #fffdf5; color: #4a3a20; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .option-btn:active { transform: scale(0.98); background: #f0e6d0; }
+  .option-btn.correct { background: #c5e1a5; border-color: #33691e; color: #1a3a00; }
+  .option-btn.wrong { background: #ffcdd2; border-color: #c62828; color: #7a1010; }
+  .option-btn:disabled { cursor: default; }
 
-#bottomArea { flex-shrink: 0; }
-#optionsBar {
-    display: flex; gap: 8px; padding: 10px 12px;
-    background: #fdf7ec;
-    border-top: 2px solid #d4c4a8;
-    border-bottom: 2px solid #d4c4a8;
-}
-.option-btn {
-    flex: 1; padding: 12px 6px;
-    background: #fff8e1;
-    border: 3px solid #8b5e3c; border-radius: 10px;
-    font-size: 17px; font-weight: bold; color: #3a2a1a;
-    cursor: pointer; transition: all 0.15s;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
-    font-family: inherit;
-}
-.option-btn:active { transform: scale(0.96); background: #dcedc8; }
-.option-btn.correct { background: #c8e6c9; border-color: #2e7d32; color: #2e7d32; }
-.option-btn.wrong { background: #ffcdd2; border-color: #c62828; color: #c62828; }
-.option-btn:disabled { cursor: default; opacity: 0.85; }
-
-#tableArea {
-    height: 80px;
-    background: linear-gradient(180deg, #f5ede1 0%, #e8d9c2 60%, #d4b896 100%);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 30px; position: relative;
-    box-shadow: inset 0 4px 10px rgba(0,0,0,0.08);
-}
-#tableArea::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 4px;
-    background: #8b5e3c;
-}
-.deco-doctor {
-    width: 60px; height: 70px;
-    position: relative;
-    display: flex; align-items: flex-end; justify-content: center;
-}
-.deco-doctor img { width: 100%; height: 100%; object-fit: contain; }
-.deco-doctor.fallback::before {
-    content: ''; position: absolute;
-    width: 30px; height: 30px; border-radius: 50%;
-    background: #f5e6d3; border: 2px solid #3a2a1a;
-    top: 0; left: 50%; transform: translateX(-50%);
-}
-.deco-doctor.fallback::after {
-    content: ''; position: absolute;
-    width: 46px; height: 34px;
-    border-radius: 24px 24px 0 0;
-    background: #d4a574; border: 2px solid #3a2a1a;
-    bottom: 0; left: 50%; transform: translateX(-50%);
-}
-.deco-gourd {
-    width: 50px; height: 70px;
-    position: relative;
-    display: flex; align-items: flex-end; justify-content: center;
-}
-.deco-gourd img { width: 100%; height: 100%; object-fit: contain; }
-.deco-gourd.fallback::before { content: '🫙'; font-size: 46px; line-height: 1; }
-.deco-gourd.fallback::after {
-    content: ''; position: absolute;
-    width: 2px; height: 14px; background: #3a2a1a;
-    top: -8px; left: 50%;
-}
-
-#modalOverlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6);
+  #modalOverlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.65);
     display: none; align-items: center; justify-content: center;
-    z-index: 999;
-}
-#modalOverlay.active { display: flex; }
-.modal-box {
-    background: #f5f0e8; border-radius: 18px;
-    padding: 22px 26px; text-align: center;
-    border: 3px solid #558b2f;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    max-width: 320px; width: 85%;
-}
-.modal-title { font-size: 20px; font-weight: bold; color: #33691e; margin-bottom: 12px; }
-.modal-text { font-size: 15px; color: #555; margin-bottom: 16px; line-height: 1.6; }
-.modal-btn {
-    display: block; width: 100%; padding: 10px; margin: 6px 0;
-    font-family: inherit; font-size: 15px; font-weight: bold;
-    background: #aed581; color: #33691e;
-    border: 2px solid #558b2f; border-radius: 10px;
-    cursor: pointer;
-}
-.modal-btn:active { transform: scale(0.97); }
+    z-index: 999; padding: 20px;
+  }
+  #modalOverlay.active { display: flex; }
+  .modal-box {
+    background: #f5f0e8; border-radius: 20px; padding: 26px 30px;
+    text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    width: 100%; max-width: 320px; border: 3px solid #6d4c2a;
+  }
+  .modal-title { font-size: 22px; font-weight: bold; color: #6d4c2a; margin-bottom: 10px; }
+  .modal-text { font-size: 14px; color: #5a4a30; margin-bottom: 20px; line-height: 1.5; white-space: pre-line; }
+  .modal-btn {
+    display: block; width: 100%; font-size: 16px; font-weight: bold;
+    padding: 12px; margin: 8px 0; border: 2px solid #6d4c2a;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #d4a574 0%, #b8845a 100%);
+    color: #3a2a1a; cursor: pointer;
+    box-shadow: 0 3px 0 #6d4c2a;
+  }
+  .modal-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #6d4c2a; }
 </style>
 </head>
 <body>
 
-<div id="backBtn" onclick="location.href='index.html'">←</div>
+<div id="app">
+  <header id="topBar">
+    <button class="icon-btn" id="btnHome">←</button>
+    <div id="progress">病人 1 / 5</div>
+    <div id="coinTag">💰 0</div>
+  </header>
 
-<div id="topBar">
-    <div id="playerBox">
-        <div id="avatar"><img src="images/avatar.jpg" alt="头像" onerror="this.style.display='none'"></div>
-        <div>
-            <div id="playerName">赤脚医生</div>
-            <div id="playerPower">医力 <span id="powerText">1.00</span>/100</div>
-        </div>
-    </div>
-    <div id="coinBox">
-        <span class="coin-icon">铜</span>
-        <span id="coinText">0</span>
-    </div>
-</div>
-<div id="coinGain"></div>
+  <div id="stage">
+    <div id="sceneWrap"></div>
+    <div id="bubble"></div>
+  </div>
 
-<div id="patientArea">
-    <div id="queueInfo">👥 排队：<span id="queueCount">3</span></div>
-    <div id="patientStage"></div>
-    <div id="symptomPanel">
-        <span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>
-    </div>
-</div>
+  <div id="casePanel">
+    <div class="case-title">📋 病历</div>
+    <div id="caseContent">尚未开始诊治</div>
+  </div>
 
-<div id="bottomArea">
-    <div id="optionsBar">
-        <button class="option-btn" data-idx="0">—</button>
-        <button class="option-btn" data-idx="1">—</button>
-        <button class="option-btn" data-idx="2">—</button>
-    </div>
-    <div id="tableArea">
-        <div class="deco-doctor">
-            <img src="images/doctor.png" alt="" onerror="this.parentNode.classList.add('fallback');this.remove();">
-        </div>
-        <div class="deco-gourd">
-            <img src="images/gourd.png" alt="" onerror="this.parentNode.classList.add('fallback');this.remove();">
-        </div>
-    </div>
+  <div id="actionArea"></div>
 </div>
 
 <div id="modalOverlay">
-    <div class="modal-box" id="modalBox"></div>
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-text" id="modalText"></div>
+    <button class="modal-btn" id="modalBtn"></button>
+  </div>
 </div>
 
+<script src="common.js"></script>
 <script>
-(function() {
-    'use strict';
+/* ================================================================
+ *  行医 · 问诊模块  v3  (完整游戏画面)
+ * ================================================================ */
 
-    // ============ 数据 ============
-    var FORMULAS = [
-        { name: '桂枝汤', s: { head: ['头痛'], body: ['发热','汗出','恶风'], pulse: ['脉浮缓'], limbs: [] } },
-        { name: '麻黄汤', s: { head: ['头痛'], body: ['发热','无汗','恶风'], pulse: ['脉浮紧'], limbs: ['身疼','腰痛','骨节疼痛'] } },
-        { name: '葛根汤', s: { head: ['项背强几几'], body: ['发热','无汗','恶风'], pulse: ['脉浮'], limbs: [] } },
-        { name: '小青龙汤', s: { head: [], body: ['发热','恶寒','心下有水气','咳'], pulse: [], limbs: ['干呕'] } },
-        { name: '大青龙汤', s: { head: ['烦躁'], body: ['发热','恶寒','身疼痛','不汗出'], pulse: [], limbs: [] } },
-        { name: '小柴胡汤', s: { head: ['心烦'], body: ['往来寒热','胸胁苦满','不欲饮食'], pulse: ['脉弦'], limbs: ['喜呕'] } },
-        { name: '大柴胡汤', s: { head: [], body: ['往来寒热','心下痞硬','呕吐','下利'], pulse: ['脉弦'], limbs: [] } },
-        { name: '白虎汤', s: { head: [], body: ['身大热','汗大出','口大渴'], pulse: ['脉洪大'], limbs: [] } },
-        { name: '大承气汤', s: { head: ['潮热'], body: ['腹满痛','大便不通'], pulse: [], limbs: ['手足汗出'] } },
-        { name: '小承气汤', s: { head: ['微烦'], body: ['腹大满','大便硬'], pulse: [], limbs: [] } },
-        { name: '调胃承气汤', s: { head: [], body: ['蒸蒸发热','腹胀满'], pulse: [], limbs: [] } },
-        { name: '理中汤', s: { head: [], body: ['腹满','吐利','不欲食','时腹自痛'], pulse: [], limbs: [] } },
-        { name: '四逆汤', s: { head: [], body: ['下利清谷'], pulse: ['脉微欲绝'], limbs: ['四肢厥逆'] } },
-        { name: '真武汤', s: { head: ['头眩'], body: ['心下悸','身瞤动','小便不利'], pulse: [], limbs: [] } },
-        { name: '五苓散', s: { head: [], body: ['渴欲饮水','水入则吐','小便不利'], pulse: [], limbs: [] } },
-        { name: '半夏泻心汤', s: { head: [], body: ['心下痞满','呕而肠鸣','下利'], pulse: [], limbs: [] } },
-        { name: '栀子豉汤', s: { head: ['虚烦不得眠','心中懊憹'], body: [], pulse: [], limbs: [] } },
-        { name: '茵陈蒿汤', s: { head: [], body: ['身黄如橘子色','小便不利','腹微满'], pulse: [], limbs: [] } },
-        { name: '当归四逆汤', s: { head: [], body: [], pulse: ['脉细欲绝'], limbs: ['手足厥寒'] } },
-        { name: '小建中汤', s: { head: ['心中悸而烦'], body: ['腹中急痛'], pulse: [], limbs: [] } }
-    ];
+/* ---------- 音效 ---------- */
+let audioCtx = null;
+function beep(freq, dur = 0.12, type = 'sine', vol = 0.12) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+const sfx = {
+  wrong:   () => { beep(180, 0.14, 'square', 0.1); setTimeout(() => beep(140, 0.2, 'square', 0.1), 110); },
+  correct: () => { beep(660, 0.1); setTimeout(() => beep(880, 0.14), 90); },
+  click:   () => beep(520, 0.06, 'sine', 0.08),
+  win:     () => { beep(523,0.1); setTimeout(()=>beep(659,0.1),100); setTimeout(()=>beep(784,0.2),200); },
+  lose:    () => { beep(300,0.2,'sawtooth',0.08); setTimeout(()=>beep(200,0.3,'sawtooth',0.08),180); }
+};
 
-    var INITIAL_POWER = 1;
-    var POWER_PER_CORRECT = 0.01;
-    var POWER_UP_PER = 100;
+/* ================================================================
+ *  场景布局常量（viewBox: 0 0 360 500）
+ *  - 上半：药柜墙
+ *  - 中：患者
+ *  - 下：诊桌（y=380 起）
+ * ================================================================ */
 
-    // ============ 数据读写 ============
-    function getCorrectCount() {
-        var v = localStorage.getItem('diagnoseCorrect');
-        return v ? parseInt(v) : 0;
-    }
-    function addCorrectCount() {
-        var n = getCorrectCount() + 1;
-        localStorage.setItem('diagnoseCorrect', String(n));
-        return n;
-    }
-    function getPower() {
-        return INITIAL_POWER + getCorrectCount() * POWER_PER_CORRECT;
-    }
-    function getDiagnoseFee() {
-        var p = Math.floor(getPower());
-        return 1 + (p - 1) * 2;
-    }
-    function getCoins() {
-        var v = localStorage.getItem('coins');
-        return v ? parseInt(v) : 0;
-    }
-    function addCoins(n) {
-        var t = getCoins() + n;
-        localStorage.setItem('coins', String(t));
-    }
-
-    // ============ 元素 ============
-    var patientStage = document.getElementById('patientStage');
-    var symptomPanel = document.getElementById('symptomPanel');
-    var queueCountEl = document.getElementById('queueCount');
-    var optionBtns = document.querySelectorAll('.option-btn');
-    var powerText = document.getElementById('powerText');
-    var coinText = document.getElementById('coinText');
-    var coinGain = document.getElementById('coinGain');
-    var modalOverlay = document.getElementById('modalOverlay');
-    var modalBox = document.getElementById('modalBox');
-
-    var state = null;
-    var queueCount = 3;
-    var waiting = false;
-
-    // ============ 渲染顶部 ============
-    function renderTop() {
-        powerText.textContent = getPower().toFixed(2);
-        coinText.textContent = getCoins();
-    }
-    renderTop();
-
-    // ============ 创建病人小人 ============
-function createPatientFigure() {
-    var fig = document.createElement('div');
-    fig.id = 'patientFigure';
-    fig.innerHTML =
-        '<div class="p-head" data-part="head">' +
-            '<span class="face">😣</span>' +
-            '<img src="images/patient-head.png" alt="" onerror="this.remove()">' +
-        '</div>' +
-        '<div class="p-body" data-part="body">' +
-            '<img src="images/patient-body.png" alt="" onerror="this.remove()">' +
-        '</div>' +
-        '<div class="p-wrist" data-part="pulse">' +
-            '<span class="pulse-label">脉</span>' +
-            '<img src="images/patient-pulse.png" alt="" onerror="this.remove()">' +
-        '</div>' +
-        '<div class="p-legs" data-part="limbs">' +
-            '<img src="images/patient-legs.png" alt="" onerror="this.remove()">' +
-        '</div>';
-    return fig;
+/* ----- 匾额 ----- */
+function buildPlaqueSVG() {
+  return `
+    <rect x="110" y="14" width="140" height="42" rx="4" fill="#3a1a08" stroke="#1a0a00" stroke-width="2"/>
+    <rect x="114" y="18" width="132" height="34" rx="3" fill="#5a2a10"/>
+    <rect x="114" y="18" width="132" height="34" rx="3" fill="none" stroke="#c9a05a" stroke-width="1.5"/>
+    <text x="180" y="42" text-anchor="middle" font-size="20" font-family="KaiTi, STKaiti, serif" fill="#e8c880" letter-spacing="2">妙手回春</text>
+  `;
 }
 
-    // ============ 生成病人 ============
-    function spawnPatient() {
-        // 清掉旧的
-        patientStage.innerHTML = '';
+/* ----- 药柜 ----- */
+function buildCabinetSVG() {
+  let s = '';
+  const cols = 6, rows = 4;
+  const x0 = 12, y0 = 68, w = 56, h = 68;
+  const totalW = cols * w, totalH = rows * h;
+  // 柜体
+  s += `<rect x="${x0-6}" y="${y0-6}" width="${totalW+12}" height="${totalH+12}" rx="6" fill="#3a1e0a" stroke="#1a0a00" stroke-width="2"/>`;
+  // 顶部横梁
+  s += `<rect x="${x0-6}" y="${y0-10}" width="${totalW+12}" height="8" rx="2" fill="#5a2a10"/>`;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = x0 + c*w, y = y0 + r*h;
+      // 抽屉
+      s += `<rect x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="2" fill="#6a3a18" stroke="#2a1206" stroke-width="1.2"/>`;
+      // 内嵌面板
+      s += `<rect x="${x+7}" y="${y+10}" width="${w-14}" height="${h-20}" rx="2" fill="#8a4a22"/>`;
+      s += `<rect x="${x+7}" y="${y+10}" width="${w-14}" height="${h-20}" rx="2" fill="none" stroke="#2a1206" stroke-width="0.8"/>`;
+      // 铜环
+      s += `<circle cx="${x+w/2}" cy="${y+h/2+3}" r="3.8" fill="#c9a05a" stroke="#3a1a08" stroke-width="1"/>`;
+      s += `<circle cx="${x+w/2}" cy="${y+h/2+3}" r="1.4" fill="#5a3a10"/>`;
+    }
+  }
+  return s;
+}
 
-        var idx = Math.floor(Math.random() * FORMULAS.length);
-        var formula = FORMULAS[idx];
+/* ----- 艾草挂饰 ----- */
+function buildHangingHerbSVG() {
+  return `
+    <g opacity="0.85">
+      <path d="M14 62 Q18 90 20 118" stroke="#4a6a2a" stroke-width="2" fill="none"/>
+      <ellipse cx="18" cy="80" rx="6" ry="12" fill="#6a8a3a" transform="rotate(-15 18 80)"/>
+      <ellipse cx="22" cy="98" rx="5" ry="10" fill="#5a7a2a" transform="rotate(10 22 98)"/>
+      <ellipse cx="18" cy="112" rx="5" ry="9" fill="#6a8a3a" transform="rotate(-10 18 112)"/>
+    </g>
+    <g opacity="0.85">
+      <path d="M346 62 Q342 90 340 118" stroke="#4a6a2a" stroke-width="2" fill="none"/>
+      <ellipse cx="342" cy="80" rx="6" ry="12" fill="#6a8a3a" transform="rotate(15 342 80)"/>
+      <ellipse cx="338" cy="98" rx="5" ry="10" fill="#5a7a2a" transform="rotate(-10 338 98)"/>
+      <ellipse cx="342" cy="112" rx="5" ry="9" fill="#6a8a3a" transform="rotate(10 342 112)"/>
+    </g>
+  `;
+}
 
-        // 生成干扰项
-        var pool = [];
-        for (var i = 0; i < FORMULAS.length; i++) {
-            if (i !== idx) pool.push(FORMULAS[i].name);
-        }
-        for (var j = pool.length - 1; j > 0; j--) {
-            var k = Math.floor(Math.random() * (j + 1));
-            var t1 = pool[j]; pool[j] = pool[k]; pool[k] = t1;
-        }
-        var options = [formula.name, pool[0], pool[1]];
-        for (var m = options.length - 1; m > 0; m--) {
-            var n = Math.floor(Math.random() * (m + 1));
-            var t2 = options[m]; options[m] = options[n]; options[n] = t2;
-        }
+/* ----- 玩家把脉的手 ----- */
+function buildDoctorHandSVG() {
+  return `
+    <!-- 袖管 -->
+    <path d="M360 480 Q312 458 278 420 L292 384 Q328 408 360 420 Z" fill="#f5ecd6" stroke="#b0a080" stroke-width="2"/>
+    <path d="M278 420 Q300 402 316 408 L292 384 Q272 382 264 398 Z" fill="#ddd0a8" opacity="0.6"/>
+    <!-- 袖口纹 -->
+    <path d="M292 384 Q308 396 322 396" stroke="#8a7a50" stroke-width="1.5" fill="none"/>
+    <!-- 手掌 -->
+    <ellipse cx="268" cy="362" rx="22" ry="18" fill="#f6d5b4" stroke="#b88a60" stroke-width="2"/>
+    <!-- 三指搭在脉枕 -->
+    <ellipse cx="256" cy="330" rx="6" ry="15" fill="#f6d5b4" stroke="#b88a60" stroke-width="1.5" transform="rotate(-14 256 330)"/>
+    <ellipse cx="268" cy="325" rx="6" ry="15" fill="#f6d5b4" stroke="#b88a60" stroke-width="1.5" transform="rotate(-14 268 325)"/>
+    <ellipse cx="280" cy="328" rx="6" ry="15" fill="#f6d5b4" stroke="#b88a60" stroke-width="1.5" transform="rotate(-14 280 328)"/>
+    <!-- 指甲 -->
+    <ellipse cx="255" cy="321" rx="2.6" ry="3.8" fill="#f0c8a8" opacity="0.8"/>
+    <ellipse cx="267" cy="316" rx="2.6" ry="3.8" fill="#f0c8a8" opacity="0.8"/>
+    <ellipse cx="279" cy="319" rx="2.6" ry="3.8" fill="#f0c8a8" opacity="0.8"/>
+    <!-- 拇指 -->
+    <ellipse cx="290" cy="362" rx="12" ry="7" fill="#f6d5b4" stroke="#b88a60" stroke-width="1.5" transform="rotate(20 290 362)"/>
+    <!-- 手掌肉色阴影 -->
+    <path d="M256 356 Q268 366 282 358" stroke="#c9a07a" stroke-width="1.2" fill="none" opacity="0.5"/>
+    <!-- 袖口 -->
+    <path d="M292 384 Q282 396 272 406" stroke="#b0a080" stroke-width="2" fill="none"/>
+  `;
+}
 
-        state = {
-            formula: formula,
-            checked: { head: false, body: false, pulse: false, limbs: false },
-            attempts: 0
-        };
+/* ----- 患者身体（肩宽 160） ----- */
+function buildBodySVG(look) {
+  const { skin, skinShade, robe, robeDark } = look;
+  let s = '';
+  // 脖子
+  s += `<rect x="161" y="184" width="38" height="42" rx="8" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>`;
+  s += `<path d="M161 206 Q180 216 199 206" stroke="${skinShade}" stroke-width="1.2" fill="none" opacity="0.55"/>`;
+  // 袍身
+  s += `<path d="M100 234 Q180 200 260 234 L280 430 L80 430 Z" fill="${robe}"/>`;
+  s += `<path d="M100 234 Q180 200 260 234 L280 430 L80 430 Z" fill="url(#robeShade)" opacity="0.4"/>`;
+  // 衣襟
+  s += `<path d="M180 224 L180 430" stroke="${robeDark}" stroke-width="2.4" fill="none" opacity="0.55"/>`;
+  // V 领
+  s += `<path d="M156 216 L180 270 L204 216 Q180 232 156 216 Z" fill="${robeDark}"/>`;
+  // 衣纹
+  s += `<path d="M120 268 Q145 300 132 360" stroke="${robeDark}" stroke-width="1.6" fill="none" opacity="0.35"/>`;
+  s += `<path d="M240 268 Q215 300 228 360" stroke="${robeDark}" stroke-width="1.6" fill="none" opacity="0.35"/>`;
+  return s;
+}
 
-        // 重置症状面板
-        symptomPanel.innerHTML = '<span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>';
+/* ----- 头发 ----- */
+function buildHairSVG(look) {
+  const { hair, hairDark, hairStyle } = look;
+  let s = '';
+  if (hairStyle === 'bun') {
+    s += `<path d="M118 128 Q120 78 180 76 Q240 78 242 128 Q234 100 180 98 Q126 100 118 128 Z" fill="${hair}"/>`;
+    s += `<ellipse cx="180" cy="66" rx="26" ry="18" fill="${hair}"/>`;
+    s += `<ellipse cx="180" cy="66" rx="26" ry="18" fill="none" stroke="${hairDark}" stroke-width="1.6"/>`;
+    s += `<path d="M148 70 Q180 64 212 70" stroke="#8b2a2a" stroke-width="3.5" fill="none"/>`;
+  } else if (hairStyle === 'topknot') {
+    s += `<path d="M118 128 Q120 78 180 76 Q240 78 242 128 Q234 100 180 98 Q126 100 118 128 Z" fill="${hair}"/>`;
+    s += `<circle cx="180" cy="62" r="17" fill="${hair}"/>`;
+    s += `<circle cx="180" cy="62" r="17" fill="none" stroke="${hairDark}" stroke-width="1.6"/>`;
+  } else if (hairStyle === 'old-bun') {
+    s += `<path d="M116 128 Q118 74 180 72 Q242 74 244 128 Q234 98 180 96 Q126 98 116 128 Z" fill="${hair}"/>`;
+    s += `<ellipse cx="180" cy="60" rx="24" ry="17" fill="${hair}"/>`;
+    s += `<ellipse cx="180" cy="60" rx="24" ry="17" fill="none" stroke="${hairDark}" stroke-width="1.6"/>`;
+    s += `<path d="M154 62 Q180 58 206 62" stroke="${hairDark}" stroke-width="1.6" fill="none"/>`;
+  } else if (hairStyle === 'longhair') {
+    s += `<path d="M112 128 Q112 66 180 64 Q248 66 248 128 Q254 190 244 240 L248 268 L212 268 L212 200 Q214 118 180 116 Q146 118 148 200 L148 268 L112 268 L116 240 Q106 190 112 128 Z" fill="${hair}"/>`;
+    s += `<ellipse cx="180" cy="54" rx="30" ry="20" fill="${hair}"/>`;
+    s += `<ellipse cx="180" cy="54" rx="30" ry="20" fill="none" stroke="${hairDark}" stroke-width="1.6"/>`;
+    s += `<line x1="156" y1="54" x2="206" y2="46" stroke="#d4af37" stroke-width="3"/>`;
+    s += `<circle cx="206" cy="46" r="4" fill="#d4af37" stroke="#8a6a10" stroke-width="1"/>`;
+  } else if (hairStyle === 'towel') {
+    s += `<path d="M116 124 Q120 76 180 74 Q240 76 244 124 Q234 100 180 98 Q126 100 116 124 Z" fill="${hair}" opacity="0.75"/>`;
+    s += `<path d="M114 124 Q120 74 180 72 Q240 74 246 124 Q246 134 240 142 Q232 116 180 114 Q128 116 120 142 Q114 134 114 124 Z" fill="#4a6a8a"/>`;
+    s += `<path d="M114 124 Q110 138 116 152" stroke="#4a6a8a" stroke-width="5" fill="none"/>`;
+    s += `<path d="M246 124 Q250 138 244 152" stroke="#4a6a8a" stroke-width="5" fill="none"/>`;
+  }
+  return s;
+}
 
-        // 重置选项按钮
-        for (var p = 0; p < optionBtns.length; p++) {
-            optionBtns[p].textContent = options[p];
-            optionBtns[p].disabled = false;
-            optionBtns[p].className = 'option-btn';
-        }
+/* ----- 面部 ----- */
+function buildFaceSVG(look, expr) {
+  const arr = [];
+  const dark = '#3a2a1a';
+  const { skinShade, hair, blush, redFace, sweat, wrinkles, beard } = look;
 
-        // 创建病人并入场动画
-var fig = createPatientFigure();
-patientStage.appendChild(fig);
-fig.classList.add('enter');
-waiting = false;
+  if (blush) {
+    arr.push(`<ellipse cx="138" cy="172" rx="14" ry="8" fill="#e88a8a" opacity="0.42"/>`);
+    arr.push(`<ellipse cx="222" cy="172" rx="14" ry="8" fill="#e88a8a" opacity="0.42"/>`);
+  }
+  if (redFace) {
+    arr.push(`<ellipse cx="138" cy="172" rx="20" ry="13" fill="#e06060" opacity="0.48"/>`);
+    arr.push(`<ellipse cx="222" cy="172" rx="20" ry="13" fill="#e06060" opacity="0.48"/>`);
+    arr.push(`<ellipse cx="180" cy="158" rx="42" ry="12" fill="#e06060" opacity="0.2"/>`);
+  }
 
-// 如果图片加载成功，隐藏简笔画元素（兜底 :has）
-fig.querySelectorAll('[data-part] img').forEach(function(img) {
-    img.addEventListener('load', function() {
-        var face = img.parentNode.querySelector('.face, .pulse-label');
-        if (face) face.style.display = 'none';
+  if (expr.eyebrow === 'worried') {
+    arr.push(`<path d="M138 124 Q152 116 166 124" stroke="${dark}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`);
+    arr.push(`<path d="M194 124 Q208 116 222 124" stroke="${dark}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`);
+  } else if (expr.eyebrow === 'angry') {
+    arr.push(`<path d="M138 126 L168 118" stroke="${dark}" stroke-width="4" fill="none" stroke-linecap="round"/>`);
+    arr.push(`<path d="M192 118 L222 126" stroke="${dark}" stroke-width="4" fill="none" stroke-linecap="round"/>`);
+  } else if (expr.eyebrow === 'sad') {
+    arr.push(`<path d="M138 120 Q152 126 166 128" stroke="${dark}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`);
+    arr.push(`<path d="M194 128 Q208 126 222 120" stroke="${dark}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`);
+  } else {
+    arr.push(`<path d="M138 124 Q152 120 166 124" stroke="${dark}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`);
+    arr.push(`<path d="M194 124 Q208 120 222 124" stroke="${dark}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`);
+  }
+
+  if (expr.eye === 'closed') {
+    arr.push(`<path d="M140 150 Q152 158 164 150" stroke="${dark}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`);
+    arr.push(`<path d="M196 150 Q208 158 220 150" stroke="${dark}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`);
+  } else if (expr.eye === 'wide') {
+    arr.push(`<ellipse cx="152" cy="150" rx="12" ry="13" fill="#fff" stroke="${dark}" stroke-width="1.2"/>`);
+    arr.push(`<ellipse cx="208" cy="150" rx="12" ry="13" fill="#fff" stroke="${dark}" stroke-width="1.2"/>`);
+    arr.push(`<circle cx="152" cy="151" r="8" fill="${dark}"/>`);
+    arr.push(`<circle cx="208" cy="151" r="8" fill="${dark}"/>`);
+    arr.push(`<circle cx="149" cy="148" r="3" fill="#fff"/>`);
+    arr.push(`<circle cx="205" cy="148" r="3" fill="#fff"/>`);
+  } else if (expr.eye === 'squint') {
+    arr.push(`<ellipse cx="152" cy="150" rx="11" ry="7" fill="#fff"/>`);
+    arr.push(`<ellipse cx="208" cy="150" rx="11" ry="7" fill="#fff"/>`);
+    arr.push(`<circle cx="152" cy="151" r="5.5" fill="${dark}"/>`);
+    arr.push(`<circle cx="208" cy="151" r="5.5" fill="${dark}"/>`);
+    arr.push(`<path d="M140 146 Q152 141 164 146" stroke="${dark}" stroke-width="2.8" fill="none" stroke-linecap="round"/>`);
+    arr.push(`<path d="M196 146 Q208 141 220 146" stroke="${dark}" stroke-width="2.8" fill="none" stroke-linecap="round"/>`);
+  } else if (expr.eye === 'tired') {
+    arr.push(`<ellipse cx="152" cy="151" rx="10" ry="7" fill="#fff"/>`);
+    arr.push(`<ellipse cx="208" cy="151" rx="10" ry="7" fill="#fff"/>`);
+    arr.push(`<circle cx="152" cy="152" r="5" fill="${dark}"/>`);
+    arr.push(`<circle cx="208" cy="152" r="5" fill="${dark}"/>`);
+    arr.push(`<path d="M140 148 Q152 146 164 148" stroke="${dark}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`);
+    arr.push(`<path d="M196 148 Q208 146 220 148" stroke="${dark}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`);
+  }
+
+  // 鼻子
+  arr.push(`<path d="M178 168 Q174 178 183 183" stroke="#b88060" stroke-width="2.2" fill="none" stroke-linecap="round"/>`);
+
+  if (expr.mouth === 'pain') {
+    arr.push(`<path d="M160 198 Q180 190 200 198" stroke="#8b3a3a" stroke-width="3.2" fill="none" stroke-linecap="round"/>`);
+  } else if (expr.mouth === 'open') {
+    arr.push(`<ellipse cx="180" cy="198" rx="9" ry="7" fill="#5a1010"/>`);
+    arr.push(`<ellipse cx="180" cy="196" rx="6.5" ry="3.5" fill="#8b3a3a"/>`);
+  } else if (expr.mouth === 'sigh') {
+    arr.push(`<path d="M164 198 Q180 206 196 198" stroke="#8b3a3a" stroke-width="2.8" fill="none" stroke-linecap="round"/>`);
+  } else {
+    arr.push(`<path d="M164 198 Q180 204 196 198" stroke="#8b3a3a" stroke-width="2.8" fill="none" stroke-linecap="round"/>`);
+  }
+
+  if (beard === 'short') {
+    arr.push(`<path d="M154 216 Q180 240 206 216 Q204 232 180 235 Q156 232 154 216 Z" fill="${hair}" opacity="0.75"/>`);
+  } else if (beard === 'long-white') {
+    arr.push(`<path d="M150 214 Q180 252 210 214 Q215 252 180 270 Q145 252 150 214 Z" fill="#ececea" stroke="#a8a8a0" stroke-width="1"/>`);
+    arr.push(`<path d="M158 194 Q168 202 180 197 Q192 202 202 194" stroke="#ececea" stroke-width="4" fill="none" stroke-linecap="round"/>`);
+  }
+
+  if (sweat) {
+    arr.push(`<ellipse cx="128" cy="108" rx="3.6" ry="5.4" fill="#7ec8e3" opacity="0.9"/>`);
+    arr.push(`<ellipse cx="234" cy="120" rx="3" ry="4.6" fill="#7ec8e3" opacity="0.9"/>`);
+    arr.push(`<ellipse cx="122" cy="126" rx="2.4" ry="4" fill="#7ec8e3" opacity="0.7"/>`);
+    arr.push(`<ellipse cx="240" cy="140" rx="2.4" ry="3.5" fill="#7ec8e3" opacity="0.7"/>`);
+  }
+
+  if (wrinkles) {
+    arr.push(`<path d="M142 122 Q180 114 218 122" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.4"/>`);
+    arr.push(`<path d="M144 116 Q180 108 216 116" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.3"/>`);
+    arr.push(`<path d="M134 146 L126 141" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.55"/>`);
+    arr.push(`<path d="M134 151 L126 151" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.55"/>`);
+    arr.push(`<path d="M226 146 L234 141" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.55"/>`);
+    arr.push(`<path d="M226 151 L234 151" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.55"/>`);
+  }
+  return arr.join('');
+}
+
+/* ----- 头部 ----- */
+function buildHeadSVG(look, expr) {
+  const { skin, skinShade } = look;
+  let s = '';
+  // 耳
+  s += `<ellipse cx="116" cy="152" rx="11" ry="16" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>`;
+  s += `<ellipse cx="244" cy="152" rx="11" ry="16" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>`;
+  // 脸
+  s += `<ellipse cx="180" cy="146" rx="66" ry="72" fill="${skin}"/>`;
+  // 下巴阴影
+  s += `<ellipse cx="180" cy="184" rx="50" ry="26" fill="${skinShade}" opacity="0.15"/>`;
+  s += buildHairSVG(look);
+  s += buildFaceSVG(look, expr);
+  return s;
+}
+
+/* ----- 望诊异常姿态（手臂） ----- */
+function buildAbnormalArmSVG(look, pose) {
+  const { skin, skinShade, robe, robeDark } = look;
+  if (pose === 'neck') {
+    // 右手扶脖颈
+    return `
+      <path d="M260 234 Q268 200 216 196" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <path d="M260 234 Q268 200 216 196" stroke="${robeDark}" stroke-width="28" fill="none" stroke-linecap="round" opacity="0.15"/>
+      <ellipse cx="196" cy="200" rx="15" ry="13" fill="${skin}" stroke="${skinShade}" stroke-width="1" transform="rotate(-25 196 200)"/>
+      <!-- 左手自然下垂 -->
+      <path d="M100 234 Q88 296 96 356" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <ellipse cx="96" cy="358" rx="14" ry="13" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+    `;
+  }
+  if (pose === 'hug') {
+    // 双手抱胸
+    return `
+      <path d="M260 234 Q212 278 118 266" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <path d="M100 240 Q158 296 246 286" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <ellipse cx="118" cy="268" rx="14" ry="12" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+      <ellipse cx="246" cy="288" rx="14" ry="12" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+    `;
+  }
+  if (pose === 'ribs') {
+    // 右手捂右胁
+    return `
+      <path d="M260 234 Q296 268 262 306" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <ellipse cx="256" cy="308" rx="15" ry="13" fill="${skin}" stroke="${skinShade}" stroke-width="1" transform="rotate(20 256 308)"/>
+      <!-- 左手垂 -->
+      <path d="M100 234 Q88 296 96 356" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <ellipse cx="96" cy="358" rx="14" ry="13" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+    `;
+  }
+  if (pose === 'collar') {
+    // 双手扯衣领
+    return `
+      <path d="M100 240 Q84 200 138 200" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <path d="M260 240 Q276 200 222 200" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <ellipse cx="144" cy="204" rx="14" ry="12" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+      <ellipse cx="216" cy="204" rx="14" ry="12" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+    `;
+  }
+  if (pose === 'belly') {
+    // 双手捂腹
+    return `
+      <path d="M100 234 Q88 300 150 322" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <path d="M260 234 Q272 300 210 322" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <ellipse cx="156" cy="324" rx="15" ry="13" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+      <ellipse cx="204" cy="324" rx="15" ry="13" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+    `;
+  }
+  return '';
+}
+
+/* ----- 切脉姿态（一手搭在脉枕上） ----- */
+function buildArmOnTableSVG(look) {
+  const { skin, skinShade, robe, robeDark } = look;
+  return `
+    <!-- 左手自然垂桌下（被桌子挡） -->
+    <path d="M100 234 Q88 300 96 380" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+    <!-- 右手伸出搭在脉枕上 -->
+    <path d="M260 234 Q300 272 296 330 Q292 358 268 372" stroke="${robe}" stroke-width="28" fill="none" stroke-linecap="round"/>
+    <path d="M260 234 Q300 272 296 330 Q292 358 268 372" stroke="${robeDark}" stroke-width="28" fill="none" stroke-linecap="round" opacity="0.12"/>
+    <!-- 袖口 -->
+    <path d="M292 336 L268 348 Q256 362 258 380 L286 370 Q296 356 292 336 Z" fill="${robeDark}" opacity="0.65"/>
+    <!-- 手掌（手心朝上放在脉枕上） -->
+    <ellipse cx="256" cy="382" rx="20" ry="14" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+    <!-- 手指（伸向画面左） -->
+    <ellipse cx="234" cy="378" rx="10" ry="5" fill="${skin}" stroke="${skinShade}" stroke-width="1" transform="rotate(-10 234 378)"/>
+    <ellipse cx="232" cy="388" rx="10" ry="5" fill="${skin}" stroke="${skinShade}" stroke-width="1" transform="rotate(-8 232 388)"/>
+    <ellipse cx="234" cy="398" rx="9" ry="4.5" fill="${skin}" stroke="${skinShade}" stroke-width="1" transform="rotate(-5 234 398)"/>
+    <ellipse cx="238" cy="408" rx="8" ry="4" fill="${skin}" stroke="${skinShade}" stroke-width="1"/>
+    <!-- 拇指 -->
+    <ellipse cx="258" cy="366" rx="9" ry="5" fill="${skin}" stroke="${skinShade}" stroke-width="1" transform="rotate(-30 258 366)"/>
+    <!-- 手掌纹 -->
+    <path d="M252 376 Q260 384 256 392" stroke="${skinShade}" stroke-width="1" fill="none" opacity="0.6"/>
+  `;
+}
+
+/* ----- 患者整体 ----- */
+function buildPatientSVG(p, isPulseStage) {
+  let s = '';
+  // 桌下阴影
+  s += `<ellipse cx="180" cy="430" rx="120" ry="14" fill="rgba(0,0,0,0.18)"/>`;
+  // 身体
+  s += buildBodySVG(p.look);
+  // 手臂
+  if (isPulseStage) {
+    s += buildArmOnTableSVG(p.look);
+  } else {
+    s += buildAbnormalArmSVG(p.look, p.pose);
+  }
+  // 头
+  s += buildHeadSVG(p.look, p.expression);
+  return s;
+}
+
+/* ----- 桌面器物 ----- */
+function buildTableObjectsSVG() {
+  return `
+    <!-- 桌面 -->
+    <rect x="0" y="380" width="360" height="120" fill="url(#tableGrad)"/>
+    <rect x="0" y="376" width="360" height="10" rx="3" fill="#b87848"/>
+    <rect x="0" y="376" width="360" height="3" fill="#e6b87a" opacity="0.7"/>
+    <path d="M0 386 L360 386" stroke="#3a2010" stroke-width="1.2" opacity="0.5"/>
+    <!-- 木纹 -->
+    <path d="M20 410 Q100 408 200 412 T340 410" stroke="#3a2010" stroke-width="0.8" fill="none" opacity="0.25"/>
+    <path d="M30 440 Q120 436 220 442 T340 440" stroke="#3a2010" stroke-width="0.8" fill="none" opacity="0.2"/>
+    <path d="M10 470 Q100 468 200 472 T350 470" stroke="#3a2010" stroke-width="0.8" fill="none" opacity="0.2"/>
+
+    <!-- 脉枕（红色，在右前方） -->
+    <ellipse cx="242" cy="408" rx="64" ry="10" fill="#3a0808" opacity="0.35"/>
+    <rect x="186" y="376" width="112" height="36" rx="14" fill="#a02828" stroke="#4a0808" stroke-width="1.5"/>
+    <rect x="186" y="376" width="112" height="14" rx="7" fill="#d04040"/>
+    <ellipse cx="242" cy="398" rx="52" ry="6" fill="#7a1818" opacity="0.4"/>
+    <path d="M200 388 Q242 384 284 388" stroke="#e07070" stroke-width="1" fill="none" opacity="0.6"/>
+
+    <!-- 茶壶（左侧） -->
+    <ellipse cx="62" cy="404" rx="34" ry="7" fill="#3a2010" opacity="0.35"/>
+    <ellipse cx="62" cy="376" rx="28" ry="26" fill="#b8a888" stroke="#5a4a30" stroke-width="1.5"/>
+    <ellipse cx="62" cy="366" rx="22" ry="8" fill="#d8c8a8"/>
+    <ellipse cx="62" cy="366" rx="22" ry="8" fill="none" stroke="#5a4a30" stroke-width="1.2"/>
+    <circle cx="62" cy="352" r="6" fill="#b8a888" stroke="#5a4a30" stroke-width="1.2"/>
+    <path d="M88 366 Q104 362 102 376 Q100 388 92 390" stroke="#5a4a30" stroke-width="3" fill="none"/>
+    <path d="M40 376 Q24 372 22 384" stroke="#5a4a30" stroke-width="3" fill="none"/>
+    <path d="M44 350 Q62 344 80 350" stroke="#5a4a30" stroke-width="2" fill="none"/>
+
+    <!-- 药方纸 + 笔架 -->
+    <g transform="translate(288, 430)">
+      <rect x="0" y="0" width="56" height="40" rx="2" fill="#f5ecd6" stroke="#8a7a50" stroke-width="1" transform="rotate(-8 28 20)"/>
+      <line x1="8" y1="10" x2="42" y2="8" stroke="#8a7a50" stroke-width="0.8" transform="rotate(-8 28 20)"/>
+      <line x1="8" y1="18" x2="46" y2="16" stroke="#8a7a50" stroke-width="0.8" transform="rotate(-8 28 20)"/>
+      <line x1="8" y1="26" x2="38" y2="25" stroke="#8a7a50" stroke-width="0.8" transform="rotate(-8 28 20)"/>
+    </g>
+    <g transform="translate(20, 432)">
+      <rect x="0" y="0" width="30" height="6" rx="2" fill="#6a4a2a"/>
+      <rect x="6" y="-2" width="4" height="8" rx="1" fill="#6a4a2a"/>
+      <rect x="20" y="-2" width="4" height="8" rx="1" fill="#6a4a2a"/>
+      <!-- 笔 -->
+      <path d="M10 -6 L12 -20 L14 -6 Z" fill="#3a2a1a"/>
+      <path d="M22 -4 L24 -18 L26 -4 Z" fill="#3a2a1a"/>
+    </g>
+  `;
+}
+
+/* ----- 完整场景 ----- */
+function buildSceneSVG({ isPulseStage, hotspots, actionClass }) {
+  let s = `<svg viewBox="0 0 360 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">`;
+  s += `
+    <defs>
+      <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8d0a0"/>
+        <stop offset="50%" stop-color="#d4b880"/>
+        <stop offset="100%" stop-color="#b89868"/>
+      </linearGradient>
+      <linearGradient id="tableGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#9a5a2a"/>
+        <stop offset="40%" stop-color="#7a3e18"/>
+        <stop offset="100%" stop-color="#3a1a08"/>
+      </linearGradient>
+      <linearGradient id="robeShade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0.35)"/>
+      </linearGradient>
+      <radialGradient id="vignette" cx="0.5" cy="0.4" r="0.75">
+        <stop offset="55%" stop-color="rgba(0,0,0,0)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0.45)"/>
+      </radialGradient>
+      <radialGradient id="lampGlow" cx="0.5" cy="0.15" r="0.5">
+        <stop offset="0%" stop-color="rgba(255,230,160,0.35)"/>
+        <stop offset="100%" stop-color="rgba(255,230,160,0)"/>
+      </radialGradient>
+    </defs>
+  `;
+  // 墙
+  s += `<rect x="0" y="0" width="360" height="500" fill="url(#wallGrad)"/>`;
+  // 灯晕
+  s += `<rect x="0" y="0" width="360" height="500" fill="url(#lampGlow)"/>`;
+  // 药柜
+  s += buildCabinetSVG();
+  // 匾额
+  s += buildPlaqueSVG();
+  // 艾草
+  s += buildHangingHerbSVG();
+  // 暗角
+  s += `<rect x="0" y="0" width="360" height="500" fill="url(#vignette)"/>`;
+
+  // 患者
+  s += `<g class="patient-group ${actionClass || ''}">${buildPatientSVG(curPatient, isPulseStage)}</g>`;
+
+  // 桌面器物（含桌）
+  s += buildTableObjectsSVG();
+
+  // 医生的手（切脉阶段）
+  if (isPulseStage) s += buildDoctorHandSVG();
+
+  // 热区
+  if (hotspots && hotspots.length) {
+    hotspots.forEach(h => {
+      s += `
+        <g class="hotspot" data-id="${h.id}" data-correct="${!!h.correct}">
+          <circle class="hotspot-ring" cx="${h.cx}" cy="${h.cy}" r="${h.r}" fill="none" stroke="rgba(255,215,80,0.95)" stroke-width="3"/>
+          <circle class="hotspot-ring" cx="${h.cx}" cy="${h.cy}" r="${h.r}" fill="rgba(255,215,80,0.15)" stroke="rgba(255,215,80,0.65)" stroke-width="1.5"/>
+          <circle class="hotspot-dot" cx="${h.cx}" cy="${h.cy}" r="6" fill="rgba(255,215,80,0.95)" stroke="#a06000" stroke-width="1"/>
+        </g>
+      `;
     });
-});
+  }
+  s += `</svg>`;
+  return s;
+}
+
+/* ================================================================
+ *  5 位病人
+ * ================================================================ */
+const PATIENTS = [
+  {
+    name: '张氏',
+    intro: '一位中年男子缩着脖子走进来……',
+    pose: 'neck',
+    expression: { eyebrow: 'worried', eye: 'squint', mouth: 'pain' },
+    look: {
+      skin:'#f6d5b4', skinShade:'#d4a580',
+      hair:'#4a2f1a', hairDark:'#2a1a0a', hairStyle:'bun',
+      robe:'#6a7c53', robeDark:'#4a5a35',
+      sweat:true, blush:false, redFace:false, wrinkles:false, beard:'none'
+    },
+    observe: {
+      hint: '【望诊】仔细观察病人的异常姿态，点击你认为有问题的部位',
+      hotspots: [
+        { id:'neck',  cx:196, cy:202, r:26, correct:true },
+        { id:'head',  cx:180, cy:146, r:44, msg:'头部外观未见明显异常。' },
+        { id:'chest', cx:180, cy:270, r:44, msg:'胸部外观无特殊。' },
+        { id:'belly', cx:180, cy:360, r:40, msg:'腹部平坦，无压痛表现。' },
+        { id:'legs',  cx:180, cy:420, r:30, msg:'双腿站立自如，无异常。' }
+      ],
+      correctMsg: '你注意到他右手一直扶着脖颈，头项转动困难。'
+    },
+    inquiry: {
+      symptoms: [
+        '我……我怕冷，加了衣服还是冷。',
+        '身上发热，可是又一直在出汗。',
+        '风吹过来就觉得难受，特别怕风。',
+        '脖子和后脑勺僵硬疼痛，转都转不动。'
+      ],
+      doneMsg: '（病人缩着脖子，不停搓手）'
+    },
+    pulse: { text: '脉浮而缓，轻取即得，按之柔软无力。' },
+    diagnose: {
+      options: ['太阳中风', '太阳伤寒', '少阳病'],
+      answer: '太阳中风',
+      formula: '桂枝汤',
+      desc: '解肌发表，调和营卫'
     }
-
-    // ============ 点击病人部位（事件委托）============
-    patientStage.addEventListener('click', function(e) {
-        if (!state) return;
-
-        var el = e.target;
-        while (el && el !== patientStage) {
-            if (el.getAttribute && el.getAttribute('data-part')) break;
-            el = el.parentNode;
-        }
-        if (!el || el === patientStage) return;
-
-        var part = el.getAttribute('data-part');
-        if (state.checked[part]) return;
-        state.checked[part] = true;
-        el.classList.add('checked');
-
-        var symptoms = state.formula.s[part] || [];
-
-        // 显示气泡
-        var oldHints = patientStage.querySelectorAll('.hint');
-        for (var i = 0; i < oldHints.length; i++) {
-            if (oldHints[i].getAttribute('data-part') === part) oldHints[i].remove();
-        }
-        var hint = document.createElement('div');
-        hint.className = 'hint ' + part + '-hint';
-        hint.setAttribute('data-part', part);
-        if (symptoms.length === 0) {
-            hint.textContent = '（无异常）';
-            hint.style.color = '#999';
-            hint.style.borderColor = '#ccc';
-        } else {
-            hint.textContent = symptoms.join('、');
-        }
-        patientStage.appendChild(hint);
-
-        // 加到症状面板
-        if (symptoms.length > 0) {
-            var ph = symptomPanel.querySelector('.placeholder');
-            if (ph) symptomPanel.innerHTML = '';
-            for (var j = 0; j < symptoms.length; j++) {
-                var span = document.createElement('span');
-                span.className = 'sym-item';
-                span.textContent = symptoms[j];
-                symptomPanel.appendChild(span);
-            }
-        }
-    });
-
-    // ============ 弹窗 ============
-    function showModal(title, html, btnText, callback) {
-        modalBox.innerHTML =
-            '<div class="modal-title">' + title + '</div>' +
-            '<div class="modal-text">' + html + '</div>' +
-            '<button class="modal-btn" id="modalActionBtn">' + btnText + '</button>';
-        modalOverlay.classList.add('active');
-        document.getElementById('modalActionBtn').onclick = callback;
+  },
+  {
+    name: '李氏',
+    intro: '一位壮年男子抱着双臂，浑身发抖地走进来……',
+    pose: 'hug',
+    expression: { eyebrow: 'worried', eye: 'closed', mouth: 'sigh' },
+    look: {
+      skin:'#e8c8a0', skinShade:'#b89870',
+      hair:'#2a1a0a', hairDark:'#0a0500', hairStyle:'towel',
+      robe:'#5a6a8a', robeDark:'#3a4a6a',
+      sweat:false, blush:false, redFace:false, wrinkles:false, beard:'short'
+    },
+    observe: {
+      hint: '【望诊】观察病人的异常姿态，点击异常部位',
+      hotspots: [
+        { id:'chest', cx:180, cy:280, r:50, correct:true },
+        { id:'head',  cx:180, cy:146, r:44, msg:'面色苍白，但并非主要症结。' },
+        { id:'belly', cx:180, cy:360, r:40, msg:'腹部无异常。' },
+        { id:'legs',  cx:180, cy:420, r:30, msg:'腿部活动正常。' }
+      ],
+      correctMsg: '你注意到他紧紧抱着双臂，浑身蜷缩发抖，无汗。'
+    },
+    inquiry: {
+      symptoms: [
+        '冷……冷得厉害，盖了被子还是冷。',
+        '身上发烫，可是一点汗都没有。',
+        '全身骨节疼痛，腰也疼得厉害。',
+        '有点喘不上气，胸口发闷。'
+      ],
+      doneMsg: '（病人蜷缩着，牙齿打颤）'
+    },
+    pulse: { text: '脉浮而紧，如按绳索，搏指有力。' },
+    diagnose: {
+      options: ['太阳中风', '太阳伤寒', '阳明经证'],
+      answer: '太阳伤寒',
+      formula: '麻黄汤',
+      desc: '发汗解表，宣肺平喘'
     }
-    function closeModal() {
-        modalOverlay.classList.remove('active');
+  },
+  {
+    name: '王氏',
+    intro: '一位妇人皱着眉头，一手按着胁肋走进来……',
+    pose: 'ribs',
+    expression: { eyebrow: 'worried', eye: 'tired', mouth: 'sigh' },
+    look: {
+      skin:'#f0d0b0', skinShade:'#c89878',
+      hair:'#2a1a0a', hairDark:'#0a0500', hairStyle:'longhair',
+      robe:'#b888a0', robeDark:'#8a5a70',
+      sweat:false, blush:true, redFace:false, wrinkles:false, beard:'none'
+    },
+    observe: {
+      hint: '【望诊】观察病人异常姿态，点击有问题的地方',
+      hotspots: [
+        { id:'ribs',  cx:258, cy:310, r:30, correct:true },
+        { id:'head',  cx:180, cy:146, r:44, msg:'面色少华，但非主要病位。' },
+        { id:'belly', cx:180, cy:360, r:40, msg:'腹部无异常。' },
+        { id:'legs',  cx:180, cy:420, r:30, msg:'双腿无异常。' }
+      ],
+      correctMsg: '你注意到她一手捂着右侧胁肋，表情郁闷不舒。'
+    },
+    inquiry: {
+      symptoms: [
+        '一阵冷一阵热，反反复复的。',
+        '胸口和胁肋下面又胀又满，很难受。',
+        '不想吃东西，心里烦，老想吐。',
+        '嘴里发苦，喉咙干，眼睛也发花。'
+      ],
+      doneMsg: '（病人叹气，按着胁肋）'
+    },
+    pulse: { text: '脉弦，如按琴弦，端直以长。' },
+    diagnose: {
+      options: ['少阳病', '太阳中风', '太阴病'],
+      answer: '少阳病',
+      formula: '小柴胡汤',
+      desc: '和解少阳，疏利枢机'
     }
-
-    // ============ 铜币飘字 ============
-    function showCoinGain(n) {
-        coinGain.textContent = '+' + n;
-        coinGain.classList.remove('show');
-        void coinGain.offsetWidth;
-        coinGain.classList.add('show');
-        setTimeout(function() { coinGain.classList.remove('show'); }, 1200);
+  },
+  {
+    name: '赵氏',
+    intro: '一位壮汉面红耳赤，扯着衣领大步走进来……',
+    pose: 'collar',
+    expression: { eyebrow: 'angry', eye: 'wide', mouth: 'open' },
+    look: {
+      skin:'#f5c0a0', skinShade:'#c89070',
+      hair:'#1a0a00', hairDark:'#000000', hairStyle:'topknot',
+      robe:'#8b5a3a', robeDark:'#5a3a1a',
+      sweat:true, blush:false, redFace:true, wrinkles:false, beard:'short'
+    },
+    observe: {
+      hint: '【望诊】观察病人的异常表现，点击关键部位',
+      hotspots: [
+        { id:'face',  cx:180, cy:160, r:50, correct:true },
+        { id:'chest', cx:180, cy:280, r:44, msg:'胸部无特殊。' },
+        { id:'belly', cx:180, cy:360, r:40, msg:'腹部无异常。' },
+        { id:'legs',  cx:180, cy:420, r:30, msg:'双腿无异常。' }
+      ],
+      correctMsg: '你注意到他面红目赤，大汗淋漓，烦躁不安。'
+    },
+    inquiry: {
+      symptoms: [
+        '热！热得受不了，像火烧一样。',
+        '汗出得像水一样，止都止不住。',
+        '口渴得要命，特别想喝凉水。',
+        '心里烦躁，坐立不安。'
+      ],
+      doneMsg: '（病人不停擦汗，扇风）'
+    },
+    pulse: { text: '脉洪大而数，来势汹涌，如波涛拍岸。' },
+    diagnose: {
+      options: ['阳明经证', '太阳中风', '少阳病'],
+      answer: '阳明经证',
+      formula: '白虎汤',
+      desc: '清热生津，除烦止渴'
     }
-
-    // ============ 病人离场 ============
-    function patientLeave(callback) {
-        var fig = document.getElementById('patientFigure');
-        if (!fig) { callback(); return; }
-        fig.classList.remove('enter');
-        fig.classList.add('exit');
-        setTimeout(callback, 550);
+  },
+  {
+    name: '孙氏',
+    intro: '一位老人双手捂着肚子，面色萎黄地走进来……',
+    pose: 'belly',
+    expression: { eyebrow: 'sad', eye: 'tired', mouth: 'pain' },
+    look: {
+      skin:'#e8d0a0', skinShade:'#b8a070',
+      hair:'#e8e8e0', hairDark:'#a8a8a0', hairStyle:'old-bun',
+      robe:'#7a7a5a', robeDark:'#4a4a35',
+      sweat:false, blush:false, redFace:false, wrinkles:true, beard:'long-white'
+    },
+    observe: {
+      hint: '【望诊】观察病人异常姿态，点击异常部位',
+      hotspots: [
+        { id:'belly', cx:180, cy:330, r:46, correct:true },
+        { id:'head',  cx:180, cy:146, r:44, msg:'面色萎黄，但非直接病位。' },
+        { id:'chest', cx:180, cy:270, r:44, msg:'胸部无异常。' },
+        { id:'legs',  cx:180, cy:420, r:30, msg:'双腿无异常。' }
+      ],
+      correctMsg: '你注意到他双手捂着肚子，面色萎黄无华。'
+    },
+    inquiry: {
+      symptoms: [
+        '肚子胀得难受，还老想吐。',
+        '吃不下东西，一吃就胀。',
+        '拉肚子，越拉越厉害。',
+        '肚子时不时地疼，喜欢用手按着。'
+      ],
+      doneMsg: '（病人捂着肚子，面露痛苦）'
+    },
+    pulse: { text: '脉缓而弱，沉取无力。' },
+    diagnose: {
+      options: ['太阴病', '阳明经证', '少阳病'],
+      answer: '太阴病',
+      formula: '理中汤',
+      desc: '温中散寒，健脾止泻'
     }
+  }
+];
 
-    // ============ 下一位 ============
-    function nextPatient() {
-        // 减少排队人数
-        queueCount = Math.max(0, queueCount - 1);
-        // 有人走了，后面补一个
-        queueCount += 1;
-        queueCountEl.textContent = queueCount;
+/* ================================================================
+ *  状态 & 逻辑（保持原有）
+ * ================================================================ */
+const ST = { INTRO:'intro', OBSERVE:'observe', INQUIRY:'inquiry', PULSE:'pulse', DIAGNOSE:'diagnose' };
+let curIndex = 0;
+let curPatient = null;
+let state = ST.INTRO;
+let wrongCount = 0;
+let observeWrong = 0;
+let symptomsShown = [];
+let pulseShown = '';
+let timers = [];
 
-        patientLeave(function() {
-            spawnPatient();
+const $ = id => document.getElementById(id);
+const sceneWrap    = $('sceneWrap');
+const bubbleEl     = $('bubble');
+const caseContent  = $('caseContent');
+const actionArea   = $('actionArea');
+const progressEl   = $('progress');
+const coinTag      = $('coinTag');
+const modalOverlay = $('modalOverlay');
+const modalTitle   = $('modalTitle');
+const modalText    = $('modalText');
+const modalBtn     = $('modalBtn');
+
+function clearTimers() { timers.forEach(t => clearTimeout(t)); timers = []; }
+function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+function showBubble(text, keep) {
+  bubbleEl.textContent = text;
+  bubbleEl.classList.add('show');
+  if (!keep) later(() => bubbleEl.classList.remove('show'), 2200);
+}
+function hideBubble() { bubbleEl.classList.remove('show'); }
+
+function updateCoin() { coinTag.textContent = `💰 ${Player.getCoins()}`; }
+function updateProgress() { progressEl.textContent = `病人 ${curIndex + 1} / ${PATIENTS.length}`; }
+
+function renderCase() {
+  if (symptomsShown.length === 0 && !pulseShown) {
+    caseContent.textContent = '尚未开始诊治'; return;
+  }
+  let html = '';
+  if (symptomsShown.length) {
+    html += '<div><b>症状：</b>' + symptomsShown.map(s => `<span class="sym">${s}</span>`).join('、') + '</div>';
+  }
+  if (pulseShown) {
+    html += `<div><b>脉象：</b><span class="pulse">${pulseShown}</span></div>`;
+  }
+  caseContent.innerHTML = html;
+}
+
+function showModal(title, text, btnText, cb) {
+  modalTitle.textContent = title;
+  modalText.textContent = text;
+  modalBtn.textContent = btnText;
+  modalOverlay.classList.add('active');
+  modalBtn.onclick = () => {
+    modalOverlay.classList.remove('active');
+    cb && cb();
+  };
+}
+
+function renderScene(opts) {
+  const svg = buildSceneSVG(opts);
+  sceneWrap.innerHTML = svg;
+  sceneWrap.querySelectorAll('.hotspot').forEach(el => {
+    el.addEventListener('click', () => onHotspotClick(el));
+  });
+  if (opts.isPulseStage && opts.hotspots && opts.hotspots.length) {
+    const el = sceneWrap.querySelector('.hotspot[data-id="pulse"]');
+    if (el) el.addEventListener('click', onPulseClick);
+  }
+}
+
+function setState(s) { state = s; render(); }
+
+function render() {
+  clearTimers();
+  if (state === ST.INTRO)         renderIntro();
+  else if (state === ST.OBSERVE)  renderObserve();
+  else if (state === ST.INQUIRY)  renderInquiry();
+  else if (state === ST.PULSE)    renderPulse();
+  else if (state === ST.DIAGNOSE) renderDiagnose();
+}
+
+function renderIntro() {
+  const actionClass = curPatient.pose === 'hug' ? 'shiver' : 'breathe';
+  renderScene({ isPulseStage: false, hotspots: [], actionClass });
+  actionArea.innerHTML = `<div class="action-tip">👀 ${curPatient.intro}</div>
+    <button class="action-btn" id="btnObserve">开始望诊</button>`;
+  $('btnObserve').onclick = () => { sfx.click(); setState(ST.OBSERVE); };
+}
+
+function renderObserve() {
+  observeWrong = 0;
+  const actionClass = curPatient.pose === 'hug' ? 'shiver' : 'breathe';
+  renderScene({ isPulseStage: false, hotspots: curPatient.observe.hotspots, actionClass });
+  actionArea.innerHTML = `<div class="action-tip">${curPatient.observe.hint}</div>`;
+}
+
+function onHotspotClick(el) {
+  const isCorrect = el.dataset.correct === 'true';
+  if (isCorrect) {
+    sfx.correct();
+    showBubble('✅ ' + curPatient.observe.correctMsg, true);
+    const dot = el.querySelector('.hotspot-dot');
+    if (dot) dot.setAttribute('fill', 'rgba(120,220,120,0.95)');
+    const rings = el.querySelectorAll('.hotspot-ring');
+    rings.forEach(r => { r.setAttribute('stroke', 'rgba(120,220,120,0.95)'); r.style.animation = 'none'; });
+    later(() => setState(ST.INQUIRY), 1600);
+    return;
+  }
+  sfx.wrong();
+  observeWrong++;
+  const h = curPatient.observe.hotspots.find(x => x.id === el.dataset.id);
+  const baseMsg = h ? h.msg : '这里没有异常。';
+  const rings = el.querySelectorAll('.hotspot-ring');
+  rings.forEach(r => r.setAttribute('stroke', 'rgba(255,80,80,0.95)'));
+  later(() => rings.forEach(r => r.setAttribute('stroke', 'rgba(255,215,80,0.95)')), 350);
+
+  if (observeWrong >= 3) {
+    sceneWrap.querySelectorAll('.hotspot').forEach(x => x.style.pointerEvents = 'none');
+    showBubble('❌ ' + baseMsg, true);
+    actionArea.innerHTML = `<div class="action-tip" style="color:#c62828;">❌ 望诊失误三次，病人对你失去信任……</div>`;
+    later(() => {
+      showModal('😵 望诊失败',
+        `你连续三次没有找准病位，${curPatient.name} 摇头坐了回去。`,
+        '重新接诊',
+        () => {
+          observeWrong = 0; symptomsShown = []; pulseShown = ''; wrongCount = 0;
+          loadPatient(curIndex);
         });
+    }, 800);
+  } else {
+    showBubble('❌ ' + baseMsg + `（${observeWrong}/3）`, true);
+    actionArea.innerHTML = `<div class="action-tip">${curPatient.observe.hint}（错误 ${observeWrong}/3）</div>`;
+    later(hideBubble, 1200);
+  }
+}
+
+function renderInquiry() {
+  hideBubble();
+  renderScene({ isPulseStage: false, hotspots: [], actionClass: 'breathe' });
+  actionArea.innerHTML = `<div class="action-tip">💬 病人正在诉说症状……</div>`;
+  const syms = curPatient.inquiry.symptoms;
+  syms.forEach((s, i) => {
+    later(() => {
+      showBubble('「' + s + '」', true);
+      if (!symptomsShown.includes(s)) symptomsShown.push(s);
+      renderCase();
+      sfx.click();
+      const g = sceneWrap.querySelector('.patient-group');
+      if (g) { g.classList.remove('breathe'); g.classList.add('shiver'); later(() => { g.classList.remove('shiver'); g.classList.add('breathe'); }, 420); }
+    }, 700 + i * 700);
+  });
+  later(() => {
+    showBubble(curPatient.inquiry.doneMsg || '（病人沉默）', true);
+    actionArea.innerHTML = `<div class="action-tip">问诊完毕，接下来请为病人切脉。</div>
+      <button class="action-btn" id="btnPulse">切脉</button>`;
+    $('btnPulse').onclick = () => { sfx.click(); setState(ST.PULSE); };
+  }, 700 + syms.length * 700);
+}
+
+function renderPulse() {
+  hideBubble();
+  const pulseHotspot = [{ id:'pulse', cx:256, cy:382, r:28, correct:true }];
+  renderScene({ isPulseStage: true, hotspots: pulseHotspot, actionClass: 'breathe' });
+  actionArea.innerHTML = `<div class="action-tip">🩺 伸出右手，点击病人手腕为其把脉</div>`;
+}
+
+function onPulseClick() {
+  sfx.correct();
+  pulseShown = curPatient.pulse.text;
+  renderCase();
+  showBubble('脉象：' + pulseShown, true);
+  const el = sceneWrap.querySelector('.hotspot[data-id="pulse"]');
+  if (el) el.style.display = 'none';
+  later(() => {
+    actionArea.innerHTML = `<div class="action-tip">四诊已毕，请判断病人的方证。</div>
+      <button class="action-btn" id="btnDiagnose">开始辨证</button>`;
+    $('btnDiagnose').onclick = () => { sfx.click(); setState(ST.DIAGNOSE); };
+  }, 1800);
+}
+
+function renderDiagnose() {
+  hideBubble();
+  renderScene({ isPulseStage: true, hotspots: [], actionClass: 'breathe' });
+  const opts = shuffle(curPatient.diagnose.options);
+  actionArea.innerHTML =
+    `<div class="action-tip">🧠 根据四诊所得，判断病人属于哪一证（剩余机会 ${2 - wrongCount}）</div>` +
+    opts.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join('');
+  actionArea.querySelectorAll('.option-btn').forEach(btn => {
+    btn.onclick = () => onDiagnoseClick(btn);
+  });
+}
+
+function onDiagnoseClick(btn) {
+  const picked = btn.dataset.opt;
+  const correct = curPatient.diagnose.answer;
+
+  if (picked === correct) {
+    sfx.win();
+    btn.classList.add('correct');
+    actionArea.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+    const reward = 10 + curIndex * 5;
+    Player.addCoins(reward);
+    updateCoin();
+    later(() => {
+      showModal('✅ 辨证正确',
+        `${curPatient.name} 患的是「${correct}」，当用「${curPatient.diagnose.formula}」。\n` +
+        `${curPatient.diagnose.desc}。\n\n💰 获得 ${reward} 铜币`,
+        '继续',
+        () => {
+          curIndex++;
+          if (curIndex >= PATIENTS.length) {
+            showModal('🎉 今日行医完毕', `你已诊治完所有病人，共获得铜币 ${Player.getCoins()}。`, '返回主页', () => location.href = 'index.html');
+          } else {
+            loadPatient(curIndex);
+          }
+        });
+    }, 900);
+  } else {
+    sfx.lose();
+    wrongCount++;
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    if (wrongCount >= 2) {
+      actionArea.innerHTML = `<div class="action-tip" style="color:#c62828;">❌ 两次辨证皆错，病人生气地离开了……</div>`;
+      const g = sceneWrap.querySelector('.patient-group');
+      if (g) g.style.opacity = '0.4';
+      later(() => {
+        showModal('😠 辨证失败',
+          `${curPatient.name} 摇头离去了。你决定重新整理思路，请他再来一次。`,
+          '重新接诊',
+          () => {
+            wrongCount = 0; observeWrong = 0; symptomsShown = []; pulseShown = '';
+            loadPatient(curIndex);
+          });
+      }, 500);
+    } else {
+      actionArea.querySelector('.action-tip').textContent =
+        `❌ 错了，「${picked}」不对。再想想（剩余机会 1）`;
+      const g = sceneWrap.querySelector('.patient-group');
+      if (g) { g.classList.remove('breathe'); g.classList.add('shiver'); later(() => { g.classList.remove('shiver'); g.classList.add('breathe'); }, 500); }
     }
+  }
+}
 
-    // ============ 选项点击 ============
-    for (var b = 0; b < optionBtns.length; b++) {
-        (function(btn) {
-            btn.addEventListener('click', function() {
-                if (btn.disabled) return;
-                if (!state) return;
-                if (waiting) return;
-                if (state.attempts >= 2) return;
+function loadPatient(index) {
+  curPatient = PATIENTS[index];
+  wrongCount = 0; observeWrong = 0;
+  symptomsShown = []; pulseShown = '';
+  updateProgress(); renderCase(); hideBubble();
+  later(() => setState(ST.INTRO), 200);
+}
 
-                var chosen = btn.textContent;
-                var correct = state.formula.name;
-
-                if (chosen === correct) {
-                    // 答对
-                    btn.classList.add('correct');
-                    for (var i = 0; i < optionBtns.length; i++) optionBtns[i].disabled = true;
-
-                    var fee = getDiagnoseFee();
-                    addCoins(fee);
-                    var newCount = addCorrectCount();
-                    renderTop();
-                    showCoinGain(fee);
-
-                    waiting = true;
-
-                    if (newCount % POWER_UP_PER === 0) {
-                        var newPowerInt = Math.floor(getPower());
-                        setTimeout(function() {
-                            showModal('🎉 恭喜！',
-                                '您的医力提升至 ' + newPowerInt + '/100<br>诊费已提升至 ' + getDiagnoseFee() + ' 铜币',
-                                '继续行医',
-                                function() { closeModal(); nextPatient(); });
-                        }, 700);
-                    } else {
-                        setTimeout(function() { nextPatient(); }, 900);
-                    }
-                } else {
-                    // 答错
-                    state.attempts++;
-                    btn.classList.add('wrong');
-                    btn.disabled = true;
-
-                    if (state.attempts >= 2) {
-                        for (var j = 0; j < optionBtns.length; j++) {
-                            optionBtns[j].disabled = true;
-                            if (optionBtns[j].textContent === correct) optionBtns[j].classList.add('correct');
-                        }
-                        waiting = true;
-                        setTimeout(function() {
-                            showModal('病人生气了！',
-                                '两次都诊断错误，病人生气离开。<br>正确方证是：<b>' + correct + '</b>',
-                                '下一位病人',
-                                function() { closeModal(); nextPatient(); });
-                        }, 700);
-                    } else {
-                        showModal('诊断有误',
-                            '您还有 <b>1 次</b> 机会，请再仔细看症状，选择正确的方证。',
-                            '再试一次',
-                            function() { closeModal(); });
-                    }
-                }
-            });
-        })(optionBtns[b]);
-    }
-
-    // ============ 初始化 ============
-    queueCountEl.textContent = queueCount;
-    spawnPatient();
-})();
+updateCoin();
+loadPatient(0);
+$('btnHome').onclick = () => location.href = 'index.html';
 </script>
 </body>
 </html>
