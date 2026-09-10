@@ -25,7 +25,6 @@ body {
     z-index: 20;
 }
 
-/* 顶部栏 */
 #topBar {
     display: flex; justify-content: space-between; align-items: flex-start;
     padding: 10px 12px 10px 54px;
@@ -62,8 +61,10 @@ body {
     flex: 2;
     position: relative;
     display: flex; flex-direction: column;
-    align-items: center; justify-content: flex-start;
-    padding: 8px 10px 4px; overflow: hidden;
+    align-items: center;
+    justify-content: flex-end;   /* 病人和症状面板靠下 */
+    padding: 8px 10px 12px;
+    overflow: hidden;
 }
 #bottomArea {
     flex: 1;
@@ -83,7 +84,6 @@ body {
 #patientStage {
     position: relative;
     width: 150px; height: 178px;
-    margin-top: 6px;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -181,7 +181,6 @@ body {
     font-weight: bold; color: #8b5e3c; font-size: 12px;
 }
 
-/* 方证选项 */
 #optionsBar {
     display: flex; gap: 8px; padding: 8px 12px;
     background: #fdf7ec;
@@ -208,8 +207,8 @@ body {
     flex: 1;
     background: linear-gradient(180deg, #f5ede1 0%, #e8d9c2 55%, #d4b896 100%);
     display: flex; align-items: flex-end; justify-content: center;
-    gap: 8px;
-    padding: 0 20px 6px; position: relative;
+    gap: 4px;
+    padding: 0 20px 4px; position: relative;
     box-shadow: inset 0 4px 10px rgba(0,0,0,0.08);
     min-height: 0;
 }
@@ -219,39 +218,44 @@ body {
     background: #8b5e3c;
 }
 
-/* 医生 */
+/* ===== 医生（头和身体贴合）===== */
 .deco-doctor {
-    width: 88px; height: 100%;
-    max-height: 130px;
+    width: 90px;
+    height: 100px;
     position: relative;
     display: flex; align-items: flex-end; justify-content: center;
     flex-shrink: 0;
 }
 .deco-doctor img { width: 100%; height: 100%; object-fit: contain; }
 .deco-doctor.fallback::before {
+    /* 头：位置 4~52 */
     content: ''; position: absolute;
-    width: 46px; height: 46px; border-radius: 50%;
+    width: 48px; height: 48px; border-radius: 50%;
     background: #f5e6d3; border: 3px solid #3a2a1a;
-    top: 0; left: 50%; transform: translateX(-50%);
+    top: 4px; left: 50%; transform: translateX(-50%);
+    z-index: 2;
 }
 .deco-doctor.fallback::after {
+    /* 身体：位置 48~100，和头在 48~52 处重叠 */
     content: ''; position: absolute;
-    width: 70px; height: 56px;
-    border-radius: 36px 36px 0 0;
+    width: 68px; height: 52px;
+    border-radius: 34px 34px 0 0;
     background: #d4a574; border: 3px solid #3a2a1a;
     bottom: 0; left: 50%; transform: translateX(-50%);
+    z-index: 1;
 }
 
-/* 葫芦 */
+/* ===== 葫芦（上下两半贴合）===== */
 .deco-gourd {
-    width: 64px; height: 100%;
-    max-height: 130px;
+    width: 66px;
+    height: 100px;
     position: relative;
     display: flex; align-items: flex-end; justify-content: center;
     flex-shrink: 0;
 }
 .deco-gourd img { width: 100%; height: 100%; object-fit: contain; }
 .deco-gourd .gourd-string {
+    /* 绳子：0~14 */
     position: absolute;
     top: 0; left: 50%;
     width: 3px; height: 14px;
@@ -260,6 +264,7 @@ body {
     border-radius: 2px;
 }
 .deco-gourd .gourd-cap {
+    /* 盖子：12~20 */
     position: absolute;
     top: 12px; left: 50%;
     transform: translateX(-50%);
@@ -270,6 +275,7 @@ body {
     z-index: 2;
 }
 .deco-gourd .gourd-top {
+    /* 上半球：18~52 */
     position: absolute;
     top: 18px; left: 50%;
     transform: translateX(-50%);
@@ -278,16 +284,19 @@ body {
     background: #c9a56a;
     border: 3px solid #5a3e2b;
     box-shadow: inset -3px -3px 6px rgba(0,0,0,0.15);
+    z-index: 3;
 }
 .deco-gourd .gourd-bottom {
+    /* 下半球：48~100，和上半球在 48~52 处重叠 */
     position: absolute;
     bottom: 0; left: 50%;
     transform: translateX(-50%);
-    width: 62px; height: 56px;
+    width: 62px; height: 52px;
     border-radius: 50% 50% 46% 46%;
     background: #c9a56a;
     border: 3px solid #5a3e2b;
     box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15);
+    z-index: 4;
 }
 
 /* 弹窗 */
@@ -372,7 +381,6 @@ body {
 (function() {
     'use strict';
 
-    // ============ 方证数据 ============
     var FORMULAS = [
         { name: '桂枝汤', s: { head: ['头痛'], body: ['发热','汗出','恶风'], pulse: ['脉浮缓'], limbs: [] } },
         { name: '麻黄汤', s: { head: ['头痛'], body: ['发热','无汗','恶风'], pulse: ['脉浮紧'], limbs: ['身疼','腰痛','骨节疼痛'] } },
@@ -400,7 +408,6 @@ body {
     var POWER_PER_CORRECT = 0.01;
     var POWER_UP_PER = 100;
 
-    // ============ 数据读写 ============
     function getCorrectCount() {
         var v = localStorage.getItem('diagnoseCorrect');
         return v ? parseInt(v) : 0;
@@ -424,7 +431,6 @@ body {
         localStorage.setItem('coins', String(t));
     }
 
-    // ============ 元素 ============
     var patientStage = document.getElementById('patientStage');
     var symptomPanel = document.getElementById('symptomPanel');
     var queueCountEl = document.getElementById('queueCount');
@@ -438,7 +444,6 @@ body {
     var state = null;
     var waiting = false;
 
-    // ============ 排队系统 ============
     // 初始 6~9 人
     var queueCount = 6 + Math.floor(Math.random() * 4);
 
@@ -460,14 +465,12 @@ body {
         }, QUEUE_GROW_INTERVAL);
     }
 
-    // ============ 顶部渲染 ============
     function renderTop() {
         powerText.textContent = getPower().toFixed(2);
         coinText.textContent = getCoins();
     }
     renderTop();
 
-    // ============ 创建病人 ============
     function createPatientFigure() {
         var fig = document.createElement('div');
         fig.id = 'patientFigure';
@@ -489,7 +492,6 @@ body {
         return fig;
     }
 
-    // ============ 生成病人 ============
     function spawnPatient() {
         patientStage.innerHTML = '';
 
@@ -537,7 +539,6 @@ body {
         });
     }
 
-    // ============ 点击病人部位 ============
     patientStage.addEventListener('click', function(e) {
         if (!state) return;
         var el = e.target;
@@ -582,7 +583,6 @@ body {
         }
     });
 
-    // ============ 弹窗 ============
     function showModal(title, html, btnText, callback) {
         modalBox.innerHTML =
             '<div class="modal-title">' + title + '</div>' +
@@ -593,7 +593,6 @@ body {
     }
     function closeModal() { modalOverlay.classList.remove('active'); }
 
-    // ============ 铜币飘字 ============
     function showCoinGain(n) {
         coinGain.textContent = '+' + n;
         coinGain.classList.remove('show');
@@ -602,7 +601,6 @@ body {
         setTimeout(function() { coinGain.classList.remove('show'); }, 1200);
     }
 
-    // ============ 病人离场 ============
     function patientLeave(callback) {
         var fig = document.getElementById('patientFigure');
         if (!fig) { callback(); return; }
@@ -611,14 +609,12 @@ body {
         setTimeout(callback, 550);
     }
 
-    // ============ 下一位病人 ============
     function nextPatient() {
         queueCount = Math.max(0, queueCount - 1);
         queueCountEl.textContent = queueCount;
         patientLeave(function() { spawnPatient(); });
     }
 
-    // ============ 选项点击 ============
     for (var b = 0; b < optionBtns.length; b++) {
         (function(btn) {
             btn.addEventListener('click', function() {
@@ -680,7 +676,6 @@ body {
         })(optionBtns[b]);
     }
 
-    // ============ 初始化 ============
     queueCountEl.textContent = queueCount;
     startQueueTimer();
     spawnPatient();
