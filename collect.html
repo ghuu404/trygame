@@ -303,7 +303,28 @@
     </div>
 
     <script>
+    // ===== 仓库系统（通用）=====
+const WAREHOUSE_KEY = 'warehouse';
+function getWarehouse() {
+    try {
+        return JSON.parse(localStorage.getItem(WAREHOUSE_KEY)) ||
+            { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    } catch(e) {
+        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    }
+}
+function saveWarehouse(w) {
+    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
+}
+function addItem(category, name, count) {
+    if (!name || count <= 0) return;
+    const w = getWarehouse();
+    if (!w[category]) w[category] = {};
+    w[category][name] = (w[category][name] || 0) + count;
+    saveWarehouse(w);
+}
         // ===== 体力系统（与主页面保持一致）=====
+        
         const MAX_STAMINA = 5;
         const STAMINA_RECOVER_MS = 10 * 60 * 1000;
 
@@ -612,23 +633,26 @@
         }
 
         // ===== 胜利 =====
-        function checkWin() {
-            for (let [name, total] of Object.entries(currentGoal)) {
-                if ((collected[name] || 0) < total) return;
-            }
+function checkWin() {
+    for (let [name, total] of Object.entries(currentGoal)) {
+        if ((collected[name] || 0) < total) return;
+    }
 
-            messageEl.textContent = '🎉 过关！';
-            messageEl.style.color = 'green';
+    messageEl.textContent = '🎉 过关！';
+    messageEl.style.color = 'green';
 
-            for (let [name, total] of Object.entries(currentGoal)) {
-                totalRewards[name] = (totalRewards[name] || 0) + total;
-            }
-            updateRewards();
+    // 发放奖励到仓库：每消除 3 张卡片获得 1 个药材
+    for (let [name, total] of Object.entries(currentGoal)) {
+        const reward = Math.floor(total / 3); // 9张 → 3个
+        addItem('herbs', name, reward);
+        totalRewards[name] = (totalRewards[name] || 0) + reward;
+    }
+    updateRewards();
 
-            setTimeout(() => {
-                showModal('采药成功', '已获得奖励，继续采药需要消耗 1 点体力');
-            }, 500);
-        }
+    setTimeout(() => {
+        showModal('采药成功', '已获得奖励（已入仓库），继续采药需要消耗 1 点体力');
+    }, 500);
+}
 
         // ===== 渲染卡槽 =====
         function renderSlot() {

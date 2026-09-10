@@ -19,27 +19,16 @@
         /* ===== 顶部栏 ===== */
         #topBar {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
+            top: 10px; left: 10px; right: 10px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             z-index: 10;
         }
-        #leftPanel {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        #playerRow {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        #leftPanel { display: flex; flex-direction: column; gap: 5px; }
+        #playerRow { display: flex; align-items: center; gap: 8px; }
         #avatar {
-            width: 54px;
-            height: 54px;
+            width: 54px; height: 54px;
             border-radius: 8px;
             border: 3px solid #558b2f;
             background: #f1f8e9;
@@ -50,33 +39,20 @@
         #avatar img { width: 100%; height: 100%; object-fit: cover; }
         #playerDetails { display: flex; flex-direction: column; }
         #playerName {
-            font-size: 14px;
-            font-weight: bold;
-            color: #33691e;
+            font-size: 14px; font-weight: bold; color: #33691e;
             text-shadow: 1px 1px 2px rgba(255,255,255,0.9);
         }
         #playerPower {
-            font-size: 11px;
-            color: #555;
-            margin-top: 2px;
-            font-weight: bold;
+            font-size: 11px; color: #555; margin-top: 2px; font-weight: bold;
             background: rgba(255,255,255,0.8);
-            padding: 1px 6px;
-            border-radius: 8px;
+            padding: 1px 6px; border-radius: 8px;
             width: fit-content;
         }
-        #subButtons {
-            display: flex;
-            gap: 4px;
-            margin-left: 2px;
-        }
+        #subButtons { display: flex; gap: 4px; margin-left: 2px; }
         .sub-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 46px;
-            height: 46px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            width: 46px; height: 46px;
             background: rgba(255,255,255,0.9);
             border: 2px solid #558b2f;
             border-radius: 10px;
@@ -87,26 +63,13 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
         .sub-btn:active { background: #aed581; transform: scale(0.93); }
-        .sub-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
+        .sub-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
         .sub-btn .text {
-            font-size: 9px;
-            color: #33691e;
-            font-weight: bold;
-            position: absolute;
-            bottom: 2px;
+            font-size: 9px; color: #33691e; font-weight: bold;
+            position: absolute; bottom: 2px;
             text-shadow: 0 0 3px #fff, 0 0 3px #fff;
         }
-        #rightPanel {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: flex-end;
-        }
+        #rightPanel { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
         .resource {
             font-size: 13px;
             background: rgba(255,255,255,0.88);
@@ -117,96 +80,79 @@
             white-space: nowrap;
             color: #33691e;
         }
+        .warehouse-btn {
+            font-size: 13px;
+            background: rgba(255,255,255,0.88);
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 2px solid #a5d6a7;
+            font-weight: bold;
+            white-space: nowrap;
+            color: #33691e;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.15s;
+        }
+        .warehouse-btn:active { transform: scale(0.95); background: #dcedc8; }
 
         /* ===== 五个地点 ===== */
         .spot {
             position: absolute;
-            width: 84px;
-            height: 84px;
+            width: 84px; height: 84px;
             border-radius: 50%;
             background: rgba(241, 248, 233, 0.9);
             border: 3px solid #558b2f;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; text-decoration: none;
             transition: transform 0.15s;
             overflow: hidden;
         }
         .spot:active { transform: scale(0.92); }
         .spot img {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
+            position: absolute; width: 100%; height: 100%;
+            object-fit: cover; border-radius: 50%;
         }
         .spot .label {
-            position: relative;
-            z-index: 2;
-            font-size: 13px;
-            font-weight: bold;
+            position: relative; z-index: 2;
+            font-size: 13px; font-weight: bold;
             color: #fff;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
             background: rgba(51, 105, 30, 0.78);
-            padding: 1px 8px;
-            border-radius: 8px;
+            padding: 1px 8px; border-radius: 8px;
             bottom: -28px;
         }
-
-        /* 原布局：四角 + 中间行医，整体收拢一点点 */
         /* 收拢 + 散乱：上下两行不对齐 */
-#spot-collect  { left: 16%; top: 21%; }        /* 采药：左上偏里 */
-#spot-plant    { right: 19%; top: 17%; }       /* 种植：右上，比采药高一点 */
-#spot-diagnose { left: 50%; top: 48%; transform: translate(-50%, -50%); } /* 行医：正中间 */
-#spot-process  { left: 19%; bottom: 20%; }     /* 炮制：左下，比抓药高一点 */
-#spot-dispense { right: 16%; bottom: 16%; }    /* 抓药：右下偏里 */
+        #spot-collect  { left: 16%; top: 21%; }
+        #spot-plant    { right: 19%; top: 17%; }
+        #spot-diagnose { left: 50%; top: 48%; transform: translate(-50%, -50%); }
+        #spot-process  { left: 19%; bottom: 20%; }
+        #spot-dispense { right: 16%; bottom: 16%; }
 
         /* ===== 底部导航栏 ===== */
         #bottomBar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            position: absolute; bottom: 0; left: 0; right: 0;
             height: 66px;
             background: rgba(51, 105, 30, 0.92);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
+            display: flex; justify-content: space-around; align-items: center;
             box-shadow: 0 -2px 8px rgba(0,0,0,0.25);
             z-index: 10;
         }
         .nav-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #fff;
-            cursor: pointer;
-            transition: transform 0.15s;
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; color: #fff;
+            cursor: pointer; transition: transform 0.15s;
             flex: 1;
         }
         .nav-btn:active { transform: scale(0.9); }
-        .nav-btn .nav-icon {
-            font-size: 20px;
-            line-height: 1;
-        }
-        .nav-btn .nav-label {
-            font-size: 11px;
-            margin-top: 3px;
-            font-weight: bold;
-        }
+        .nav-btn .nav-icon { font-size: 20px; line-height: 1; }
+        .nav-btn .nav-label { font-size: 11px; margin-top: 3px; font-weight: bold; }
 
         /* ===== 弹窗 ===== */
         #modalOverlay {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background: rgba(0,0,0,0.65);
-            display: none;
-            align-items: center;
-            justify-content: center;
+            display: none; align-items: center; justify-content: center;
             z-index: 999;
         }
         #modalOverlay.active { display: flex; }
@@ -216,25 +162,18 @@
             padding: 22px 24px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            width: 88%;
-            max-width: 350px;
+            width: 88%; max-width: 350px;
             border: 3px solid #558b2f;
-            max-height: 85vh;
-            overflow-y: auto;
+            max-height: 85vh; overflow-y: auto;
         }
         .modal-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #33691e;
+            font-size: 20px; font-weight: bold; color: #33691e;
             margin-bottom: 12px;
         }
         .modal-btn {
-            display: block;
-            width: 100%;
-            font-size: 15px;
-            font-weight: bold;
-            padding: 10px;
-            margin: 6px 0;
+            display: block; width: 100%;
+            font-size: 15px; font-weight: bold;
+            padding: 10px; margin: 6px 0;
             border: 2px solid #558b2f;
             border-radius: 12px;
             background: #aed581;
@@ -244,15 +183,12 @@
         }
         .modal-btn:active { transform: scale(0.96); }
         .modal-btn.secondary {
-            background: #e0e0e0;
-            border-color: #999;
-            color: #555;
+            background: #e0e0e0; border-color: #999; color: #555;
         }
+        /* 签到格子 */
         .sign-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin: 10px 0;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 5px; margin: 10px 0;
         }
         .sign-day {
             background: #fff;
@@ -262,32 +198,41 @@
             font-size: 10px;
             text-align: center;
             min-height: 58px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #33691e;
-            line-height: 1.3;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #33691e; line-height: 1.3;
         }
         .sign-day.active {
-            border-color: #558b2f;
-            background: #dcedc8;
+            border-color: #558b2f; background: #dcedc8;
             box-shadow: 0 0 0 2px #aed581;
         }
-        .sign-day.claimed {
-            background: #c8e6c9;
-            opacity: 0.65;
+        .sign-day.claimed { background: #c8e6c9; opacity: 0.65; }
+        .sign-day .day-label { font-weight: bold; font-size: 10px; color: #888; }
+        .sign-day .reward { font-weight: bold; font-size: 10px; margin-top: 2px; }
+        /* 仓库格子 */
+        .warehouse-section {
+            text-align: left;
+            font-size: 14px; font-weight: bold; color: #33691e;
+            margin: 10px 0 6px;
+            border-bottom: 1px dashed #a5d6a7;
+            padding-bottom: 3px;
         }
-        .sign-day .day-label {
-            font-weight: bold;
-            font-size: 10px;
-            color: #888;
+        .warehouse-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 5px; margin-bottom: 4px;
         }
-        .sign-day .reward {
-            font-weight: bold;
-            font-size: 10px;
-            margin-top: 2px;
+        .wh-item {
+            background: #fff;
+            border: 1px solid #c5e1a5;
+            border-radius: 6px;
+            padding: 5px 4px;
+            font-size: 11px;
+            color: #33691e;
+            text-align: center;
+            display: flex; flex-direction: column; gap: 2px;
         }
+        .wh-count { font-weight: bold; color: #558b2f; font-size: 12px; }
+        .wh-empty { font-size: 12px; color: #999; }
     </style>
 </head>
 <body>
@@ -319,6 +264,7 @@
     <div id="rightPanel">
         <div class="resource">💰 <span id="coinText">0</span></div>
         <div class="resource">⚡ <span id="staminaText">5/5</span></div>
+        <div class="warehouse-btn" id="btnWarehouse">📦 仓库</div>
     </div>
 </div>
 
@@ -343,28 +289,12 @@
     <div class="label">抓药</div>
 </a>
 
-<!-- 底部导航栏 -->
 <div id="bottomBar">
-    <a class="nav-btn" href="collect.html">
-        <span class="nav-icon">🌲</span>
-        <span class="nav-label">采药</span>
-    </a>
-    <a class="nav-btn" href="plant.html">
-        <span class="nav-icon">🌱</span>
-        <span class="nav-label">种植</span>
-    </a>
-    <a class="nav-btn" href="process.html">
-        <span class="nav-icon">⚗️</span>
-        <span class="nav-label">炮制</span>
-    </a>
-    <a class="nav-btn" href="diagnose.html">
-        <span class="nav-icon">🩺</span>
-        <span class="nav-label">行医</span>
-    </a>
-    <a class="nav-btn" href="dispense.html">
-        <span class="nav-icon">📦</span>
-        <span class="nav-label">抓药</span>
-    </a>
+    <a class="nav-btn" href="collect.html"><span class="nav-icon">🌲</span><span class="nav-label">采药</span></a>
+    <a class="nav-btn" href="plant.html"><span class="nav-icon">🌱</span><span class="nav-label">种植</span></a>
+    <a class="nav-btn" href="process.html"><span class="nav-icon">⚗️</span><span class="nav-label">炮制</span></a>
+    <a class="nav-btn" href="diagnose.html"><span class="nav-icon">🩺</span><span class="nav-label">行医</span></a>
+    <a class="nav-btn" href="dispense.html"><span class="nav-icon">📦</span><span class="nav-label">抓药</span></a>
 </div>
 
 <div id="modalOverlay">
@@ -378,6 +308,27 @@ const STAMINA_RECOVER_MS = 10 * 60 * 1000;
 const MATERIALS = ['黄酒', '大米', '蜂蜜'];
 const SEED_POOL = ['生姜', '栀子', '芍药', '甘草', '白术', '泽泻', '半夏'];
 const MAX_DAYS = 7;
+
+// ===== 仓库系统（通用）=====
+const WAREHOUSE_KEY = 'warehouse';
+function getWarehouse() {
+    try {
+        return JSON.parse(localStorage.getItem(WAREHOUSE_KEY)) ||
+            { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    } catch(e) {
+        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    }
+}
+function saveWarehouse(w) {
+    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
+}
+function addItem(category, name, count) {
+    if (!name || count <= 0) return;
+    const w = getWarehouse();
+    if (!w[category]) w[category] = {};
+    w[category][name] = (w[category][name] || 0) + count;
+    saveWarehouse(w);
+}
 
 // ===== 日期工具 =====
 function todayStr() {
@@ -465,14 +416,6 @@ function getSignReward(day, state) {
     }
     return r;
 }
-function addMaterial(name, count) {
-    const key = `material_${name}`;
-    localStorage.setItem(key, parseInt(localStorage.getItem(key) || 0) + count);
-}
-function addSeed(name, count) {
-    const key = `seed_${name}`;
-    localStorage.setItem(key, parseInt(localStorage.getItem(key) || 0) + count);
-}
 
 // ===== 渲染顶部 =====
 function renderTopBar() {
@@ -536,20 +479,58 @@ function doSign() {
     const r = getSignReward(newDay, state);
 
     if (r.coins) addCoins(r.coins);
-    if (r.material) { addMaterial(r.material, 1); state.materialIdx += 1; }
-    if (r.seed) { addSeed(r.seed, r.seedCount); state.seedIdx += 1; }
+    if (r.material) {
+        addItem('materials', r.material, 1);
+        state.materialIdx += 1;
+    }
+    if (r.seed) {
+        addItem('seeds', r.seed, r.seedCount);
+        state.seedIdx += 1;
+    }
 
     state.lastDate = todayStr();
     state.day = newDay;
     saveSignState(state);
 
     let msg = `签到成功！\n获得 ${r.coins} 铜币`;
-    if (r.material) msg += `\n+ ${r.material} x1`;
-    if (r.seed) msg += `\n+ ${r.seed}种子 x${r.seedCount}`;
+    if (r.material) msg += `\n+ ${r.material} x1（已入仓库）`;
+    if (r.seed) msg += `\n+ ${r.seed}种子 x${r.seedCount}（已入仓库）`;
     alert(msg);
 
     renderTopBar();
     openSignModal();
+}
+
+// ===== 仓库弹窗 =====
+function openWarehouse() {
+    const w = getWarehouse();
+    let html = `<div class="modal-title">📦 仓库</div>`;
+
+    const sections = [
+        { key: 'herbs', title: '🌿 药材', empty: '暂无药材，去采药吧' },
+        { key: 'seeds', title: '🌱 种子', empty: '暂无种子，签到或购买获得' },
+        { key: 'materials', title: '🍯 辅料', empty: '暂无辅料，签到或购买获得' },
+        { key: 'processed', title: '⚗️ 饮片', empty: '暂无饮片，去炮制药材吧' },
+    ];
+
+    for (let sec of sections) {
+        html += `<div class="warehouse-section">${sec.title}</div>`;
+        const items = w[sec.key] || {};
+        const keys = Object.keys(items).filter(k => items[k] > 0);
+        if (keys.length === 0) {
+            html += `<div class="wh-empty">${sec.empty}</div>`;
+        } else {
+            html += `<div class="warehouse-grid">`;
+            for (let name of keys) {
+                html += `<div class="wh-item"><span>${name}</span><span class="wh-count">x${items[name]}</span></div>`;
+            }
+            html += `</div>`;
+        }
+    }
+
+    html += `<button class="modal-btn secondary" onclick="closeModal()" style="margin-top:14px;">关闭</button>`;
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('active');
 }
 
 function closeModal() {
@@ -587,6 +568,7 @@ setInterval(renderTopBar, 60000);
 document.getElementById('btnSign').addEventListener('click', openSignModal);
 document.getElementById('btnMedBook').addEventListener('click', openMedBook);
 document.getElementById('btnHerbBook').addEventListener('click', openHerbBook);
+document.getElementById('btnWarehouse').addEventListener('click', openWarehouse);
 </script>
 </body>
 </html>
