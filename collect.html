@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>采药</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: sans-serif;
+            background: #f5f0e8;
+            user-select: none;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.5s;
+        }
+        #gameContainer {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+        }
+        h1 { font-size: 20px; color: #5a3e2b; margin-bottom: 5px; }
+        #areaSelect {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .areaBtn {
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 2px solid #8b5e3c;
+            background: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .areaBtn.active {
+            background: #8b5e3c;
+            color: #fff;
+        }
+        #target {
+            font-size: 14px;
+            padding: 5px 12px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 20px;
+            border: 2px solid #d4a574;
+            margin-bottom: 5px;
+        }
+        #message {
+            font-size: 15px;
+            height: 22px;
+            font-weight: bold;
+            margin: 3px 0;
+        }
+        #cardArea {
+            position: relative;
+            width: 95%;
+            height: 50vh;
+            max-height: 420px;
+            margin: 5px auto;
+            background: rgba(255,255,255,0.3);
+            border-radius: 16px;
+            border: 3px solid #b89a72;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+        .card {
+            position: absolute;
+            width: 20vw;
+            max-width: 80px;
+            height: 24vw;
+            max-height: 96px;
+            background: #fff;
+            border: 2px solid #8b5e3c;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            transition: transform 0.1s, opacity 0.2s;
+            z-index: 1;
+        }
+        .card img {
+            width: 70%;
+            height: 60%;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-top: 5px;
+            pointer-events: none;
+        }
+        .card .name {
+            display: block;
+            font-size: 12px;
+            color: #3a2a1a;
+            pointer-events: none;
+        }
+        .card.blocked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .card:hover:not(.blocked) {
+            transform: translateY(-3px);
+            border-color: #ff8c00;
+            z-index: 100;
+        }
+        #slotArea {
+            margin-top: 5px;
+        }
+        #slot {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            background: #5a3e2b;
+            padding: 6px;
+            border-radius: 12px;
+            min-height: 60px;
+            width: 90%;
+            margin: 0 auto;
+        }
+        .slot-item {
+            width: 40px;
+            height: 48px;
+            background: #e8d5c0;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .slot-item img {
+            width: 28px;
+            height: 28px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        #rewards {
+            font-size: 12px;
+            color: #5a3e2b;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>🌿 采药</h1>
+        <div id="areaSelect">
+            <div class="areaBtn active" data-area="forest">丛林</div>
+            <div class="areaBtn" data-area="mountain">山地</div>
+            <div class="areaBtn" data-area="field">田野</div>
+        </div>
+        <div id="target">🎯 <span id="targetDisplay"></span></div>
+        <div id="message"></div>
+        <div id="cardArea"></div>
+        <div id="slotArea">
+            <div id="slot"></div>
+        </div>
+        <div id="rewards">🏆 已获得：暂无</div>
+    </div>
+
+    <script>
+        // ===== 药材数据（含区域和图片路径）=====
+        const herbs = [
+            // 丛林/森林
+            { name: '桂枝', img: '', area: 'forest' },
+            { name: '茯苓', img: '', area: 'forest' },
+            { name: '葛根', img: '', area: 'forest' },
+            { name: '黄连', img: '', area: 'forest' },
+            { name: '人参', img: '', area: 'forest' },
+            { name: '细辛', img: '', area: 'forest' },
+            // 山地
+            { name: '麻黄', img: '', area: 'mountain' },
+            { name: '杏仁', img: '', area: 'mountain' },
+            { name: '柴胡', img: '', area: 'mountain' },
+            { name: '黄芩', img: '', area: 'mountain' },
+            { name: '知母', img: '', area: 'mountain' },
+            { name: '附子', img: '', area: 'mountain' },
+            // 田野
+            { name: '芍药', img: '', area: 'field' },
+            { name: '甘草', img: '', area: 'field' },
+            { name: '生姜', img: '', area: 'field' },
+            { name: '大枣', img: '', area: 'field' },
+            { name: '半夏', img: '', area: 'field' },
+            { name: '茵陈', img: '', area: 'field' },
+        ];
+
+        // ===== 背景图（可替换为真实图片路径）=====
+        const areaBackgrounds = {
+            forest: 'linear-gradient(135deg, #2e7d32, #a5d6a7)', // 绿色
+            mountain: 'linear-gradient(135deg, #6d4c41, #bcaaa4)', // 棕色
+            field: 'linear-gradient(135deg, #f9a825, #fff176)'     // 黄色
+        };
+
+        // ===== 关卡配置 =====
+        const TARGET_KINDS = 3;           // 每关目标药材种类数
+        const CARDS_PER_TARGET = 9;       // 每种目标需要收集的卡片数
+        const TOTAL_KINDS = 6;            // 场景中出现的药材种类总数
+        const SLOT_MAX = 7;
+
+        let currentArea = 'forest';       // 当前区域
+        let currentGoal = {};
+        let slot = [];
+        let collected = {};
+        let totalRewards = {};
+        let allCards = [];
+
+        const targetDisplay = document.getElementById('targetDisplay');
+        const messageEl = document.getElementById('message');
+        const cardAreaEl = document.getElementById('cardArea');
+        const slotEl = document.getElementById('slot');
+        const rewardsEl = document.getElementById('rewards');
+
+        // ===== 区域选择 =====
+        document.querySelectorAll('.areaBtn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.areaBtn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentArea = this.dataset.area;
+                // 切换背景
+                cardAreaEl.style.background = areaBackgrounds[currentArea];
+                initLevel();
+            });
+        });
+
+        // ===== 初始化关卡 =====
+        function initLevel() {
+            // 获取当前区域药材池
+            const areaHerbs = herbs.filter(h => h.area === currentArea);
+            if (areaHerbs.length < TOTAL_KINDS) {
+                console.warn('当前区域药材不足，使用全部');
+            }
+            // 随机选择目标（3种）
+            const shuffled = [...areaHerbs].sort(() => Math.random() - 0.5);
+            const targetHerbs = shuffled.slice(0, Math.min(TARGET_KINDS, shuffled.length));
+            currentGoal = {};
+            targetHerbs.forEach(h => { currentGoal[h.name] = CARDS_PER_TARGET; });
+            collected = {};
+            slot = [];
+            updateTargetDisplay();
+            createCards(areaHerbs);
+            renderSlot();
+            messageEl.textContent = '';
+            // 设置背景
+            cardAreaEl.style.background = areaBackgrounds[currentArea];
+        }
+
+        function updateTargetDisplay() {
+            let parts = [];
+            for (let [name, total] of Object.entries(currentGoal)) {
+                const got = collected[name] || 0;
+                parts.push(`${name} ${got}/${total}`);
+            }
+            targetDisplay.textContent = parts.join('  ');
+        }
+
+        // ===== 创建卡片 =====
+        function createCards(areaHerbs) {
+            cardAreaEl.innerHTML = '';
+            allCards = [];
+
+            let cardList = [];
+            // 目标药材卡片
+            for (let [name] of Object.entries(currentGoal)) {
+                const herb = areaHerbs.find(h => h.name === name);
+                for (let i = 0; i < CARDS_PER_TARGET; i++) cardList.push(herb);
+            }
+            // 干扰药材卡片（从同区域非目标药材中选）
+            const nonTargets = areaHerbs.filter(h => !(h.name in currentGoal));
+            const shuffledNonTargets = nonTargets.sort(() => Math.random() - 0.5);
+            const disturbanceHerbs = shuffledNonTargets.slice(0, TOTAL_KINDS - TARGET_KINDS);
+            disturbanceHerbs.forEach(herb => {
+                for (let i = 0; i < CARDS_PER_TARGET; i++) cardList.push(herb);
+            });
+
+            // 打乱
+            cardList.sort(() => Math.random() - 0.5);
+
+            // 生成随机位置
+            const positions = generatePositions(cardList.length);
+
+            cardList.forEach((herb, index) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.dataset.herb = herb.name;
+                div.style.left = positions[index].x + 'px';
+                div.style.top = positions[index].y + 'px';
+                div.style.zIndex = positions[index].z;
+                div.innerHTML = herb.img
+                    ? `<img src="${herb.img}"><span class="name">${herb.name}</span>`
+                    : `<div style="font-size:25px;margin-top:6px;">🌿</div><span class="name">${herb.name}</span>`;
+                div.onclick = function() {
+                    if (!div.classList.contains('blocked')) {
+                        clickCard(div, herb.name);
+                    }
+                };
+                cardAreaEl.appendChild(div);
+                allCards.push({
+                    el: div,
+                    x: positions[index].x,
+                    y: positions[index].y,
+                    z: positions[index].z,
+                    name: herb.name
+                });
+            });
+
+            updateBlocked();
+        }
+
+        // ===== 生成随机位置 =====
+        function generatePositions(count) {
+            const positions = [];
+            const areaWidth = cardAreaEl.clientWidth;
+            const areaHeight = cardAreaEl.clientHeight;
+            const cardW = Math.min(80, areaWidth * 0.2);
+            const cardH = cardW * 1.2; // 保持比例
+
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * (areaWidth - cardW);
+                const y = Math.random() * (areaHeight - cardH);
+                positions.push({
+                    x: x,
+                    y: y,
+                    z: Math.floor(Math.random() * 10) + 1
+                });
+            }
+            return positions;
+        }
+
+        // ===== 遮挡判断 =====
+        function updateBlocked() {
+            allCards.forEach(card => card.el.classList.remove('blocked'));
+
+            for (let i = 0; i < allCards.length; i++) {
+                const cardA = allCards[i];
+                if (cardA.el.style.opacity === '0') continue;
+
+                for (let j = 0; j < allCards.length; j++) {
+                    if (i === j) continue;
+                    const cardB = allCards[j];
+                    if (cardB.el.style.opacity === '0') continue;
+
+                    if (cardB.z > cardA.z && isOverlapping(cardA, cardB)) {
+                        cardA.el.classList.add('blocked');
+                        break;
+                    }
+                }
+            }
+        }
+
+        function isOverlapping(a, b) {
+            const aw = a.el.clientWidth, ah = a.el.clientHeight;
+            const bw = b.el.clientWidth, bh = b.el.clientHeight;
+            const ax1 = a.x, ay1 = a.y;
+            const ax2 = a.x + aw, ay2 = a.y + ah;
+            const bx1 = b.x, by1 = b.y;
+            const bx2 = b.x + bw, by2 = b.y + bh;
+
+            const overlapX = Math.max(0, Math.min(ax2, bx2) - Math.max(ax1, bx1));
+            const overlapY = Math.max(0, Math.min(ay2, by2) - Math.max(ay1, by1));
+            const overlapArea = overlapX * overlapY;
+            const cardArea = aw * ah;
+
+            return overlapArea > cardArea * 0.3;
+        }
+
+        // ===== 点击卡片 =====
+        function clickCard(cardEl, herbName) {
+            if (slot.length >= SLOT_MAX) {
+                messageEl.textContent = '❌ 卡槽满了！';
+                messageEl.style.color = 'red';
+                return;
+            }
+
+            cardEl.style.opacity = '0';
+            cardEl.style.pointerEvents = 'none';
+
+            slot.push(herbName);
+            renderSlot();
+            checkSlotMatch();
+            updateBlocked();
+        }
+
+        // ===== 消除检查 =====
+        function checkSlotMatch() {
+            const counts = {};
+            for (let name of slot) {
+                counts[name] = (counts[name] || 0) + 1;
+            }
+
+            for (let [name, count] of Object.entries(counts)) {
+                if (count >= 3) {
+                    let removed = 0;
+                    slot = slot.filter(n => {
+                        if (n === name && removed < 3) {
+                            removed++;
+                            return false;
+                        }
+                        return true;
+                    });
+
+                    if (currentGoal[name] !== undefined) {
+                        collected[name] = (collected[name] || 0) + 3;
+                    }
+
+                    renderSlot();
+                    updateTargetDisplay();
+                    checkWin();
+                    return;
+                }
+            }
+
+            if (slot.length >= SLOT_MAX) {
+                messageEl.textContent = '❌ 卡槽满了，失败！';
+                messageEl.style.color = 'red';
+                setTimeout(() => {
+                    alert('重新开始本关');
+                    initLevel();
+                }, 500);
+            }
+        }
+
+        // ===== 胜利 =====
+        function checkWin() {
+            for (let [name, total] of Object.entries(currentGoal)) {
+                if ((collected[name] || 0) < total) return;
+            }
+
+            messageEl.textContent = '🎉 过关！';
+            messageEl.style.color = 'green';
+
+            for (let [name, total] of Object.entries(currentGoal)) {
+                totalRewards[name] = (totalRewards[name] || 0) + total;
+            }
+            updateRewards();
+
+            setTimeout(() => {
+                alert('过关！奖励已发放');
+                initLevel();
+            }, 800);
+        }
+
+        // ===== 渲染卡槽 =====
+        function renderSlot() {
+            slotEl.innerHTML = '';
+            for (let name of slot) {
+                const herb = herbs.find(h => h.name === name);
+                const div = document.createElement('div');
+                div.className = 'slot-item';
+                div.innerHTML = herb.img
+                    ? `<img src="${herb.img}"><span>${herb.name}</span>`
+                    : `<div style="font-size:18px;">🌿</div><span>${herb.name}</span>`;
+                slotEl.appendChild(div);
+            }
+            for (let i = slot.length; i < SLOT_MAX; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'slot-item';
+                empty.style.background = '#8a7255';
+                slotEl.appendChild(empty);
+            }
+        }
+
+        // ===== 奖励 =====
+        function updateRewards() {
+            if (Object.keys(totalRewards).length === 0) {
+                rewardsEl.textContent = '🏆 已获得：暂无';
+            } else {
+                let parts = [];
+                for (let [name, count] of Object.entries(totalRewards)) {
+                    parts.push(`${name} x${count}`);
+                }
+                rewardsEl.textContent = '🏆 已获得：' + parts.join('、');
+            }
+        }
+
+        // ===== 初始化背景和游戏 =====
+        cardAreaEl.style.background = areaBackgrounds[currentArea];
+        initLevel();
+    </script>
+</body>
+</html>
