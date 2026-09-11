@@ -9,9 +9,14 @@
     font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
 html, body { height: 100%; overflow: hidden; }
 body {
-    background: linear-gradient(180deg, #e8f5e9 0%, #dcedc8 50%, #c5e1a5 100%);
     display: flex; flex-direction: column;
     user-select: none; color: #3a2a1a;
+    background-color: #f5ead3;
+    background-image: url('images/diag-bg.jpg');
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    position: relative;
 }
 
 #backBtn {
@@ -25,26 +30,26 @@ body {
     z-index: 20;
 }
 
-/* 顶部栏 */
 #topBar {
     display: flex; justify-content: space-between; align-items: flex-start;
     padding: 10px 12px 10px 54px;
-    background: rgba(255,255,255,0.75);
-    border-bottom: 2px solid #a5d6a7;
+    background: rgba(255,255,255,0.55);
+    border-bottom: 2px solid #d4c4a8;
     flex-shrink: 0; position: relative;
+    z-index: 10;
 }
 #playerBox { display: flex; align-items: center; gap: 8px; }
 #avatar {
     width: 46px; height: 46px;
     border-radius: 6px;
-    border: 2px solid #558b2f;
+    border: 2px solid #8b5e3c;
     background: #f1f8e9;
     overflow: hidden; flex-shrink: 0;
 }
 #avatar img { width: 100%; height: 100%; object-fit: cover; }
 #playerText { display: flex; flex-direction: column; }
-#playerName { font-size: 14px; font-weight: bold; color: #33691e; }
-#playerStatus { font-size: 12px; color: #558b2f; margin-top: 1px; }
+#playerName { font-size: 14px; font-weight: bold; color: #3a2a1a; }
+#playerStatus { font-size: 12px; color: #8b5e3c; margin-top: 1px; }
 #playerPower { font-size: 11px; color: #666; margin-top: 1px; }
 #coinBox {
     display: flex; align-items: center; gap: 4px;
@@ -54,262 +59,178 @@ body {
     position: absolute; right: 20px; top: 40px;
     font-size: 14px; font-weight: bold; color: #558b2f;
     opacity: 0; transition: all 0.6s; pointer-events: none;
+    z-index: 10;
 }
 #coinGain.show { opacity: 1; transform: translateY(-20px); }
 
-/* 布局：病人 2/3，方子+桌面 1/3 */
-#patientArea {
-    flex: 2;
-    position: relative;
-    display: flex; flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 8px 10px 12px;
-    overflow: hidden;
-}
-#bottomArea {
-    flex: 1;
-    display: flex; flex-direction: column;
-    min-height: 0;
-}
-
 #queueInfo {
-    position: absolute; top: 10px; right: 14px;
+    position: absolute; top: 80px; right: 14px;
     font-size: 13px; font-weight: bold;
     background: rgba(255,255,255,0.85);
     padding: 3px 10px;
     border-radius: 12px;
-    border: 2px solid #a5d6a7;
-    color: #558b2f;
+    border: 2px solid #d4c4a8;
+    color: #8b5e3c;
+    z-index: 10;
 }
+
+/* 病人区：全屏铺满，点击区直接覆盖病人图 */
+#patientArea {
+    position: absolute;
+    left: 0; right: 0;
+    top: 60px;              /* 顶栏之下 */
+    bottom: 130px;          /* 方剂栏之上 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* 病人舞台：高度铺满，比例保持 */
 #patientStage {
     position: relative;
-    width: 150px; height: 178px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    height: 100%;
+    width: auto;
+    aspect-ratio: 3 / 4;    /* 病人图是竖长比例 3:4 */
+    max-width: 70%;
+    pointer-events: auto;
 }
 #patientFigure {
-    position: absolute; inset: 0;
+    position: absolute;
+    inset: 0;
     transition: transform 0.55s ease, opacity 0.55s ease;
 }
 #patientFigure.enter { animation: walkIn 0.55s ease-out forwards; }
 #patientFigure.exit { animation: walkOut 0.55s ease-in forwards; }
 @keyframes walkIn {
-    from { transform: translateX(200px); opacity: 0; }
+    from { transform: translateX(180px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
 @keyframes walkOut {
     from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(-200px); opacity: 0; }
+    to { transform: translateX(-180px); opacity: 0; }
 }
 
-.p-head {
-    position: absolute; left: 50%; top: 0;
-    transform: translateX(-50%);
-    width: 54px; height: 54px; border-radius: 50%;
-    background: #f5e6d3; border: 3px solid #3a2a1a;
-    cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
-}
-.p-head.checked { background: #d4c4a8; cursor: default; }
-.p-head .face { font-size: 22px; line-height: 1; }
-.p-body {
-    position: absolute; left: 50%; top: 56px;
-    transform: translateX(-50%);
-    width: 72px; height: 82px;
-    border-radius: 36px 36px 18px 18px;
-    background: #a0785a; border: 3px solid #3a2a1a;
-    cursor: pointer; transition: all 0.2s;
-}
-.p-body.checked { background: #806040; cursor: default; }
-.p-wrist {
-    position: absolute; right: 4px; top: 92px;
-    width: 30px; height: 30px; border-radius: 50%;
-    background: #f5e6d3; border: 3px solid #3a2a1a;
-    cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: bold;
-}
-.p-wrist.checked { background: #d4c4a8; cursor: default; }
-.p-legs {
-    position: absolute; left: 50%; top: 140px;
-    transform: translateX(-50%);
-    width: 58px; height: 36px;
-    border-radius: 0 0 26px 26px;
-    background: #6b4a30; border: 3px solid #3a2a1a;
-    cursor: pointer; transition: all 0.2s;
-}
-.p-legs.checked { background: #503620; cursor: default; }
-
-.p-head img, .p-body img, .p-wrist img, .p-legs img {
-    position: absolute; inset: 0;
+.patient-img {
+    position: absolute;
+    inset: 0;
     width: 100%; height: 100%;
     object-fit: contain;
     pointer-events: none;
-    border-radius: inherit;
 }
 
-.hint {
-    position: absolute; background: #fff;
-    border: 2px solid #558b2f; border-radius: 10px;
-    padding: 3px 8px; font-size: 12px; font-weight: bold;
-    color: #33691e; box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-    white-space: nowrap; animation: floatUp 0.4s ease-out; z-index: 5;
+/* 点击区 */
+.hit-area {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.15s;
 }
-.hint.pulse-hint { right: -85px; top: 92px; }
-.hint.head-hint { left: -70px; top: 8px; }
-.hint.body-hint { left: -70px; top: 68px; }
-.hint.limbs-hint { left: -60px; top: 142px; }
+.hit-area.checked {
+    background: rgba(212, 196, 168, 0.4);
+    cursor: default;
+}
+.hit-area:not(.checked):active {
+    background: rgba(174, 213, 129, 0.35);
+}
+
+/* 四个点击区（按全身病人图比例） */
+.hit-head  { top: 3%;   left: 30%; width: 40%; height: 20%; }
+.hit-body  { top: 22%;  left: 20%; width: 60%; height: 42%; }
+.hit-pulse { top: 35%;  right: 5%; width: 22%; height: 18%; }
+.hit-legs  { top: 62%;  left: 25%; width: 50%; height: 36%; }
+
+/* 症状气泡 */
+.hint {
+    position: absolute;
+    background: #fff;
+    border: 2px solid #8b5e3c;
+    border-radius: 10px;
+    padding: 3px 8px;
+    font-size: 12px; font-weight: bold;
+    color: #3a2a1a;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    white-space: nowrap;
+    animation: floatUp 0.4s ease-out;
+    z-index: 5;
+}
+.hint.pulse-hint { right: -95px; top: 38%; }
+.hint.head-hint { left: -80px; top: 5%; }
+.hint.body-hint { left: -80px; top: 30%; }
+.hint.limbs-hint { left: -70px; top: 70%; }
 @keyframes floatUp {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* 症状面板 */
 #symptomPanel {
-    width: 90%; max-width: 380px;
+    position: absolute;
+    left: 50%;
+    bottom: 130px;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 380px;
     background: rgba(255,255,255,0.95);
-    border: 2px solid #a5d6a7; border-radius: 12px;
-    padding: 6px 12px; min-height: 42px; max-height: 76px;
-    overflow-y: auto; font-size: 13px; line-height: 1.7;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-top: 8px;
+    border: 2px solid #d4c4a8;
+    border-radius: 12px;
+    padding: 6px 12px;
+    min-height: 42px;
+    max-height: 76px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.7;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    z-index: 6;
 }
 #symptomPanel .placeholder { color: #999; font-style: italic; font-size: 12px; }
 #symptomPanel .sym-item {
-    display: inline-block; background: #fff3e0;
-    border: 1px solid #d4a574; border-radius: 6px;
-    padding: 1px 8px; margin: 2px 3px 2px 0;
-    font-weight: bold; color: #8b5e3c; font-size: 12px;
+    display: inline-block;
+    background: #fff3e0;
+    border: 1px solid #d4a574;
+    border-radius: 6px;
+    padding: 1px 8px;
+    margin: 2px 3px 2px 0;
+    font-weight: bold;
+    color: #8b5e3c;
+    font-size: 12px;
 }
 
-/* 方证选项 */
+/* 方剂选择栏 */
 #optionsBar {
-    display: flex; gap: 8px; padding: 8px 12px;
-    background: #fdf7ec;
-    border-top: 2px solid #a5d6a7;
-    border-bottom: 2px solid #d4c4a8;
-    flex-shrink: 0;
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0;
+    display: flex;
+    gap: 8px;
+    padding: 14px 12px 20px;
+    background: linear-gradient(180deg, rgba(245,234,211,0) 0%, rgba(245,234,211,0.85) 40%, rgba(245,234,211,1) 100%);
+    z-index: 8;
+    pointer-events: auto;
 }
 .option-btn {
-    flex: 1; padding: 10px 6px;
-    background: #fff8e1;
-    border: 3px solid #8b5e3c; border-radius: 10px;
-    font-size: 16px; font-weight: bold; color: #3a2a1a;
-    cursor: pointer; transition: all 0.15s;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
-    font-family: inherit;
-}
-.option-btn:active { transform: scale(0.96); background: #dcedc8; }
-.option-btn.correct { background: #c8e6c9; border-color: #2e7d32; color: #2e7d32; }
-.option-btn.wrong { background: #ffcdd2; border-color: #c62828; color: #c62828; }
-.option-btn:disabled { cursor: default; opacity: 0.85; }
-
-/* 桌面 */
-#tableArea {
     flex: 1;
-    background: linear-gradient(180deg, #f5ede1 0%, #e8d9c2 55%, #d4b896 100%);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 10px;
-    padding: 0 20px 6px;
-    position: relative;
-    box-shadow: inset 0 4px 10px rgba(0,0,0,0.08);
-    min-height: 0;
+    padding: 14px 6px;
+    background-image: url('images/option-bg.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: rgba(255,248,225,0.95);
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #3a2a1a;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    text-shadow: 0 0 3px rgba(255,255,255,0.8);
+    min-height: 52px;
 }
-#tableArea::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 4px;
-    background: #8b5e3c;
-}
-
-/* ===== 医生：头和身体绝对贴合 ===== */
-.deco-doctor {
-    width: 90px;
-    height: 110px;
-    position: relative;
-    flex-shrink: 0;
-}
-.deco-doctor img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: contain;
-    z-index: 5;
-}
-.doctor-head {
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 50px; height: 50px;
-    background: #f5e6d3;
-    border: 3px solid #3a2a1a;
-    border-radius: 50%;
-    z-index: 2;
-}
-.doctor-body {
-    position: absolute;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 70px; height: 62px;
-    background: #d4a574;
-    border: 3px solid #3a2a1a;
-    border-radius: 36px 36px 0 0;
-    z-index: 1;
-}
-
-/* ===== 葫芦：上下两半绝对贴合 ===== */
-.deco-gourd {
-    width: 66px;
-    height: 110px;
-    position: relative;
-    flex-shrink: 0;
-}
-.deco-gourd img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: contain;
-    z-index: 5;
-}
-.gourd-string {
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 3px; height: 14px;
-    background: #5a3e2b;
-    border-radius: 2px;
-}
-.gourd-cap {
-    position: absolute;
-    top: 12px; left: 50%;
-    transform: translateX(-50%);
-    width: 18px; height: 10px;
-    background: #8b5e3c;
-    border: 2px solid #5a3e2b;
-    border-radius: 4px;
-    z-index: 3;
-}
-.gourd-top {
-    position: absolute;
-    top: 20px; left: 50%;
-    transform: translateX(-50%);
-    width: 36px; height: 36px;
-    background: #c9a56a;
-    border: 3px solid #5a3e2b;
-    border-radius: 50%;
-    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.15);
-    z-index: 2;
-}
-.gourd-bottom {
-    position: absolute;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 62px; height: 56px;
-    background: #c9a56a;
-    border: 3px solid #5a3e2b;
-    border-radius: 50% 50% 46% 46%;
-    box-shadow: inset -4px -4px 8px rgba(0,0,0,0.15);
-    z-index: 1;
-}
+.option-btn:active { transform: scale(0.96); }
+.option-btn.correct { color: #2e7d32; background-color: #c8e6c9; }
+.option-btn.wrong { color: #c62828; background-color: #ffcdd2; }
+.option-btn:disabled { cursor: default; opacity: 0.9; }
 
 /* 弹窗 */
 #modalOverlay {
@@ -320,19 +241,23 @@ body {
 }
 #modalOverlay.active { display: flex; }
 .modal-box {
-    background: #f5f0e8; border-radius: 18px;
-    padding: 22px 26px; text-align: center;
-    border: 3px solid #558b2f;
+    background: #f5f0e8;
+    border-radius: 18px;
+    padding: 22px 26px;
+    text-align: center;
+    border: 3px solid #8b5e3c;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     max-width: 320px; width: 85%;
 }
-.modal-title { font-size: 20px; font-weight: bold; color: #33691e; margin-bottom: 12px; }
+.modal-title { font-size: 20px; font-weight: bold; color: #3a2a1a; margin-bottom: 12px; }
 .modal-text { font-size: 15px; color: #555; margin-bottom: 16px; line-height: 1.6; }
 .modal-btn {
-    display: block; width: 100%; padding: 10px; margin: 6px 0;
+    display: block; width: 100%;
+    padding: 10px; margin: 6px 0;
     font-family: inherit; font-size: 15px; font-weight: bold;
-    background: #aed581; color: #33691e;
-    border: 2px solid #558b2f; border-radius: 10px;
+    background: #d4a574; color: #fff;
+    border: 2px solid #8b5e3c;
+    border-radius: 10px;
     cursor: pointer;
 }
 .modal-btn:active { transform: scale(0.97); }
@@ -351,40 +276,24 @@ body {
             <div id="playerPower">医力 <span id="powerText">1.00</span>/100</div>
         </div>
     </div>
-    <div id="coinBox">
-        💰 <span id="coinText">0</span>
-    </div>
+    <div id="coinBox">💰 <span id="coinText">0</span></div>
 </div>
 <div id="coinGain"></div>
 
+<div id="queueInfo">👥 排队：<span id="queueCount">5</span></div>
+
 <div id="patientArea">
-    <div id="queueInfo">👥 排队：<span id="queueCount">3</span></div>
     <div id="patientStage"></div>
-    <div id="symptomPanel">
-        <span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>
-    </div>
 </div>
 
-<div id="bottomArea">
-    <div id="optionsBar">
-        <button class="option-btn" data-idx="0">—</button>
-        <button class="option-btn" data-idx="1">—</button>
-        <button class="option-btn" data-idx="2">—</button>
-    </div>
-    <div id="tableArea">
-        <div class="deco-doctor">
-            <img src="images/doctor.png" alt="" onerror="this.style.display='none';">
-            <div class="doctor-head"></div>
-            <div class="doctor-body"></div>
-        </div>
-        <div class="deco-gourd">
-            <img src="images/gourd.png" alt="" onerror="this.style.display='none';">
-            <div class="gourd-string"></div>
-            <div class="gourd-cap"></div>
-            <div class="gourd-top"></div>
-            <div class="gourd-bottom"></div>
-        </div>
-    </div>
+<div id="symptomPanel">
+    <span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>
+</div>
+
+<div id="optionsBar">
+    <button class="option-btn" data-idx="0">—</button>
+    <button class="option-btn" data-idx="1">—</button>
+    <button class="option-btn" data-idx="2">—</button>
 </div>
 
 <div id="modalOverlay">
@@ -417,6 +326,15 @@ body {
         { name: '当归四逆汤', s: { head: [], body: [], pulse: ['脉细欲绝'], limbs: ['手足厥寒'] } },
         { name: '小建中汤', s: { head: ['心中悸而烦'], body: ['腹中急痛'], pulse: [], limbs: [] } }
     ];
+
+    // 4 张病人图，轮流出现
+    var PATIENT_IMAGES = [
+        'images/patient1.png'
+        'images/patient2.png'
+        'images/patient3.png'
+        'images/patient4.png'
+    ];
+    var patientImgIndex = 0; // 轮流用
 
     var INITIAL_POWER = 1;
     var POWER_PER_CORRECT = 0.01;
@@ -485,21 +403,17 @@ body {
     function createPatientFigure() {
         var fig = document.createElement('div');
         fig.id = 'patientFigure';
+
+        // 按顺序轮流用，用完一轮从头开始
+        var imgSrc = PATIENT_IMAGES[patientImgIndex % PATIENT_IMAGES.length];
+        patientImgIndex++;
+
         fig.innerHTML =
-            '<div class="p-head" data-part="head">' +
-                '<span class="face">😣</span>' +
-                '<img src="images/patient-head.png" alt="" onerror="this.remove()">' +
-            '</div>' +
-            '<div class="p-body" data-part="body">' +
-                '<img src="images/patient-body.png" alt="" onerror="this.remove()">' +
-            '</div>' +
-            '<div class="p-wrist" data-part="pulse">' +
-                '<span class="pulse-label">脉</span>' +
-                '<img src="images/patient-pulse.png" alt="" onerror="this.remove()">' +
-            '</div>' +
-            '<div class="p-legs" data-part="limbs">' +
-                '<img src="images/patient-legs.png" alt="" onerror="this.remove()">' +
-            '</div>';
+            '<img class="patient-img" src="' + imgSrc + '" alt="" onerror="this.remove()">' +
+            '<div class="hit-area hit-head" data-part="head"></div>' +
+            '<div class="hit-area hit-body" data-part="body"></div>' +
+            '<div class="hit-area hit-pulse" data-part="pulse"></div>' +
+            '<div class="hit-area hit-legs" data-part="limbs"></div>';
         return fig;
     }
 
@@ -541,13 +455,6 @@ body {
         patientStage.appendChild(fig);
         fig.classList.add('enter');
         waiting = false;
-
-        fig.querySelectorAll('[data-part] img').forEach(function(img) {
-            img.addEventListener('load', function() {
-                var face = img.parentNode.querySelector('.face, .pulse-label');
-                if (face) face.style.display = 'none';
-            });
-        });
     }
 
     patientStage.addEventListener('click', function(e) {
