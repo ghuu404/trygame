@@ -30,6 +30,14 @@ body {
     z-index: 20;
 }
 
+#versionTag {
+    position: absolute; top: 10px; right: 12px;
+    font-size: 11px; color: #8b5e3c;
+    background: rgba(255,255,255,0.85);
+    padding: 2px 8px; border-radius: 10px;
+    z-index: 99;
+}
+
 #topBar {
     display: flex; justify-content: space-between; align-items: flex-start;
     padding: 10px 12px 10px 54px;
@@ -87,15 +95,15 @@ body {
     pointer-events: none;
 }
 
+/* 病人容器：固定尺寸，不再用 aspect-ratio */
 #patientStage {
     position: relative;
-    height: 100%;
-    max-height: 250px;
-    width: auto;
-    aspect-ratio: 3 / 4;
-    max-width: 70%;
+    width: 187px;
+    height: 250px;
     pointer-events: auto;
+    z-index: 20;
 }
+
 #patientFigure {
     position: absolute;
     inset: 0;
@@ -126,7 +134,7 @@ body {
     cursor: pointer;
     border-radius: 50%;
     background: transparent;
-    z-index: 10;
+    z-index: 30;
 }
 .hit-area.checked { cursor: default; }
 .hit-area:not(.checked):active { background: transparent; }
@@ -267,6 +275,7 @@ body {
 <body>
 
 <div id="backBtn" onclick="location.href='index.html'">←</div>
+<div id="versionTag">v117</div>
 
 <div id="topBar">
     <div id="playerBox">
@@ -400,6 +409,43 @@ body {
     }
     renderTop();
 
+    // 点击某部位
+    function onPartClick(part, el) {
+        if (!state) return;
+        if (state.checked[part]) return;
+        state.checked[part] = true;
+        el.classList.add('checked');
+
+        var symptoms = state.formula.s[part] || [];
+
+        var oldHints = patientStage.querySelectorAll('.hint');
+        for (var i = 0; i < oldHints.length; i++) {
+            if (oldHints[i].getAttribute('data-part') === part) oldHints[i].remove();
+        }
+        var hint = document.createElement('div');
+        hint.className = 'hint ' + part + '-hint';
+        hint.setAttribute('data-part', part);
+        if (symptoms.length === 0) {
+            hint.textContent = '（无异常）';
+            hint.style.color = '#999';
+            hint.style.borderColor = '#ccc';
+        } else {
+            hint.textContent = symptoms.join('、');
+        }
+        patientStage.appendChild(hint);
+
+        if (symptoms.length > 0) {
+            var ph = symptomPanel.querySelector('.placeholder');
+            if (ph) symptomPanel.innerHTML = '';
+            for (var j = 0; j < symptoms.length; j++) {
+                var span = document.createElement('span');
+                span.className = 'sym-item';
+                span.textContent = symptoms[j];
+                symptomPanel.appendChild(span);
+            }
+        }
+    }
+
     function createPatientFigure() {
         var fig = document.createElement('div');
         fig.id = 'patientFigure';
@@ -407,12 +453,32 @@ body {
         var imgSrc = PATIENT_IMAGES[patientImgIndex % PATIENT_IMAGES.length];
         patientImgIndex++;
 
-        fig.innerHTML =
-            '<img class="patient-img" src="' + imgSrc + '" alt="">' +
-            '<div class="hit-area hit-head" data-part="head"></div>' +
-            '<div class="hit-area hit-body" data-part="body"></div>' +
-            '<div class="hit-area hit-pulse" data-part="pulse"></div>' +
-            '<div class="hit-area hit-legs" data-part="limbs"></div>';
+        var img = document.createElement('img');
+        img.className = 'patient-img';
+        img.src = imgSrc;
+        img.alt = '';
+        img.onerror = function() { this.style.display = 'none'; };
+        fig.appendChild(img);
+
+        var parts = [
+            { part: 'head', cls: 'hit-head' },
+            { part: 'body', cls: 'hit-body' },
+            { part: 'pulse', cls: 'hit-pulse' },
+            { part: 'limbs', cls: 'hit-legs' }
+        ];
+        for (var k = 0; k < parts.length; k++) {
+            (function(p) {
+                var el = document.createElement('div');
+                el.className = 'hit-area ' + p.cls;
+                el.setAttribute('data-part', p.part);
+                el.addEventListener('click', function(ev) {
+                    ev.stopPropagation();
+                    onPartClick(p.part, el);
+                });
+                fig.appendChild(el);
+            })(parts[k]);
+        }
+
         return fig;
     }
 
@@ -455,50 +521,6 @@ body {
         fig.classList.add('enter');
         waiting = false;
     }
-
-    patientStage.addEventListener('click', function(e) {
-        if (!state) return;
-        var el = e.target;
-        while (el && el !== patientStage) {
-            if (el.getAttribute && el.getAttribute('data-part')) break;
-            el = el.parentNode;
-        }
-        if (!el || el === patientStage) return;
-
-        var part = el.getAttribute('data-part');
-        if (state.checked[part]) return;
-        state.checked[part] = true;
-        el.classList.add('checked');
-
-        var symptoms = state.formula.s[part] || [];
-
-        var oldHints = patientStage.querySelectorAll('.hint');
-        for (var i = 0; i < oldHints.length; i++) {
-            if (oldHints[i].getAttribute('data-part') === part) oldHints[i].remove();
-        }
-        var hint = document.createElement('div');
-        hint.className = 'hint ' + part + '-hint';
-        hint.setAttribute('data-part', part);
-        if (symptoms.length === 0) {
-            hint.textContent = '（无异常）';
-            hint.style.color = '#999';
-            hint.style.borderColor = '#ccc';
-        } else {
-            hint.textContent = symptoms.join('、');
-        }
-        patientStage.appendChild(hint);
-
-        if (symptoms.length > 0) {
-            var ph = symptomPanel.querySelector('.placeholder');
-            if (ph) symptomPanel.innerHTML = '';
-            for (var j = 0; j < symptoms.length; j++) {
-                var span = document.createElement('span');
-                span.className = 'sym-item';
-                span.textContent = symptoms[j];
-                symptomPanel.appendChild(span);
-            }
-        }
-    });
 
     function showModal(title, html, btnText, callback) {
         modalBox.innerHTML =
