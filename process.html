@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>炮制饮片 - 重生之我是赤脚医生</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: sans-serif;
+            user-select: none;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f5f0e8;
+            position: relative;
+        }
+        /* 顶部栏 */
+        #topBar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #33691e;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        #topBar .left, #topBar .right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .top-btn {
+            background: #aed581;
+            border: 2px solid #fff;
+            border-radius: 16px;
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #33691e;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .top-btn:active { transform: scale(0.95); }
+        #orderInfo {
+            text-align: center;
+            font-size: 13px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            max-width: 200px;
+            cursor: pointer;
+        }
+        /* 主体 */
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 6px;
+            gap: 6px;
+            overflow: hidden;
+        }
+        /* 药材栏 */
+        .herb-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .herb-slot {
+            width: 60px;
+            height: 70px;
+            background: #e8d5c0;
+            border: 2px solid #8b5e3c;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            color: #3a2a1a;
+            transition: all 0.15s;
+            text-align: center;
+            padding: 2px;
+            position: relative;
+        }
+        .herb-slot:active { transform: scale(0.95); }
+        .herb-slot.selected { border-color: #ff8c00; box-shadow: 0 0 8px #ff8c00; }
+        .herb-slot .count {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 10px;
+            color: #555;
+        }
+        .herb-slot.empty {
+            background: #d0c0b0;
+            border-style: dashed;
+            cursor: default;
+            color: #999;
+        }
+        /* 中间操作区 */
+        #workArea {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.5);
+            border-radius: 16px;
+            border: 2px solid #b89a72;
+            padding: 6px;
+            min-height: 180px;
+            position: relative;
+        }
+        /* 左侧工具 */
+        #leftTools {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 70px;
+        }
+        .tool-btn {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border: 2px solid #8b5e3c;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: #5a3e2b;
+            transition: all 0.15s;
+        }
+        .tool-btn:active { transform: scale(0.95); }
+        .tool-btn .icon { font-size: 22px; }
+        /* 操作台 */
+        #counter {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+            background: #f0e6d8;
+            border-radius: 12px;
+            border: 2px dashed #b89a72;
+            margin: 0 6px;
+            position: relative;
+            padding: 6px;
+        }
+        #counterHerb {
+            font-size: 16px;
+            font-weight: bold;
+            color: #5a3e2b;
+            text-align: center;
+        }
+        #counterStatus {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+            text-align: center;
+        }
+        /* 炒制进度条 */
+        #fryBarContainer {
+            width: 80%;
+            height: 16px;
+            background: #ddd;
+            border-radius: 8px;
+            margin-top: 8px;
+            overflow: hidden;
+            display: none;
+        }
+        #fryBar {
+            height: 100%;
+            width: 0%;
+            background: #ffeb3b;
+            transition: width 0.1s linear, background 0.2s;
+        }
+        #btnTakeOut {
+            margin-top: 4px;
+            padding: 4px 12px;
+            font-size: 12px;
+            background: #aed581;
+            border: 1px solid #558b2f;
+            border-radius: 12px;
+            cursor: pointer;
+            display: none;
+        }
+        /* 右侧辅料 */
+        #rightTools {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 70px;
+        }
+        .material-btn {
+            width: 60px;
+            height: 44px;
+            background: #fff;
+            border: 2px solid #8b5e3c;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: #5a3e2b;
+            transition: all 0.15s;
+        }
+        .material-btn:active { transform: scale(0.95); }
+        /* 盘子区域 */
+        #plateArea {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #5a3e2b;
+            border-radius: 12px;
+            padding: 6px;
+            min-height: 70px;
+        }
+        #plateLabel {
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        #plate {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            min-height: 40px;
+            width: 100%;
+        }
+        .plate-item {
+            background: #e8d5c0;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #3a2a1a;
+            border: 1px solid #8b5e3c;
+            cursor: pointer;
+        }
+        .plate-item:active { transform: scale(0.9); }
+        #btnPackage {
+            margin-top: 4px;
+            padding: 6px 24px;
+            font-size: 15px;
+            font-weight: bold;
+            background: #aed581;
+            border: 2px solid #33691e;
+            border-radius: 20px;
+            color: #33691e;
+            cursor: pointer;
+        }
+        #btnPackage:active { transform: scale(0.95); }
+        /* 弹窗 */
+        #modalOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        #modalOverlay.active { display: flex; }
+        .modal-box {
+            background: #f5f0e8;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            width: 85%;
+            max-width: 360px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 3px solid #558b2f;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #33691e;
+            margin-bottom: 10px;
+        }
+        .modal-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+        .modal-btn {
+            display: block;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px;
+            margin: 6px 0;
+            border: 2px solid #558b2f;
+            border-radius: 12px;
+            background: #aed581;
+            color: #33691e;
+            cursor: pointer;
+        }
+        .modal-btn:active { transform: scale(0.96); }
+        #manualContent {
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="topBar">
+        <div class="left">
+            <a class="top-btn" href="index.html">← 返回</a>
+            <button class="top-btn" id="btnManual">📖 说明书</button>
+        </div>
+        <div id="orderInfo" title="点击查看订单详情">当前订单：<span id="orderName">加载中...</span></div>
+        <div class="right">
+            <div class="top-btn" id="coinDisplay">💰 0</div>
+        </div>
+    </div>
+
+    <div id="main">
+        <!-- 上方药材栏 -->
+        <div class="herb-row" id="herbRowTop"></div>
+
+        <!-- 中间操作区 -->
+        <div id="workArea">
+            <div id="leftTools">
+                <div class="tool-btn" id="toolCut">
+                    <span class="icon">🔪</span>
+                    <span>切制</span>
+                </div>
+                <div class="tool-btn" id="toolFry">
+                    <span class="icon">🍳</span>
+                    <span>炒制</span>
+                </div>
+            </div>
+            <div id="counter">
+                <div id="counterHerb">请选择药材</div>
+                <div id="counterStatus"></div>
+                <div id="fryBarContainer">
+                    <div id="fryBar"></div>
+                </div>
+                <button id="btnTakeOut">取出</button>
+            </div>
+            <div id="rightTools">
+                <div class="material-btn" data-material="黄酒">黄酒</div>
+                <div class="material-btn" data-material="盐水">盐水</div>
+                <div class="material-btn" data-material="蜂蜜">蜂蜜</div>
+                <div class="material-btn" data-material="姜汁">姜汁</div>
+                <div class="material-btn" data-material="醋">醋</div>
+                <div class="material-btn" data-material="清水">清水</div>
+            </div>
+        </div>
+
+        <!-- 下方药材栏 -->
+        <div class="herb-row" id="herbRowBottom"></div>
+
+        <!-- 盘子区域 -->
+        <div id="plateArea">
+            <div id="plateLabel">药盘（点击可移除）</div>
+            <div id="plate"></div>
+            <button id="btnPackage">包药</button>
+        </div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">提示</div>
+            <div class="modal-text" id="modalText"></div>
+            <div id="manualContent" style="display:none;"></div>
+            <button class="modal-btn" id="modalConfirm">确定</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== 数据定义 =====
+        // 背包（生药）：从localStorage读取，若无则初始化
+        let inventory = JSON.parse(localStorage.getItem('herbInventory'));
+        if (!inventory) {
+            inventory = {
+                '桂枝': 10, '麻黄': 10, '杏仁': 10, '甘草': 10, '芍药': 10,
+                '生姜': 10, '大枣': 10, '葛根': 10, '细辛': 10, '干姜': 10,
+                '五味子': 10, '半夏': 10, '柴胡': 10, '黄芩': 10, '人参': 10,
+                '枳实': 10, '大黄': 10, '厚朴': 10, '茯苓': 10, '猪苓': 10,
+                '泽泻': 10, '白术': 10, '知母': 10, '石膏': 10, '芒硝': 10,
+                '附子': 10, '栀子': 10, '淡豆豉': 10, '饴糖': 10, '当归': 10,
+                '通草': 10, '茵陈': 10, '黄连': 10, '粳米': 10
+            };
+            localStorage.setItem('herbInventory', JSON.stringify(inventory));
+        }
+
+        // 铜币
+        let coins = parseInt(localStorage.getItem('playerCoins')) || 0;
+        document.getElementById('coinDisplay').textContent = '💰 ' + coins;
+
+        // 药材炮制规则
+        const HERB_RULES = {
+            '桂枝': { cut: '桂枝(去皮)', fry: null, materials: {} },
+            '麻黄': { cut: '麻黄(去节)', fry: null, materials: {} },
+            '杏仁': { cut: '杏仁(去皮尖)', fry: '炒杏仁', materials: {} },
+            '甘草': { cut: null, fry: null, materials: { '蜂蜜': '蜜炙甘草' } },
+            '芍药': { cut: '芍药(切)', fry: null, materials: {} },
+            '生姜': { cut: '生姜(切)', fry: null, materials: {} },
+            '大枣': { cut: '大枣(擘)', fry: null, materials: {} },
+            '葛根': { cut: '葛根(切)', fry: null, materials: {} },
+            '细辛': { cut: null, fry: null, materials: {} },
+            '干姜': { cut: '干姜(切)', fry: null, materials: {} },
+            '五味子': { cut: null, fry: null, materials: {} },
+            '半夏': { cut: null, fry: null, materials: { '清水': '汤洗半夏' } },
+            '柴胡': { cut: null, fry: null, materials: {} },
+            '黄芩': { cut: null, fry: null, materials: {} },
+            '人参': { cut: null, fry: null, materials: {} },
+            '枳实': { cut: null, fry: '炒枳实', materials: {} },
+            '大黄': { cut: null, fry: null, materials: { '黄酒': '酒洗大黄' } },
+            '厚朴': { cut: null, fry: null, materials: { '姜汁': '姜炙厚朴' } },
+            '茯苓': { cut: null, fry: null, materials: {} },
+            '猪苓': { cut: '猪苓(去皮)', fry: null, materials: {} },
+            '泽泻': { cut: null, fry: null, materials: { '盐水': '盐炙泽泻' } },
+            '白术': { cut: null, fry: '炒白术', materials: {} },
+            '知母': { cut: '知母(去毛)', fry: null, materials: {} },
+            '石膏': { cut: '碎石膏', fry: null, materials: {} },
+            '芒硝': { cut: null, fry: null, materials: {} },
+            '附子': { cut: '附子(破八片)', fry: '炮附子', materials: {} },
+            '栀子': { cut: '栀子(擘)', fry: null, materials: {} },
+            '淡豆豉': { cut: null, fry: null, materials: {} },
+            '饴糖': { cut: null, fry: null, materials: {} },
+            '当归': { cut: null, fry: null, materials: { '黄酒': '酒洗当归' } },
+            '通草': { cut: null, fry: null, materials: {} },
+            '茵陈': { cut: null, fry: null, materials: {} },
+            '黄连': { cut: null, fry: null, materials: {} },
+            '粳米': { cut: null, fry: null, materials: {} }
+        };
+
+        // 方剂数据（所需炮制后的药材名称）
+        const PRESCRIPTIONS = [
+            { name: '麻黄汤', herbs: ['麻黄(去节)', '桂枝(去皮)', '杏仁(去皮尖)', '甘草(蜜炙)'] },
+            { name: '桂枝汤', herbs: ['桂枝(去皮)', '芍药(切)', '甘草(蜜炙)', '生姜(切)', '大枣(擘)'] },
+            { name: '葛根汤', herbs: ['葛根(切)', '麻黄(去节)', '桂枝(去皮)', '芍药(切)', '甘草(蜜炙)', '生姜(切)', '大枣(擘)'] },
+            { name: '小青龙汤', herbs: ['麻黄(去节)', '芍药(切)', '细辛', '干姜(切)', '甘草(蜜炙)', '桂枝(去皮)', '五味子', '汤洗半夏'] },
+            { name: '大青龙汤', herbs: ['麻黄(去节)', '桂枝(去皮)', '甘草(蜜炙)', '杏仁(去皮尖)', '生姜(切)', '大枣(擘)', '碎石膏'] },
+            { name: '小柴胡汤', herbs: ['柴胡', '黄芩', '人参', '汤洗半夏', '甘草(蜜炙)', '生姜(切)', '大枣(擘)'] },
+            { name: '大柴胡汤', herbs: ['柴胡', '黄芩', '芍药(切)', '汤洗半夏', '生姜(切)', '炒枳实', '大枣(擘)', '酒洗大黄'] },
+            { name: '白虎汤', herbs: ['知母(去毛)', '碎石膏', '甘草(蜜炙)', '粳米'] },
+            { name: '小承气汤', herbs: ['酒洗大黄', '炒枳实', '姜炙厚朴'] },
+            { name: '大承气汤', herbs: ['酒洗大黄', '姜炙厚朴', '炒枳实', '芒硝'] },
+            { name: '调味承气汤', herbs: ['酒洗大黄', '芒硝', '甘草(蜜炙)'] },
+            { name: '理中汤', herbs: ['人参', '干姜(切)', '甘草(蜜炙)', '炒白术'] },
+            { name: '四逆汤', herbs: ['炮附子', '干姜(切)', '甘草(蜜炙)'] },
+            { name: '真武汤', herbs: ['茯苓', '芍药(切)', '生姜(切)', '炒白术', '炮附子'] },
+            { name: '五苓散', herbs: ['猪苓(去皮)', '盐炙泽泻', '炒白术', '茯苓', '桂枝(去皮)'] },
+            { name: '半夏泻心汤', herbs: ['汤洗半夏', '黄芩', '干姜(切)', '人参', '甘草(蜜炙)', '黄连', '大枣(擘)'] },
+            { name: '栀子豉汤', herbs: ['栀子(擘)', '淡豆豉'] },
+            { name: '茵陈蒿汤', herbs: ['茵陈', '栀子(擘)', '酒洗大黄'] },
+            { name: '当归四逆汤', herbs: ['当归', '桂枝(去皮)', '芍药(切)', '细辛', '甘草(蜜炙)', '通草', '大枣(擘)'] },
+            { name: '小建中汤', herbs: ['桂枝(去皮)', '芍药(切)', '甘草(蜜炙)', '生姜(切)', '大枣(擘)', '饴糖'] }
+        ];
+
+        // 游戏状态
+        let currentOrder = null;
+        let currentHerb = null;
+        let currentProcessed = null;
+        let plateItems = [];
+        let isFrying = false;
+        let fryInterval = null;
+        let fryProgress = 0;
+
+        // DOM元素
+        const herbRowTop = document.getElementById('herbRowTop');
+        const herbRowBottom = document.getElementById('herbRowBottom');
+        const counterHerb = document.getElementById('counterHerb');
+        const counterStatus = document.getElementById('counterStatus');
+        const fryBarContainer = document.getElementById('fryBarContainer');
+        const fryBar = document.getElementById('fryBar');
+        const btnTakeOut = document.getElementById('btnTakeOut');
+        const plateEl = document.getElementById('plate');
+        const orderNameEl = document.getElementById('orderName');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const manualContent = document.getElementById('manualContent');
+        const modalConfirm = document.getElementById('modalConfirm');
+
+        // ===== 工具函数 =====
+        function saveInventory() {
+            localStorage.setItem('herbInventory', JSON.stringify(inventory));
+        }
+
+        function saveCoins() {
+            localStorage.setItem('playerCoins', coins);
+            document.getElementById('coinDisplay').textContent = '💰 ' + coins;
+        }
+
+        function showModal(title, text, isManual = false) {
+            modalTitle.textContent = title;
+            if (isManual) {
+                modalText.style.display = 'none';
+                manualContent.style.display = 'block';
+                manualContent.innerHTML = text;
+            } else {
+                modalText.style.display = 'block';
+                manualContent.style.display = 'none';
+                modalText.textContent = text;
+            }
+            modalOverlay.classList.add('active');
+        }
+
+        function hideModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        modalConfirm.addEventListener('click', hideModal);
+
+        // ===== 渲染药材栏 =====
+        function renderHerbRows() {
+            const allHerbs = Object.keys(inventory).filter(name => inventory[name] > 0);
+            const topHerbs = allHerbs.slice(0, 5);
+            const bottomHerbs = allHerbs.slice(5, 10);
+            renderRow(herbRowTop, topHerbs);
+            renderRow(herbRowBottom, bottomHerbs);
+        }
+
+        function renderRow(rowEl, herbNames) {
+            rowEl.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'herb-slot';
+                if (i < herbNames.length) {
+                    const name = herbNames[i];
+                    const count = inventory[name] || 0;
+                    slot.innerHTML = `<span>${name}</span><span class="count">x${count}</span>`;
+                    slot.dataset.herb = name;
+                    slot.addEventListener('click', () => selectHerb(name));
+                } else {
+                    slot.classList.add('empty');
+                    slot.textContent = '空';
+                }
+                rowEl.appendChild(slot);
+            }
+        }
+
+        // ===== 选择药材 =====
+        function selectHerb(name) {
+            if (isFrying) {
+                showModal('提示', '正在炒制中，请先取出药材！');
+                return;
+            }
+            if (currentHerb || currentProcessed) {
+                showModal('提示', '操作台上还有药材，请先放到盘子！');
+                return;
+            }
+            if (inventory[name] <= 0) {
+                showModal('提示', '该药材数量不足！');
+                return;
+            }
+            inventory[name] -= 1;
+            saveInventory();
+            currentHerb = name;
+            currentProcessed = null;
+            counterHerb.textContent = `生药：${name}`;
+            counterStatus.textContent = '请选择炮制工具或直接放盘';
+            renderHerbRows();
+        }
+
+        // ===== 切制 =====
+        document.getElementById('toolCut').addEventListener('click', () => {
+            if (!currentHerb) {
+                showModal('提示', '请先选择药材！');
+                return;
+            }
+            if (currentProcessed) {
+                showModal('提示', '该药材已经炮制过了！');
+                return;
+            }
+            const rule = HERB_RULES[currentHerb];
+            if (rule && rule.cut) {
+                currentProcessed = rule.cut;
+                counterHerb.textContent = `炮制品：${currentProcessed}`;
+                counterStatus.textContent = '切制完成，可以放盘了';
+            } else {
+                showModal('提示', `【${currentHerb}】不需要切制或不能切制。`);
+            }
+        });
+
+        // ===== 炒制 =====
+        document.getElementById('toolFry').addEventListener('click', () => {
+            if (!currentHerb) {
+                showModal('提示', '请先选择药材！');
+                return;
+            }
+            if (currentProcessed) {
+                showModal('提示', '该药材已经炮制过了！');
+                return;
+            }
+            const rule = HERB_RULES[currentHerb];
+            if (!rule || !rule.fry) {
+                showModal('提示', `【${currentHerb}】不需要炒制或不能炒制。`);
+                return;
+            }
+            isFrying = true;
+            fryProgress = 0;
+            fryBarContainer.style.display = 'block';
+            btnTakeOut.style.display = 'block';
+            counterStatus.textContent = '炒制中... 注意火候！';
+            counterHerb.textContent = `炒制：${currentHerb}`;
+            fryBar.style.width = '0%';
+            fryBar.style.background = '#ffeb3b';
+            if (fryInterval) clearInterval(fryInterval);
+            fryInterval = setInterval(() => {
+                fryProgress += 1;
+                if (fryProgress >= 100) {
+                    fryProgress = 100;
+                    fryBar.style.width = '100%';
+                    clearInterval(fryInterval);
+                    isFrying = false;
+                    btnTakeOut.click();
+                    return;
+                }
+                fryBar.style.width = fryProgress + '%';
+                if (fryProgress < 30) {
+                    fryBar.style.background = '#ffeb3b';
+                } else if (fryProgress < 60) {
+                    fryBar.style.background = '#ff9800';
+                } else if (fryProgress < 90) {
+                    fryBar.style.background = '#f44336';
+                } else {
+                    fryBar.style.background = '#333';
+                }
+            }, 100);
+        });
+
+        // 取出炒制药材
+        btnTakeOut.addEventListener('click', () => {
+            if (!isFrying && fryProgress === 0) return;
+            if (fryInterval) clearInterval(fryInterval);
+            isFrying = false;
+            fryBarContainer.style.display = 'none';
+            btnTakeOut.style.display = 'none';
+
+            const rule = HERB_RULES[currentHerb];
+            if (fryProgress < 30) {
+                currentProcessed = null;
+                counterHerb.textContent = `生药：${currentHerb}`;
+                counterStatus.textContent = '火候不足，还是生药。';
+            } else if (fryProgress < 60) {
+                currentProcessed = rule && rule.fry ? rule.fry : '炒' + currentHerb;
+                counterHerb.textContent = `炮制品：${currentProcessed}`;
+                counterStatus.textContent = '炒黄完成，可以放盘了';
+            } else if (fryProgress < 90) {
+                currentProcessed = '炒焦' + currentHerb;
+                counterHerb.textContent = `炮制品：${currentProcessed}`;
+                counterStatus.textContent = '炒焦完成，可以放盘了';
+            } else {
+                currentProcessed = null;
+                counterHerb.textContent = '焦黑废弃';
+                counterStatus.textContent = '火候太过，药材焦黑废弃！';
+                currentHerb = null;
+                setTimeout(() => {
+                    counterHerb.textContent = '请选择药材';
+                    counterStatus.textContent = '';
+                }, 1500);
+            }
+            fryProgress = 0;
+            renderHerbRows();
+        });
+
+        // ===== 液体辅料 =====
+        document.querySelectorAll('.material-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!currentHerb) {
+                    showModal('提示', '请先选择药材！');
+                    return;
+                }
+                if (currentProcessed) {
+                    showModal('提示', '该药材已经炮制过了！');
+                    return;
+                }
+                const material = btn.dataset.material;
+                const rule = HERB_RULES[currentHerb];
+                if (rule && rule.materials && rule.materials[material]) {
+                    currentProcessed = rule.materials[material];
+                    counterHerb.textContent = `炮制品：${currentProcessed}`;
+                    counterStatus.textContent = '辅料炮制完成，可以放盘了';
+                } else {
+                    showModal('提示', `【${currentHerb}】不能使用【${material}】炮制。`);
+                }
+            });
+        });
+
+        // ===== 放到盘子 =====
+        const btnToPlate = document.createElement('button');
+        btnToPlate.textContent = '放到盘子';
+        btnToPlate.style.cssText = 'margin-top:6px; padding:4px 16px; font-size:13px; background:#aed581; border:2px solid #558b2f; border-radius:16px; cursor:pointer;';
+        document.getElementById('counter').appendChild(btnToPlate);
+
+        btnToPlate.addEventListener('click', () => {
+            if (!currentHerb && !currentProcessed) {
+                showModal('提示', '操作台上没有药材！');
+                return;
+            }
+            let finalName = currentProcessed || currentHerb;
+            plateItems.push(finalName);
+            renderPlate();
+            currentHerb = null;
+            currentProcessed = null;
+            counterHerb.textContent = '请选择药材';
+            counterStatus.textContent = '';
+            renderHerbRows();
+        });
+
+        function renderPlate() {
+            plateEl.innerHTML = '';
+            plateItems.forEach((name, index) => {
+                const item = document.createElement('div');
+                item.className = 'plate-item';
+                item.textContent = name;
+                item.addEventListener('click', () => {
+                    plateItems.splice(index, 1);
+                    renderPlate();
+                });
+                plateEl.appendChild(item);
+            });
+        }
+
+        // ===== 订单系统 =====
+        function loadNewOrder() {
+            const randomIndex = Math.floor(Math.random() * PRESCRIPTIONS.length);
+            currentOrder = PRESCRIPTIONS[randomIndex];
+            orderNameEl.textContent = currentOrder.name;
+            plateItems = [];
+            renderPlate();
+            currentHerb = null;
+            currentProcessed = null;
+            counterHerb.textContent = '请选择药材';
+            counterStatus.textContent = '';
+            document.getElementById('orderInfo').title = '点击查看订单详情';
+        }
+
+        document.getElementById('orderInfo').addEventListener('click', () => {
+            if (currentOrder) {
+                showModal('当前订单', `方剂：${currentOrder.name}\n\n所需药材：\n${currentOrder.herbs.join('\n')}`);
+            }
+        });
+
+        // ===== 包药 =====
+        document.getElementById('btnPackage').addEventListener('click', () => {
+            if (!currentOrder) return;
+            const required = [...currentOrder.herbs];
+            const provided = [...plateItems];
+            
+            if (required.length !== provided.length) {
+                showModal('包药失败', `药材数量不对！\n需要 ${required.length} 种，当前有 ${provided.length} 种。`);
+                return;
+            }
+            
+            required.sort();
+            provided.sort();
+            let match = true;
+            for (let i = 0; i < required.length; i++) {
+                if (required[i] !== provided[i]) {
+                    match = false;
+                    break;
+                }
+            }
+            
+            if (match) {
+                coins += 50;
+                saveCoins();
+                showModal('包药成功', `成功配出【${currentOrder.name}】！\n获得铜币 +50`);
+                plateItems = [];
+                renderPlate();
+                setTimeout(() => {
+                    loadNewOrder();
+                }, 500);
+            } else {
+                const missing = required.filter(item => !provided.includes(item));
+                const extra = provided.filter(item => !required.includes(item));
+                let msg = '药材不匹配！\n';
+                if (missing.length) msg += `缺少：${missing.join('、')}\n`;
+                if (extra.length) msg += `多出：${extra.join('、')}`;
+                showModal('包药失败', msg);
+            }
+        });
+
+        // ===== 说明书 =====
+        document.getElementById('btnManual').addEventListener('click', () => {
+            let html = '<h3>炮制方法参考</h3><ul>';
+            for (let [herb, rule] of Object.entries(HERB_RULES)) {
+                let methods = [];
+                if (rule.cut) methods.push(`切制→${rule.cut}`);
+                if (rule.fry) methods.push(`炒制→${rule.fry}`);
+                if (rule.materials) {
+                    for (let [mat, result] of Object.entries(rule.materials)) {
+                        methods.push(`${mat}→${result}`);
+                    }
+                }
+                if (methods.length === 0) methods.push('无需炮制');
+                html += `<li><strong>${herb}</strong>：${methods.join('；')}</li>`;
+            }
+            html += '</ul>';
+            showModal('炮制说明书', html, true);
+        });
+
+        // ===== 初始化 =====
+        function init() {
+            renderHerbRows();
+            loadNewOrder();
+            renderPlate();
+        }
+
+        init();
+    </script>
+</body>
+</html>
