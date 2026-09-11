@@ -82,12 +82,12 @@ body {
     z-index: 10;
 }
 
-/* 病人区 */
+/* 病人区：百分比自适应 */
 #patientArea {
     position: absolute;
     left: 0; right: 0;
-    top: 60px;
-    bottom: 150px;
+    top: 9%;
+    bottom: 32%;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -95,11 +95,13 @@ body {
     pointer-events: none;
 }
 
-/* 病人容器：固定尺寸，不再用 aspect-ratio */
+/* 病人容器：vh 自适应 */
 #patientStage {
     position: relative;
-    width: 187px;
-    height: 250px;
+    height: 36vh;
+    width: 27vh;
+    max-height: 320px;
+    max-width: 240px;
     pointer-events: auto;
     z-index: 20;
 }
@@ -170,7 +172,7 @@ body {
 #symptomPanel {
     position: absolute;
     left: 50%;
-    bottom: 90px;
+    bottom: 13%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 380px;
@@ -179,7 +181,7 @@ body {
     border-radius: 12px;
     padding: 6px 12px;
     min-height: 42px;
-    max-height: 120px;
+    max-height: 12vh;
     overflow-y: auto;
     font-size: 13px;
     line-height: 1.7;
@@ -204,7 +206,7 @@ body {
 #optionsBar {
     position: absolute;
     left: 50%;
-    bottom: 12px;
+    bottom: 1.5%;
     transform: translateX(-50%);
     width: 94%;
     max-width: 420px;
@@ -275,7 +277,7 @@ body {
 <body>
 
 <div id="backBtn" onclick="location.href='index.html'">←</div>
-<div id="versionTag">v117</div>
+<div id="versionTag">v119</div>
 
 <div id="topBar">
     <div id="playerBox">
@@ -409,7 +411,6 @@ body {
     }
     renderTop();
 
-    // 点击某部位
     function onPartClick(part, el) {
         if (!state) return;
         if (state.checked[part]) return;
