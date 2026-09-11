@@ -82,12 +82,12 @@ body {
     z-index: 10;
 }
 
-/* 病人区：百分比自适应 */
+/* 病人区：上移到 40% */
 #patientArea {
     position: absolute;
     left: 0; right: 0;
     top: 9%;
-    bottom: 38%;
+    bottom: 40%;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -95,7 +95,6 @@ body {
     pointer-events: none;
 }
 
-/* 病人容器：vh 自适应 */
 #patientStage {
     position: relative;
     height: 36vh;
@@ -139,13 +138,15 @@ body {
     z-index: 30;
 }
 .hit-area.checked { cursor: default; }
-.hit-area:not(.checked):active { : transparent; }
+.hit-area:not(.checked):active { background: transparent; }
 
-.hint.pulse-hint { right: -70px; top: 38%; }
-.hint.head-hint { left: -60px; top: 5%; }
-.hint.body-hint { left: -60px; top: 30%; }
-.hint.limbs-hint { left: -50px; top: 70%; }
+.hit-head  { top: 2%;   left: 28%; width: 44%; height: 20%; }
+.hit-chest { top: 22%;  left: 18%; width: 64%; height: 23%; }
+.hit-belly { top: 45%;  left: 22%; width: 56%; height: 20%; }
+.hit-limbs { top: 65%;  left: 25%; width: 50%; height: 33%; }
+.hit-pulse { top: 38%;  right: 0%; width: 24%; height: 18%; }
 
+/* 气泡 */
 .hint {
     position: absolute;
     background: #fff;
@@ -159,20 +160,21 @@ body {
     animation: floatUp 0.4s ease-out;
     z-index: 5;
 }
-.hint.pulse-hint { right: -95px; top: 38%; }
-.hint.head-hint { left: -80px; top: 5%; }
-.hint.body-hint { left: -80px; top: 30%; }
-.hint.limbs-hint { left: -70px; top: 70%; }
+.hint.pulse-hint { right: -50px; top: 38%; }
+.hint.head-hint  { left: -55px; top: 5%; }
+.hint.chest-hint { left: -60px; top: 25%; }
+.hint.belly-hint { left: -55px; top: 48%; }
+.hint.limbs-hint { left: -50px; top: 68%; }
 @keyframes floatUp {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* 症状面板 */
+/* 症状框：上移到 20% */
 #symptomPanel {
     position: absolute;
     left: 50%;
-    bottom: 17%;
+    bottom: 20%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 380px;
@@ -277,7 +279,7 @@ body {
 <body>
 
 <div id="backBtn" onclick="location.href='index.html'">←</div>
-<div id="versionTag">v120</div>
+<div id="versionTag"></div>
 
 <div id="topBar">
     <div id="playerBox">
@@ -299,7 +301,7 @@ body {
 </div>
 
 <div id="symptomPanel">
-    <span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>
+    <span class="placeholder">点击病人的头、胸、腹、腿、手腕来查看症状...</span>
 </div>
 
 <div id="optionsBar">
@@ -317,26 +319,26 @@ body {
     'use strict';
 
     var FORMULAS = [
-        { name: '桂枝汤', s: { head: ['头痛'], body: ['发热','汗出','恶风'], pulse: ['脉浮缓'], limbs: [] } },
-        { name: '麻黄汤', s: { head: ['头痛'], body: ['发热','无汗','恶风'], pulse: ['脉浮紧'], limbs: ['身疼','腰痛','骨节疼痛'] } },
-        { name: '葛根汤', s: { head: ['项背强几几'], body: ['发热','无汗','恶风'], pulse: ['脉浮'], limbs: [] } },
-        { name: '小青龙汤', s: { head: [], body: ['发热','恶寒','心下有水气','咳'], pulse: [], limbs: ['干呕'] } },
-        { name: '大青龙汤', s: { head: ['烦躁'], body: ['发热','恶寒','身疼痛','不汗出'], pulse: [], limbs: [] } },
-        { name: '小柴胡汤', s: { head: ['心烦'], body: ['往来寒热','胸胁苦满','不欲饮食'], pulse: ['脉弦'], limbs: ['喜呕'] } },
-        { name: '大柴胡汤', s: { head: [], body: ['往来寒热','心下痞硬','呕吐','下利'], pulse: ['脉弦'], limbs: [] } },
-        { name: '白虎汤', s: { head: [], body: ['身大热','汗大出','口大渴'], pulse: ['脉洪大'], limbs: [] } },
-        { name: '大承气汤', s: { head: ['潮热'], body: ['腹满痛','大便不通'], pulse: [], limbs: ['手足汗出'] } },
-        { name: '小承气汤', s: { head: ['微烦'], body: ['腹大满','大便硬'], pulse: [], limbs: [] } },
-        { name: '调胃承气汤', s: { head: [], body: ['蒸蒸发热','腹胀满'], pulse: [], limbs: [] } },
-        { name: '理中汤', s: { head: [], body: ['腹满','吐利','不欲食','时腹自痛'], pulse: [], limbs: [] } },
-        { name: '四逆汤', s: { head: [], body: ['下利清谷'], pulse: ['脉微欲绝'], limbs: ['四肢厥逆'] } },
-        { name: '真武汤', s: { head: ['头眩'], body: ['心下悸','身瞤动','小便不利'], pulse: [], limbs: [] } },
-        { name: '五苓散', s: { head: [], body: ['渴欲饮水','水入则吐','小便不利'], pulse: [], limbs: [] } },
-        { name: '半夏泻心汤', s: { head: [], body: ['心下痞满','呕而肠鸣','下利'], pulse: [], limbs: [] } },
-        { name: '栀子豉汤', s: { head: ['虚烦不得眠','心中懊憹'], body: [], pulse: [], limbs: [] } },
-        { name: '茵陈蒿汤', s: { head: [], body: ['身黄如橘子色','小便不利','腹微满'], pulse: [], limbs: [] } },
-        { name: '当归四逆汤', s: { head: [], body: [], pulse: ['脉细欲绝'], limbs: ['手足厥寒'] } },
-        { name: '小建中汤', s: { head: ['心中悸而烦'], body: ['腹中急痛'], pulse: [], limbs: [] } }
+        { name: '桂枝汤', s: { head: ['头痛'], chest: ['发热','汗出','恶风'], belly: [], limbs: [], pulse: ['脉浮缓'] } },
+        { name: '麻黄汤', s: { head: ['头痛'], chest: ['发热','无汗','恶风'], belly: [], limbs: ['身疼','腰痛','骨节疼痛'], pulse: ['脉浮紧'] } },
+        { name: '葛根汤', s: { head: ['项背强几几'], chest: ['发热','无汗','恶风'], belly: [], limbs: [], pulse: ['脉浮'] } },
+        { name: '小青龙汤', s: { head: [], chest: ['发热','恶寒','心下有水气','咳'], belly: [], limbs: ['干呕'], pulse: [] } },
+        { name: '大青龙汤', s: { head: ['烦躁'], chest: ['发热','恶寒','身疼痛','不汗出'], belly: [], limbs: [], pulse: [] } },
+        { name: '小柴胡汤', s: { head: ['心烦'], chest: ['往来寒热','胸胁苦满'], belly: ['不欲饮食','喜呕'], limbs: [], pulse: ['脉弦'] } },
+        { name: '大柴胡汤', s: { head: [], chest: ['往来寒热'], belly: ['心下痞硬','呕吐','下利'], limbs: [], pulse: ['脉弦'] } },
+        { name: '白虎汤', s: { head: [], chest: ['身大热','汗大出','口大渴'], belly: [], limbs: [], pulse: ['脉洪大'] } },
+        { name: '大承气汤', s: { head: ['潮热'], chest: [], belly: ['腹满痛','大便不通'], limbs: ['手足汗出'], pulse: [] } },
+        { name: '小承气汤', s: { head: ['微烦'], chest: [], belly: ['腹大满','大便硬'], limbs: [], pulse: [] } },
+        { name: '调胃承气汤', s: { head: [], chest: ['蒸蒸发热'], belly: ['腹胀满'], limbs: [], pulse: [] } },
+        { name: '理中汤', s: { head: [], chest: [], belly: ['腹满','吐利','不欲食','时腹自痛'], limbs: [], pulse: [] } },
+        { name: '四逆汤', s: { head: [], chest: [], belly: ['下利清谷'], limbs: ['四肢厥逆'], pulse: ['脉微欲绝'] } },
+        { name: '真武汤', s: { head: ['头眩'], chest: ['心下悸','身瞤动'], belly: ['小便不利'], limbs: [], pulse: [] } },
+        { name: '五苓散', s: { head: [], chest: ['渴欲饮水','水入则吐'], belly: ['小便不利'], limbs: [], pulse: [] } },
+        { name: '半夏泻心汤', s: { head: [], chest: [], belly: ['心下痞满','呕而肠鸣','下利'], limbs: [], pulse: [] } },
+        { name: '栀子豉汤', s: { head: ['虚烦不得眠','心中懊憹'], chest: [], belly: [], limbs: [], pulse: [] } },
+        { name: '茵陈蒿汤', s: { head: [], chest: ['身黄如橘子色'], belly: ['小便不利','腹微满'], limbs: [], pulse: [] } },
+        { name: '当归四逆汤', s: { head: [], chest: [], belly: [], limbs: ['手足厥寒'], pulse: ['脉细欲绝'] } },
+        { name: '小建中汤', s: { head: ['心中悸而烦'], chest: [], belly: ['腹中急痛'], limbs: [], pulse: [] } }
     ];
 
     var PATIENT_IMAGES = [
@@ -462,10 +464,11 @@ body {
         fig.appendChild(img);
 
         var parts = [
-            { part: 'head', cls: 'hit-head' },
-            { part: 'body', cls: 'hit-body' },
-            { part: 'pulse', cls: 'hit-pulse' },
-            { part: 'limbs', cls: 'hit-legs' }
+            { part: 'head',  cls: 'hit-head'  },
+            { part: 'chest', cls: 'hit-chest' },
+            { part: 'belly', cls: 'hit-belly' },
+            { part: 'limbs', cls: 'hit-limbs' },
+            { part: 'pulse', cls: 'hit-pulse' }
         ];
         for (var k = 0; k < parts.length; k++) {
             (function(p) {
@@ -505,11 +508,11 @@ body {
 
         state = {
             formula: formula,
-            checked: { head: false, body: false, pulse: false, limbs: false },
+            checked: { head: false, chest: false, belly: false, limbs: false, pulse: false },
             attempts: 0
         };
 
-        symptomPanel.innerHTML = '<span class="placeholder">点击病人的头、身、手腕、足部来查看症状...</span>';
+        symptomPanel.innerHTML = '<span class="placeholder">点击病人的头、胸、腹、腿、手腕来查看症状...</span>';
 
         for (var p = 0; p < optionBtns.length; p++) {
             optionBtns[p].textContent = options[p];
@@ -615,6 +618,10 @@ body {
             });
         })(optionBtns[b]);
     }
+
+    // ===== 版本号 =====
+    var CURRENT_VERSION = 'v121';
+    document.getElementById('versionTag').textContent = CURRENT_VERSION;
 
     queueCountEl.textContent = queueCount;
     startQueueTimer();
