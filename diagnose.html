@@ -78,7 +78,7 @@ body {
     position: absolute;
     left: 0; right: 0;
     top: 60px;
-    bottom: 130px;
+    bottom: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -86,13 +86,13 @@ body {
     pointer-events: none;
 }
 
-#patientStage {
+# {
     position: relative;
     height: 100%;
-    max-height: 240px;      /* 限制最大高度，病人变小 */
+    max-height: 300px;      /* 限制最大高度，病人变小 */
     width: auto;
     aspect-ratio: 3 / 4;
-    max-width: 55%;
+    max-width: 70%;
     pointer-events: auto;
 }
 #patientFigure {
@@ -103,12 +103,12 @@ body {
 #patientFigure.enter { animation: walkIn 0.55s ease-out forwards; }
 #patientFigure.exit { animation: walkOut 0.55s ease-in forwards; }
 @keyframes walkIn {
-    from { transform: translateX(180px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from { transform: scale(0.667); opacity: 0.6; }
+    to { transform: scale(1); opacity: 1; }
 }
 @keyframes walkOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(-180px); opacity: 0; }
+    from { transform: translateX(0) scale(1); opacity: 1; }
+    to { transform: translateX(-180px) scale(0.5); opacity: 0; }
 }
 
 .patient-img {
@@ -161,7 +161,7 @@ body {
 #symptomPanel {
     position: absolute;
     left: 50%;
-    bottom: 130px;
+    bottom: 200px;
     transform: translateX(-50%);
     width: 90%;
     max-width: 380px;
@@ -192,12 +192,18 @@ body {
 
 #optionsBar {
     position: absolute;
-    left: 0; right: 0;
-    bottom: 0;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    width: 94%;
+    max-width: 420px;
     display: flex;
     gap: 8px;
-    padding: 14px 12px 20px;
-    background: linear-gradient(180deg, rgba(245,234,211,0) 0%, rgba(245,234,211,0.85) 40%, rgba(245,234,211,1) 100%);
+    padding: 14px 12px;
+    background: rgba(255,255,255,0.55);   /* 半透明白色横框 */
+    border: 2px solid rgba(212,196,168,0.7);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     z-index: 8;
     pointer-events: auto;
 }
