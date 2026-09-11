@@ -277,7 +277,7 @@ body {
 <body>
 
 <div id="backBtn" onclick="location.href='index.html'">←</div>
-<div id="versionTag"></div>
+<div id="versionTag">v120</div>
 
 <div id="topBar">
     <div id="playerBox">
@@ -616,29 +616,10 @@ body {
         })(optionBtns[b]);
     }
 
-    // ===== 版本更新弹窗 =====
-    var CURRENT_VERSION = 'v120';   // ← 每次改代码时改这里
-    document.getElementById('versionTag').textContent = CURRENT_VERSION;
-
-    var lastSeen = localStorage.getItem('lastVersion');
-    if (lastSeen !== CURRENT_VERSION) {
-        // 延迟一点，让页面先渲染
-        setTimeout(function() {
-            showModal(
-                '版本更新',
-                '页面已更新到 <b>' + CURRENT_VERSION + '</b><br>请查看新内容。',
-                '知道了',
-                function() {
-                    closeModal();
-                    localStorage.setItem('lastVersion', CURRENT_VERSION);
-                }
-            );
-        }, 500);
-    }
-
-    // ===== 版本号显示（不弹窗）=====
-var CURRENT_VERSION = 'v120';   // ← 每次改代码时改这里
-document.getElementById('versionTag').textContent = CURRENT_VERSION;
+    queueCountEl.textContent = queueCount;
+    startQueueTimer();
+    spawnPatient();
+})();
 </script>
 </body>
 </html>
