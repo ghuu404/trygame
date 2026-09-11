@@ -74,22 +74,23 @@ body {
     z-index: 10;
 }
 
+/* 病人区 */
 #patientArea {
     position: absolute;
     left: 0; right: 0;
     top: 60px;
-    bottom: 200px;
+    bottom: 150px;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     z-index: 5;
     pointer-events: none;
 }
 
-# {
+#patientStage {
     position: relative;
     height: 100%;
-    max-height: 200px;      /* 限制最大高度，病人变小 */
+    max-height: 250px;
     width: auto;
     aspect-ratio: 3 / 4;
     max-width: 70%;
@@ -108,7 +109,7 @@ body {
 }
 @keyframes walkOut {
     from { transform: translateX(0) scale(1); opacity: 1; }
-    to { transform: translateX(-180px) scale(0.5); opacity: 0; }
+    to { transform: translateX(-180px) scale(0.3); opacity: 0; }
 }
 
 .patient-img {
@@ -119,18 +120,17 @@ body {
     pointer-events: none;
 }
 
+/* 点击区 */
 .hit-area {
     position: absolute;
     cursor: pointer;
     border-radius: 50%;
     background: transparent;
+    z-index: 10;
 }
-.hit-area.checked {
-    cursor: default;
-}
-.hit-area:not(.checked):active {
-    background: transparent;
-}
+.hit-area.checked { cursor: default; }
+.hit-area:not(.checked):active { background: transparent; }
+
 .hit-head  { top: 3%;   left: 30%; width: 40%; height: 20%; }
 .hit-body  { top: 22%;  left: 20%; width: 60%; height: 42%; }
 .hit-pulse { top: 35%;  right: 5%; width: 22%; height: 18%; }
@@ -158,10 +158,11 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* 症状面板 */
 #symptomPanel {
     position: absolute;
     left: 50%;
-    bottom: 200px;
+    bottom: 90px;
     transform: translateX(-50%);
     width: 90%;
     max-width: 380px;
@@ -170,7 +171,7 @@ body {
     border-radius: 12px;
     padding: 6px 12px;
     min-height: 42px;
-    max-height: 76px;
+    max-height: 120px;
     overflow-y: auto;
     font-size: 13px;
     line-height: 1.7;
@@ -191,6 +192,7 @@ body {
     font-size: 12px;
 }
 
+/* 方剂选择栏 */
 #optionsBar {
     position: absolute;
     left: 50%;
@@ -201,7 +203,7 @@ body {
     display: flex;
     gap: 8px;
     padding: 14px 12px;
-    background: rgba(255,255,255,0.55);   /* 半透明白色横框 */
+    background: rgba(255,255,255,0.55);
     border: 2px solid rgba(212,196,168,0.7);
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -231,6 +233,7 @@ body {
 .option-btn.wrong { color: #c62828; background-color: #ffcdd2; }
 .option-btn:disabled { cursor: default; opacity: 0.9; }
 
+/* 弹窗 */
 #modalOverlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.6);
