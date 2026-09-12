@@ -564,7 +564,7 @@ body {
         if (state.checked[part]) return;
 
         if (part === 'pulse' && state.phase === 'look') {
-            showToast('请先查看病人的身体状况');
+            showToast('请先完成了望诊');
             return;
         }
 
@@ -732,10 +732,19 @@ fig.appendChild(img);
                 if (waiting) return;
                 if (state.attempts >= 2) return;
 
-                if (state.phase !== 'choose') {
-                    showToast('请先完成望诊、闻诊、切诊');
-                    return;
-                }
+                if (state.phase === 'look') {
+    showToast('请先完成望诊');
+    return;
+}
+if (state.phase === 'speak') {
+    showToast('请先完成切诊');
+    return;
+}
+if (state.phase !== 'choose') {
+    showToast('请先完成诊断');
+    return;
+}
+                 
 
                 var chosen = btn.textContent;
                 var correct = state.formula.name;
