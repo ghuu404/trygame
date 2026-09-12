@@ -83,6 +83,7 @@ body {
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; text-decoration: none;
     transition: transform 0.15s; overflow: hidden;
+    opacity: 0.75
 }
 .spot:active { transform: scale(0.92); }
 .spot img {
@@ -100,7 +101,7 @@ body {
 /* 锁定状态 */
 .spot.locked {
     filter: grayscale(0.85);
-    opacity: 0.65;
+    opacity: 0.5;
 }
 .spot.locked::after {
     content: '🔒';
@@ -115,10 +116,10 @@ body {
 }
 
 /* 按图片布局的位置 */
-#spot-collect  { left: 8%;  top: 20%; }        /* 采药：左上 */
+#spot-collect  { left: 10%;  top: 20%; }        /* 采药：左上 */
 #spot-plant    { right: 8%; top: 18%; }        /* 种植：右上 */
-#spot-process  { left: 18%; top: 42%; }        /* 炮制：中偏左 */
-#spot-dispense { left: 10%;  bottom: 18%; }     /* 抓药：左下 */
+#spot-process  { left: 20%; top: 42%; }        /* 炮制：中偏左 */
+#spot-dispense { left: 12%;  bottom: 18%; }     /* 抓药：左下 */
 #spot-diagnose { right: 8%; bottom: 18%; }     /* 行医：右下 */
 
 /* 底部导航栏 */
