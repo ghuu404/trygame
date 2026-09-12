@@ -18,25 +18,26 @@ body {
 /* ===== 顶部栏 ===== */
 #topBar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 4px 8px; background: #33691e; color: #fff;
-    font-size: 12px; font-weight: bold; flex-shrink: 0; gap: 4px;
+    padding: 6px 10px; background: #33691e; color: #fff;
+    font-size: 13px; font-weight: bold; flex-shrink: 0; gap: 6px;
 }
+#topBar .left, #topBar .right { display: flex; gap: 6px; align-items: center; }
 .top-btn {
     background: #aed581; border: 2px solid #fff;
-    border-radius: 12px; padding: 2px 8px;
-    font-size: 11px; font-weight: bold;
+    border-radius: 14px; padding: 4px 10px;
+    font-size: 12px; font-weight: bold;
     color: #33691e; cursor: pointer; text-decoration: none;
     white-space: nowrap;
 }
 .top-btn:active { transform: scale(0.95); }
 #processedCount, #coinDisplay {
-    background: #aed581; border: 2px solid #fff; border-radius: 12px;
-    padding: 2px 8px; font-size: 11px; color: #33691e;
+    background: #aed581; border: 2px solid #fff; border-radius: 14px;
+    padding: 4px 10px; font-size: 12px; color: #33691e;
 }
 /* ===== 主体 ===== */
 #main {
-    flex: 0 0 320px; display: flex; flex-direction: column;
-    padding: 2px; gap: 2px; overflow: hidden;
+    flex: 1; display: flex; flex-direction: column;
+    padding: 4px; gap: 4px; overflow: hidden;
 }
 /* 药材栏 */
 .herb-row {
@@ -66,13 +67,14 @@ body {
 .herb-slot.empty { background: #d0c0b0; border-style: dashed; color: #999; cursor: default; }
 .herb-slot.selected { border-color: #ff8c00; box-shadow: 0 0 6px #ff8c00; }
 
-/* 操作区 */
+/* ===== 操作区 ===== */
 #workArea {
-    flex: 0 0 320px; display: flex; background: rgba(255,255,255,0.5);
+    flex: 1; display: flex; background: rgba(255,255,255,0.5);
     border-radius: 10px; border: 2px solid #b89a72;
     padding: 4px; gap: 4px; min-height: 0; overflow: hidden;
+    justify-content: center;
 }
-/* 左右工具和辅料栏：压缩宽度 */
+/* 左右工具和辅料栏：默认较窄，适配手机 */
 #leftTools, #rightTools {
     display: flex; flex-direction: column; gap: 4px;
     width: 62px; overflow-y: auto; flex-shrink: 0; padding-right: 1px;
@@ -81,7 +83,6 @@ body {
 #leftTools::-webkit-scrollbar-thumb, #rightTools::-webkit-scrollbar-thumb {
     background: #b89a72; border-radius: 2px;
 }
-/* 工具/辅料按钮 */
 .tool-btn, .material-btn {
     width: 56px; min-height: 44px;
     background: #fff; border: 2px solid #8b5e3c;
@@ -104,27 +105,28 @@ body {
 }
 .material-btn.out { opacity: 0.4; cursor: not-allowed; }
 
-/* 中间操作台：自适应 */
+/* 中间操作台：默认自适应（手机端） */
 #counter {
-    flex: 0 0 320px; display: flex; flex-direction: column;
+    flex: 1;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     background: #f0e6d8; border-radius: 10px;
     border: 2px dashed #b89a72;
-    padding: 4px; min-width: 0; overflow: hidden;
+    padding: 6px; min-width: 0; overflow: hidden;
 }
 #stage {
-    position: relative; width: 80px; height: 80px;
+    position: relative; width: 90px; height: 90px;
     display: flex; align-items: center; justify-content: center;
 }
-#stageHerbImg { max-width: 72px; max-height: 72px; object-fit: contain; transition: all 0.3s; z-index: 2; }
-#stageEmoji { font-size: 48px; z-index: 2; }
+#stageHerbImg { max-width: 82px; max-height: 82px; object-fit: contain; transition: all 0.3s; z-index: 2; }
+#stageEmoji { font-size: 50px; z-index: 2; }
 .stage-anim {
     position: absolute; z-index: 5; pointer-events: none;
-    font-size: 28px; transition: all 0.4s ease-in-out;
+    font-size: 30px; transition: all 0.4s ease-in-out;
 }
 #counterHerb {
     font-size: 13px; font-weight: bold; color: #5a3e2b;
-    text-align: center; margin-top: 2px;
+    text-align: center; margin-top: 3px;
     max-width: 100%; overflow: hidden;
     text-overflow: ellipsis; white-space: nowrap;
 }
@@ -175,16 +177,56 @@ body {
 }
 #manualContent { text-align: left; font-size: 12px; line-height: 1.6; max-height: 50vh; overflow-y: auto; }
 #manualContent h4 { color: #33691e; margin: 6px 0 4px; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+
+/* ===== 电脑端适配：屏幕宽度 ≥ 900px 时，中间桌子固定为一半宽 ===== */
+@media (min-width: 900px) {
+    /* 中间操作台固定宽度为屏幕宽度的 50% */
+    #counter {
+        flex: 0 0 50vw;
+        max-width: 50vw;
+    }
+    /* 左右工具和辅料栏放大一些，方便点 */
+    #leftTools, #rightTools {
+        width: 90px;
+    }
+    .tool-btn, .material-btn {
+        width: 84px;
+        min-height: 58px;
+        font-size: 12px;
+    }
+    .tool-btn img, .material-btn img {
+        width: 30px; height: 30px;
+    }
+    /* 药材框放大一点 */
+    .herb-slot {
+        width: 74px; height: 82px;
+        font-size: 11px;
+    }
+    .herb-slot img {
+        width: 42px; height: 42px;
+    }
+    /* 中间台面上的药材和按钮也放大 */
+    #stage { width: 140px; height: 140px; }
+    #stageHerbImg { max-width: 130px; max-height: 130px; }
+    #stageEmoji { font-size: 80px; }
+    .stage-anim { font-size: 44px; }
+    #counterHerb { font-size: 16px; }
+    #counterStatus { font-size: 13px; }
+    #btnFinish, #btnCancel {
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+}
 </style>
 </head>
 <body>
 
 <div id="topBar">
-    <div style="display:flex;gap:4px;">
+    <div class="left">
         <a class="top-btn" href="index.html">← 返回</a>
         <button class="top-btn" id="btnManual">📖 说明书</button>
     </div>
-    <div style="display:flex;gap:4px;align-items:center;">
+    <div class="right">
         <div id="processedCount">已炮制：0 份</div>
         <div id="coinDisplay">💰 0</div>
     </div>
@@ -226,13 +268,6 @@ body {
 </div>
 
 <script>
-/* 图片路径：
-   生药：images/herbs/药材名.png
-   炮制品：images/herbs/processed/炮制品名.png
-   工具：images/tools/工具key.png
-   辅料：images/materials/辅料名.png
-*/
-
 const TOOLS_LEFT = {
     cut:    { name: '切刀', icon: '🔪' },
     scrape: { name: '刮刀', icon: '🪒' },
@@ -357,11 +392,8 @@ const HERB_RULES = {
     '吴茱萸': [{ type: 'material', material: '清水', result: '洗吴茱萸', desc: '清水冲洗' }]
 };
 
-/* ===== 状态 ===== */
-// 生药库存：初始每种 1 份
 // 从主页面仓库读取生药
 let inventory = JSON.parse(localStorage.getItem('herbInventory') || '{}');
-// 如果为空，发一份默认药材（首次打开时用）
 if (Object.keys(inventory).length === 0) {
     inventory = {
         '桂枝': 1, '麻黄': 1, '杏仁': 1, '甘草': 1, '芍药': 1,
@@ -374,9 +406,7 @@ if (Object.keys(inventory).length === 0) {
     };
     localStorage.setItem('herbInventory', JSON.stringify(inventory));
 }
-// 炮制品库存
 let processedInventory = JSON.parse(localStorage.getItem('processedInventory') || '{}');
-// 辅料库存
 let materialInventory = JSON.parse(localStorage.getItem('materialInventory'));
 if (!materialInventory || Object.keys(materialInventory).length === 0) {
     materialInventory = {};
@@ -439,7 +469,6 @@ function renderRow(rowEl, herbs) {
         slot.addEventListener('click', () => selectHerb(name));
         rowEl.appendChild(slot);
     });
-    // 如果数量不足5个，补空位
     for (let i = herbs.length; i < 5; i++) {
         const slot = document.createElement('div');
         slot.className = 'herb-slot empty';
@@ -523,7 +552,6 @@ function selectHerb(name) {
     setStageHerb(name, false);
     counterHerb.textContent = `生药：${name}`;
 
-    // 检查是否无需炮制
     const rules = HERB_RULES[name] || [];
     const noneRule = rules.find(r => r.type === 'none');
     if (noneRule) {
@@ -701,14 +729,14 @@ function finishFry() {
 }
 
 btnFinish.addEventListener('click', () => {
-    // 如果正在炒制：先判断火候
+    // 炒制中：先判断火候，再收好
     if (isFrying) {
         if (fryProgress < 30) {
             counterStatus.textContent = '火候不足，继续炒到炒黄再取出～';
             return;
         }
-        finishFry();               // 停止炒制
-        if (!currentHerb) return;  // 焦黑报废了，直接返回
+        finishFry();
+        if (!currentHerb) return;
     }
 
     if (!currentHerb) return;
@@ -718,6 +746,7 @@ btnFinish.addEventListener('click', () => {
     saveProcessed();
     updateProcessedCount();
 
+    // 直接重置界面，不弹窗
     currentHerb = null; currentProcessed = null;
     setStageHerb(null);
     counterHerb.textContent = '请选择药材';
