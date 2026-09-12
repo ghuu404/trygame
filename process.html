@@ -80,7 +80,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end; /* 名称靠下 */
     cursor: pointer;
     font-size: 11px;
     font-weight: bold;
@@ -89,21 +89,26 @@ body {
     position: relative;
     overflow: hidden;
     transition: all 0.15s;
+    padding-bottom: 3px;
 }
 .herb-slot:active { transform: scale(0.94); }
 .herb-slot img {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
     pointer-events: none;
 }
 .herb-slot .hname {
     font-size: 11px;
-    margin-top: 2px;
     text-align: center;
     line-height: 1;
     pointer-events: none;
     white-space: nowrap;
+    margin-top: auto;
 }
 .herb-slot .hcount {
     position: absolute;
@@ -126,7 +131,7 @@ body {
     border-color: #ff8c00;
     box-shadow: 0 0 8px #ff8c00;
 }
-/* ===== 操作区：左工具 - 中操作台 - 右炒制+辅料 ===== */
+/* ===== 操作区 ===== */
 #workArea {
     flex: 1;
     display: flex;
@@ -139,16 +144,7 @@ body {
     overflow: hidden;
     justify-content: center;
 }
-#leftTools {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 84px;
-    overflow-y: auto;
-    flex-shrink: 0;
-    padding-right: 2px;
-}
-#rightTools {
+#leftTools, #rightTools {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -376,10 +372,6 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.plate-item .pemoji {
-    font-size: 24px;
-    line-height: 1;
-}
 #btnPackage {
     padding: 9px 18px;
     font-size: 14px;
@@ -408,7 +400,7 @@ body {
 }
 .shake { animation: herbShake 0.4s; }
 .frying { animation: fryShake 0.4s infinite; }
-/* 弹窗 */
+/* ===== 弹窗 ===== */
 #bagModal {
     position: fixed;
     inset: 0;
@@ -429,10 +421,24 @@ body {
     border: 3px solid #558b2f;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-.bag-box img { width: 120px; height: 120px; object-fit: contain; }
-.bag-emoji { font-size: 70px; }
-.bag-name { font-size: 20px; font-weight: bold; color: #33691e; margin: 8px 0; }
-.bag-herbs { font-size: 12px; color: #666; margin-bottom: 12px; line-height: 1.5; }
+.bag-box img {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+}
+.bag-emoji { font-size: 80px; }
+.bag-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #33691e;
+    margin: 8px 0;
+}
+.bag-herbs {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
 
 #modalOverlay {
     position: fixed;
@@ -451,7 +457,7 @@ body {
     text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     width: 85%;
-    max-width: 360px;
+    max-width: 380px;
     max-height: 80vh;
     overflow-y: auto;
     border: 3px solid #558b2f;
@@ -469,6 +475,59 @@ body {
 .modal-btn:active { transform: scale(0.96); }
 #manualContent { text-align: left; font-size: 12px; line-height: 1.7; max-height: 55vh; overflow-y: auto; }
 #manualContent h4 { color: #33691e; margin: 8px 0 4px; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+
+/* ===== 购买辅料商店（和主页购物车格局一致） ===== */
+#shopGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0;
+}
+.shop-card {
+    background: #f0e6d8;
+    border: 2px solid #aed581;
+    border-radius: 14px;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.shop-card img {
+    width: 54px;
+    height: 54px;
+    object-fit: contain;
+}
+.shop-card .shop-icon {
+    font-size: 42px;
+    line-height: 1;
+}
+.shop-card .shop-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #33691e;
+}
+.shop-card .shop-price {
+    font-size: 13px;
+    font-weight: bold;
+    color: #c62828;
+}
+.shop-card .shop-buy {
+    width: 100%;
+    padding: 6px 0;
+    border: 2px solid #558b2f;
+    border-radius: 18px;
+    background: #aed581;
+    color: #33691e;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+}
+.shop-card .shop-buy:active { transform: scale(0.95); }
+.shop-card .shop-stock {
+    font-size: 11px;
+    color: #777;
+}
 </style>
 </head>
 <body>
@@ -566,20 +625,21 @@ const TOOLS_RIGHT = {
 };
 
 const MATERIALS = {
-    '黄酒':    { icon: '🍶', price: 10 },
-    '盐水':    { icon: '🧂', price: 5  },
-    '蜂蜜':    { icon: '🍯', price: 15 },
-    '姜汁':    { icon: '🫚', price: 10 },
-    '醋':      { icon: '🍾', price: 8  },
+    '黄酒':    { icon: '🍶', price: 4  },
+    '蜂蜜':    { icon: '🍯', price: 5  },
+    '盐':      { icon: '🧂', price: 2  },
+    '姜汁':    { icon: '🫚', price: 4  },
+    '醋':      { icon: '🍾', price: 3  },
     '清水':    { icon: '💧', price: 1  },
-    '白矾':    { icon: '⬜', price: 12 },
-    '麦麸':    { icon: '🌾', price: 6  },
-    '米泔水':  { icon: '🍚', price: 4  },
-    '甘草水':  { icon: '🍵', price: 15 },
-    '石灰水':  { icon: '🥛', price: 6  },
-    '黑豆汁':  { icon: '🫘', price: 18 }
+    '白矾':    { icon: '⬜', price: 3  },
+    '麦麸':    { icon: '🌾', price: 2  },
+    '米泔水':  { icon: '🍚', price: 2  },
+    '甘草水':  { icon: '🍵', price: 5  },
+    '石灰水':  { icon: '🥛', price: 2  },
+    '黑豆汁':  { icon: '🫘', price: 6  }
 };
 
+/* 注意：之前规则里用 '盐水'，这里把辅料名统一成 '盐'，规则里也要同步改 */
 const HERB_RULES = {
     '桂枝': [
         { type: 'tool', tool: 'scrape', result: '桂枝(去皮)', desc: '刮去粗皮' },
@@ -637,7 +697,7 @@ const HERB_RULES = {
     ],
     '茵陈': [{ type: 'none', result: '茵陈', desc: '无需炮制' }],
     '泽泻': [
-        { type: 'material', material: '盐水', result: '盐炙泽泻', desc: '盐水喷洒后炒' },
+        { type: 'material', material: '盐', result: '盐炙泽泻', desc: '盐水喷洒后炒' },
         { type: 'tool', tool: 'cut', result: '泽泻(切片)', desc: '切片' }
     ],
     '栀子': [
@@ -650,7 +710,7 @@ const HERB_RULES = {
     '淡豆豉': [{ type: 'none', result: '淡豆豉', desc: '无需炮制' }],
     '饴糖': [{ type: 'none', result: '饴糖', desc: '无需炮制' }],
     '黄柏': [
-        { type: 'material', material: '盐水', result: '盐炙黄柏', desc: '盐水喷洒后文火炒' },
+        { type: 'material', material: '盐', result: '盐炙黄柏', desc: '盐水喷洒后文火炒' },
         { type: 'material', material: '黄酒', result: '酒炙黄柏', desc: '酒喷洒后炒干' }
     ],
     '乌梅': [
@@ -699,696 +759,7 @@ const PRESCRIPTIONS = [
    状态 & 存储
    ============================================================ */
 
-// 药材库存（初始每种 1 个）
 let inventory = JSON.parse(localStorage.getItem('herbInventory'));
 if (!inventory || Object.keys(inventory).length === 0) {
     inventory = {
-        '桂枝': 1, '麻黄': 1, '杏仁': 1, '甘草': 1, '芍药': 1,
-        '生姜': 1, '大枣': 1, '葛根': 1, '细辛': 1, '干姜': 1,
-        '五味子': 1, '半夏': 1, '柴胡': 1, '黄芩': 1, '人参': 1,
-        '枳实': 1, '大黄': 1, '厚朴': 1, '茯苓': 1, '猪苓': 1,
-        '泽泻': 1, '白术': 1, '知母': 1, '石膏': 1, '芒硝': 1,
-        '附子': 1, '栀子': 1, '淡豆豉': 1, '饴糖': 1, '当归': 1,
-        '通草': 1, '茵陈': 1, '黄连': 1, '粳米': 1
-    };
-    localStorage.setItem('herbInventory', JSON.stringify(inventory));
-}
-
-// 辅料库存（初始每种 1 份）
-let materialInventory = JSON.parse(localStorage.getItem('materialInventory'));
-if (!materialInventory || Object.keys(materialInventory).length === 0) {
-    materialInventory = {};
-    Object.keys(MATERIALS).forEach(k => { materialInventory[k] = 1; });
-    localStorage.setItem('materialInventory', JSON.stringify(materialInventory));
-}
-
-// 铜币（默认从主游戏同步）
-let coins = parseInt(localStorage.getItem('playerCoins')) || 0;
-document.getElementById('coinDisplay').textContent = '💰 ' + coins;
-
-function saveInventory() { localStorage.setItem('herbInventory', JSON.stringify(inventory)); }
-function saveMaterialInventory() { localStorage.setItem('materialInventory', JSON.stringify(materialInventory)); }
-function saveCoins() {
-    localStorage.setItem('playerCoins', coins);
-    document.getElementById('coinDisplay').textContent = '💰 ' + coins;
-}
-
-/* ============================================================
-   DOM
-   ============================================================ */
-
-const herbRowTop = document.getElementById('herbRowTop');
-const herbRowBottom = document.getElementById('herbRowBottom');
-const leftTools = document.getElementById('leftTools');
-const rightTools = document.getElementById('rightTools');
-const stageHerbImg = document.getElementById('stageHerbImg');
-const stageEmoji = document.getElementById('stageEmoji');
-const stage = document.getElementById('stage');
-const counterHerb = document.getElementById('counterHerb');
-const counterStatus = document.getElementById('counterStatus');
-const fryBarContainer = document.getElementById('fryBarContainer');
-const fryBar = document.getElementById('fryBar');
-const fryMarks = document.getElementById('fryMarks');
-const btnTakeOut = document.getElementById('btnTakeOut');
-const btnToPlate = document.getElementById('btnToPlate');
-const plateEl = document.getElementById('plate');
-const orderNameEl = document.getElementById('orderName');
-const modalOverlay = document.getElementById('modalOverlay');
-const modalTitle = document.getElementById('modalTitle');
-const modalText = document.getElementById('modalText');
-const manualContent = document.getElementById('manualContent');
-const modalConfirm = document.getElementById('modalConfirm');
-const bagModal = document.getElementById('bagModal');
-
-/* ============================================================
-   游戏状态
-   ============================================================ */
-
-let currentOrder = null;
-let currentHerb = null;
-let currentProcessed = null;
-let plateItems = [];
-let isFrying = false;
-let fryInterval = null;
-let fryProgress = 0;
-let fryRule = null;
-
-/* ============================================================
-   渲染
-   ============================================================ */
-
-function renderHerbRows() {
-    const allHerbs = Object.keys(inventory).filter(n => inventory[n] > 0);
-    const mid = Math.ceil(allHerbs.length / 2);
-    const top = allHerbs.slice(0, mid);
-    const bottom = allHerbs.slice(mid);
-    renderRow(herbRowTop, top);
-    renderRow(herbRowBottom, bottom);
-}
-
-function renderRow(rowEl, herbs) {
-    rowEl.innerHTML = '';
-    herbs.forEach(name => {
-        const slot = document.createElement('div');
-        slot.className = 'herb-slot';
-        if (currentHerb === name) slot.classList.add('selected');
-        slot.innerHTML = `
-            <img src="images/herbs/${name}.png"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-            <span class="hname" style="display:none;">🌿</span>
-            <span class="hname">${name}</span>
-            <span class="hcount">x${inventory[name]}</span>
-        `;
-        slot.addEventListener('click', () => selectHerb(name));
-        rowEl.appendChild(slot);
-    });
-    // 空槽位填充（美观）
-    const minSlots = 5;
-    for (let i = herbs.length; i < minSlots; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'herb-slot empty';
-        slot.textContent = '空';
-        rowEl.appendChild(slot);
-    }
-}
-
-function renderTools() {
-    leftTools.innerHTML = '';
-    for (let key of Object.keys(TOOLS_LEFT)) {
-        const tool = TOOLS_LEFT[key];
-        const btn = document.createElement('div');
-        btn.className = 'tool-btn';
-        btn.innerHTML = `
-            <img src="images/tools/${key}.png"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-            <span class="ticon" style="display:none;">${tool.icon}</span>
-            <span>${tool.name}</span>
-        `;
-        btn.addEventListener('click', () => useTool(key));
-        leftTools.appendChild(btn);
-    }
-
-    rightTools.innerHTML = '';
-    for (let key of Object.keys(TOOLS_RIGHT)) {
-        const tool = TOOLS_RIGHT[key];
-        const btn = document.createElement('div');
-        btn.className = 'tool-btn';
-        btn.innerHTML = `
-            <img src="images/tools/${key}.png"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-            <span class="ticon" style="display:none;">${tool.icon}</span>
-            <span>${tool.name}</span>
-        `;
-        btn.addEventListener('click', () => useTool(key));
-        rightTools.appendChild(btn);
-    }
-
-    // 辅料（显示数量，用完置灰）
-    for (let [name, info] of Object.entries(MATERIALS)) {
-        const count = materialInventory[name] || 0;
-        const btn = document.createElement('div');
-        btn.className = 'material-btn' + (count <= 0 ? ' out' : '');
-        btn.innerHTML = `
-            <img src="images/materials/${name}.png"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-            <span class="ticon" style="display:none;">${info.icon}</span>
-            <span>${name}</span>
-            <span class="mcount">x${count}</span>
-        `;
-        btn.addEventListener('click', () => useMaterial(name));
-        rightTools.appendChild(btn);
-    }
-}
-
-function processedImgHTML(name, cls = '') {
-    const p = `images/herbs/processed/${name}.png`;
-    return `<img class="${cls}" src="${p}"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-        <span class="${cls}" style="display:none;font-size:22px;">🌿</span>`;
-}
-
-function renderPlate() {
-    plateEl.innerHTML = '';
-    plateItems.forEach((item, i) => {
-        const div = document.createElement('div');
-        div.className = 'plate-item';
-        div.innerHTML = processedImgHTML(item.name) + `<span class="pname">${item.name}</span>`;
-        div.title = '点击移除：' + item.name;
-        div.addEventListener('click', () => {
-            // 退回生药库存
-            inventory[item.herb] = (inventory[item.herb] || 0) + 1;
-            saveInventory();
-            plateItems.splice(i, 1);
-            renderPlate();
-            renderHerbRows();
-        });
-        plateEl.appendChild(div);
-    });
-}
-
-/* ============================================================
-   操作台逻辑
-   ============================================================ */
-
-function setStageHerb(name, isProcessed = false) {
-    stageHerbImg.style.display = 'none';
-    stageEmoji.style.display = 'none';
-    stageHerbImg.src = '';
-    if (!name) return;
-    const p = isProcessed
-        ? `images/herbs/processed/${name}.png`
-        : `images/herbs/${name}.png`;
-    stageHerbImg.src = p;
-    stageHerbImg.style.display = 'block';
-    stageHerbImg.onerror = function () {
-        this.style.display = 'none';
-        stageEmoji.style.display = 'block';
-        stageEmoji.textContent = '🌿';
-    };
-    stageHerbImg.onload = function () {
-        this.style.display = 'block';
-        stageEmoji.style.display = 'none';
-    };
-}
-
-function selectHerb(name) {
-    if (isFrying) { showModal('提示', '正在炒制中，请先取出药材！'); return; }
-    if (currentHerb) { showModal('提示', '操作台上已有药材，请先放到盘子！'); return; }
-    if (inventory[name] <= 0) { showModal('提示', `【${name}】库存不足！`); return; }
-
-    inventory[name] -= 1;
-    saveInventory();
-    currentHerb = name;
-    currentProcessed = null;
-    fryRule = null;
-    setStageHerb(name, false);
-
-    // 检查是否无需炮制
-    const rules = HERB_RULES[name] || [];
-    const noneRule = rules.find(r => r.type === 'none');
-    if (noneRule) {
-        counterHerb.textContent = `生药：${name}（无需炮制）`;
-        counterStatus.textContent = '直接点击“放到盘子”即可';
-        btnToPlate.disabled = false;
-    } else {
-        counterHerb.textContent = `生药：${name}`;
-        counterStatus.textContent = '请选择工具或辅料进行炮制';
-        btnToPlate.disabled = true;
-    }
-    renderHerbRows();
-}
-
-function useTool(key) {
-    if (isFrying) { showModal('提示', '正在炒制中，请先取出药材！'); return; }
-    if (!currentHerb) { showModal('提示', '请先从药材栏选择一种药材。'); return; }
-    if (currentProcessed) { showModal('提示', '该药材已经炮制过了，直接放到盘子吧。'); return; }
-
-    const rules = HERB_RULES[currentHerb] || [];
-    const rule = rules.find(r => r.type === 'tool' && r.tool === key);
-
-    if (!rule) {
-        const toolName = TOOLS_LEFT[key]?.name || TOOLS_RIGHT[key]?.name || key;
-        showModal('提示', `【${currentHerb}】不能用【${toolName}】炮制。`);
-        return;
-    }
-
-    if (key === 'fry') {
-        startFrying(rule);
-        return;
-    }
-
-    playToolAnimation(key, () => {
-        currentProcessed = rule.result;
-        setStageHerb(rule.result, true);
-        counterHerb.textContent = `炮制品：${rule.result}`;
-        counterStatus.textContent = rule.desc + ' ✅';
-        btnToPlate.disabled = false;
-    });
-}
-
-function useMaterial(name) {
-    if (isFrying) { showModal('提示', '正在炒制中，请先取出药材！'); return; }
-    if (!currentHerb) { showModal('提示', '请先从药材栏选择一种药材。'); return; }
-    if (currentProcessed) { showModal('提示', '该药材已经炮制过了，直接放到盘子吧。'); return; }
-
-    const rules = HERB_RULES[currentHerb] || [];
-    const rule = rules.find(r => r.type === 'material' && r.material === name);
-
-    if (!rule) {
-        showModal('提示', `【${currentHerb}】不能用【${name}】炮制。`);
-        return;
-    }
-
-    // 检查辅料库存
-    if (!materialInventory[name] || materialInventory[name] <= 0) {
-        showModal('辅料不足', `【${name}】已用完。\n请点击顶部“购买辅料”补充。`);
-        return;
-    }
-
-    // 扣辅料
-    materialInventory[name] -= 1;
-    saveMaterialInventory();
-    renderTools();
-
-    playMaterialAnimation(name, () => {
-        currentProcessed = rule.result;
-        setStageHerb(rule.result, true);
-        counterHerb.textContent = `炮制品：${rule.result}`;
-        counterStatus.textContent = rule.desc + ' ✅';
-        btnToPlate.disabled = false;
-    });
-}
-
-function playToolAnimation(key, callback) {
-    const tool = TOOLS_LEFT[key] || TOOLS_RIGHT[key];
-    const toolEl = document.createElement('div');
-    toolEl.className = 'stage-anim';
-    toolEl.textContent = tool.icon;
-    toolEl.style.top = '-60px';
-    toolEl.style.left = '50%';
-    toolEl.style.transform = 'translateX(-50%)';
-    toolEl.style.opacity = '0';
-    stage.appendChild(toolEl);
-
-    requestAnimationFrame(() => {
-        toolEl.style.top = '10px';
-        toolEl.style.opacity = '1';
-    });
-
-    setTimeout(() => {
-        stageHerbImg.classList.add('shake');
-        stageEmoji.classList.add('shake');
-    }, 400);
-
-    setTimeout(() => {
-        stageHerbImg.classList.remove('shake');
-        stageEmoji.classList.remove('shake');
-        toolEl.style.top = '-60px';
-        toolEl.style.opacity = '0';
-    }, 800);
-
-    setTimeout(() => {
-        toolEl.remove();
-        if (callback) callback();
-    }, 1200);
-}
-
-function playMaterialAnimation(name, callback) {
-    const info = MATERIALS[name];
-    const matEl = document.createElement('div');
-    matEl.className = 'stage-anim';
-    matEl.textContent = info.icon;
-    matEl.style.right = '-60px';
-    matEl.style.top = '50%';
-    matEl.style.opacity = '0';
-    stage.appendChild(matEl);
-
-    requestAnimationFrame(() => {
-        matEl.style.right = '20px';
-        matEl.style.top = '30%';
-        matEl.style.opacity = '1';
-    });
-
-    setTimeout(() => {
-        matEl.style.opacity = '0';
-        stageHerbImg.classList.add('shake');
-        stageEmoji.classList.add('shake');
-    }, 700);
-
-    setTimeout(() => {
-        stageHerbImg.classList.remove('shake');
-        stageEmoji.classList.remove('shake');
-    }, 1100);
-
-    setTimeout(() => {
-        matEl.remove();
-        if (callback) callback();
-    }, 1300);
-}
-
-/* ============================================================
-   炒制系统
-   ============================================================ */
-
-function startFrying(rule) {
-    isFrying = true;
-    fryProgress = 0;
-    fryRule = rule;
-
-    fryBarContainer.style.display = 'block';
-    btnTakeOut.style.display = 'inline-block';
-    btnToPlate.disabled = true;
-
-    counterHerb.textContent = `炒制中：${currentHerb}`;
-    counterStatus.textContent = '火候：冷锅';
-
-    fryMarks.innerHTML = `
-        <span style="left:30%;"></span>
-        <span style="left:60%;"></span>
-        <span style="left:90%;"></span>
-    `;
-
-    fryBar.style.width = '0%';
-    fryBar.style.background = '#ffeb3b';
-    stageHerbImg.classList.add('frying');
-    stageEmoji.classList.add('frying');
-
-    if (fryInterval) clearInterval(fryInterval);
-    fryInterval = setInterval(() => {
-        fryProgress += 1;
-        if (fryProgress >= 100) {
-            fryProgress = 100;
-            fryBar.style.width = '100%';
-            clearInterval(fryInterval);
-            return;
-        }
-        fryBar.style.width = fryProgress + '%';
-        if (fryProgress < 30) {
-            fryBar.style.background = '#ffeb3b';
-            counterStatus.textContent = '火候：冷锅（未炒透）';
-        } else if (fryProgress < 60) {
-            fryBar.style.background = '#ff9800';
-            counterStatus.textContent = '火候：炒黄 ✅';
-        } else if (fryProgress < 90) {
-            fryBar.style.background = '#f44336';
-            counterStatus.textContent = '火候：炒焦 ⚠️';
-        } else {
-            fryBar.style.background = '#333';
-            counterStatus.textContent = '火候：焦黑 ❌（即将废弃）';
-        }
-    }, 80);
-}
-
-btnTakeOut.addEventListener('click', () => {
-    if (!isFrying) return;
-    clearInterval(fryInterval);
-    isFrying = false;
-    stageHerbImg.classList.remove('frying');
-    stageEmoji.classList.remove('frying');
-
-    fryBarContainer.style.display = 'none';
-    btnTakeOut.style.display = 'none';
-
-    let result;
-    if (fryProgress < 30) {
-        result = null;
-        counterHerb.textContent = `生药：${currentHerb}`;
-        counterStatus.textContent = '火候不足，还是生药，可以重新炒。';
-    } else if (fryProgress < 60) {
-        result = fryRule.result;
-        counterHerb.textContent = `炮制品：${result}`;
-        counterStatus.textContent = '炒黄完成 ✅ 可以放到盘子';
-    } else if (fryProgress < 90) {
-        result = '炒焦' + currentHerb;
-        counterHerb.textContent = `炮制品：${result}`;
-        counterStatus.textContent = '炒焦完成（可能不符合方剂要求）';
-    } else {
-        currentHerb = null;
-        currentProcessed = null;
-        setStageHerb(null);
-        counterHerb.textContent = '药材已焦黑废弃';
-        counterStatus.textContent = '❌ 火候太过，药材报废';
-        btnToPlate.disabled = true;
-        fryProgress = 0;
-        renderHerbRows();
-        return;
-    }
-
-    if (result) {
-        currentProcessed = result;
-        setStageHerb(result, true);
-        btnToPlate.disabled = false;
-    } else {
-        currentProcessed = null;
-        setStageHerb(currentHerb, false);
-        btnToPlate.disabled = true;
-    }
-    fryProgress = 0;
-});
-
-/* ============================================================
-   放到盘子
-   ============================================================ */
-
-btnToPlate.addEventListener('click', () => {
-    if (!currentHerb && !currentProcessed) {
-        showModal('提示', '操作台上没有药材。');
-        return;
-    }
-    const finalName = currentProcessed || currentHerb;
-    if (!finalName) return;
-
-    plateItems.push({
-        herb: currentHerb,
-        name: finalName
-    });
-    renderPlate();
-
-    currentHerb = null;
-    currentProcessed = null;
-    setStageHerb(null);
-    counterHerb.textContent = '请选择药材';
-    counterStatus.textContent = '';
-    btnToPlate.disabled = true;
-    renderHerbRows();
-});
-
-/* ============================================================
-   订单系统
-   ============================================================ */
-
-function loadNewOrder() {
-    const idx = Math.floor(Math.random() * PRESCRIPTIONS.length);
-    currentOrder = PRESCRIPTIONS[idx];
-    orderNameEl.textContent = currentOrder.name;
-}
-
-document.getElementById('orderInfo').addEventListener('click', () => {
-    if (!currentOrder) return;
-    showModal('当前订单', `方剂：${currentOrder.name}\n\n需要药材（炮制后）：\n${currentOrder.herbs.map(h => '· ' + h).join('\n')}`);
-});
-
-/* ============================================================
-   包药
-   ============================================================ */
-
-document.getElementById('btnPackage').addEventListener('click', () => {
-    if (!currentOrder) return;
-    if (plateItems.length === 0) {
-        showModal('提示', '药盘是空的，先放药材吧。');
-        return;
-    }
-    const required = [...currentOrder.herbs].sort();
-    const provided = plateItems.map(p => p.name).sort();
-
-    if (required.length !== provided.length) {
-        showModal('包药失败',
-            `药材数量不对！\n需要 ${required.length} 味，当前 ${provided.length} 味。\n\n需要：${currentOrder.herbs.join('、')}`);
-        return;
-    }
-    let match = true;
-    for (let i = 0; i < required.length; i++) {
-        if (required[i] !== provided[i]) { match = false; break; }
-    }
-    if (!match) {
-        const missing = required.filter(x => !provided.includes(x));
-        const extra = provided.filter(x => !required.includes(x));
-        let msg = '药材不匹配！\n';
-        if (missing.length) msg += `缺少：${missing.join('、')}\n`;
-        if (extra.length) msg += `多出：${extra.join('、')}\n`;
-        msg += `\n方剂需要：${currentOrder.herbs.join('、')}`;
-        showModal('包药失败', msg);
-        return;
-    }
-
-    const bag = {
-        id: 'bag_' + Date.now(),
-        name: currentOrder.name,
-        herbs: plateItems.map(p => p.name),
-        createdAt: Date.now()
-    };
-    const bags = JSON.parse(localStorage.getItem('medicineBags') || '[]');
-    bags.push(bag);
-    localStorage.setItem('medicineBags', JSON.stringify(bags));
-
-    coins += 100;
-    saveCoins();
-
-    plateItems = [];
-    renderPlate();
-    showBagModal(bag);
-});
-
-function showBagModal(bag) {
-    document.getElementById('bagName').textContent = bag.name;
-    document.getElementById('bagHerbs').innerHTML =
-        `共 ${bag.herbs.length} 味：<br>${bag.herbs.join('、')}<br><br>铜币 +100`;
-    bagModal.classList.add('active');
-}
-
-document.getElementById('bagConfirm').addEventListener('click', () => {
-    bagModal.classList.remove('active');
-    loadNewOrder();
-});
-
-/* ============================================================
-   购买辅料
-   ============================================================ */
-
-document.getElementById('btnShop').addEventListener('click', () => {
-    let html = '<div style="text-align:left;">';
-    for (let [name, info] of Object.entries(MATERIALS)) {
-        const count = materialInventory[name] || 0;
-        html += `<div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;">
-            <span>${info.icon} ${name}（库存 ${count}）</span>
-            <button class="buy-btn" data-material="${name}" data-price="${info.price}"
-                style="padding:3px 10px;border-radius:10px;border:1px solid #558b2f;background:#aed581;color:#33691e;font-weight:bold;cursor:pointer;">
-                购买（💰${info.price}）
-            </button>
-        </div>`;
-    }
-    html += '</div>';
-    showModal('🛒 购买辅料', html, true);
-
-    // 绑定购买按钮
-    setTimeout(() => {
-        document.querySelectorAll('.buy-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const mat = btn.dataset.material;
-                const price = parseInt(btn.dataset.price);
-                if (coins < price) {
-                    alert('铜币不足！');
-                    return;
-                }
-                coins -= price;
-                materialInventory[mat] = (materialInventory[mat] || 0) + 1;
-                saveCoins();
-                saveMaterialInventory();
-                renderTools();
-                // 刷新弹窗里的库存数字
-                const span = btn.parentElement.querySelector('span');
-                span.textContent = `${MATERIALS[mat].icon} ${mat}（库存 ${materialInventory[mat]}）`;
-            });
-        });
-    }, 50);
-});
-
-/* ============================================================
-   说明书
-   ============================================================ */
-
-document.getElementById('btnManual').addEventListener('click', () => {
-    let html = '';
-    html += '<h4>🔧 切制工具</h4>';
-    for (let [k, t] of Object.entries(TOOLS_LEFT)) {
-        html += `<div>· ${t.icon} <b>${t.name}</b></div>`;
-    }
-    html += '<h4>🔥 炒制工具</h4>';
-    for (let [k, t] of Object.entries(TOOLS_RIGHT)) {
-        html += `<div>· ${t.icon} <b>${t.name}</b></div>`;
-    }
-    html += '<h4>🧂 辅料（初始各 1 份，可购买）</h4>';
-    for (let [k, m] of Object.entries(MATERIALS)) {
-        html += `<div>· ${m.icon} <b>${k}</b>（💰${m.price}）</div>`;
-    }
-    html += '<h4>🌿 药材炮制</h4>';
-    for (let [herb, rules] of Object.entries(HERB_RULES)) {
-        let parts = rules.map(r => {
-            if (r.type === 'none') return `${r.result}（无需炮制）`;
-            if (r.type === 'tool') {
-                const t = TOOLS_LEFT[r.tool] || TOOLS_RIGHT[r.tool];
-                return `${t.icon}${t.name}→${r.result}（${r.desc}）`;
-            }
-            if (r.type === 'material') {
-                return `${MATERIALS[r.material].icon}${r.material}→${r.result}（${r.desc}）`;
-            }
-            return r.result;
-        });
-        html += `<div><b>${herb}</b>：${parts.join('；')}</div>`;
-    }
-    html += '<h4>🍳 炒制火候</h4>';
-    html += '<div>0~30%：未炒透（仍为生药）</div>';
-    html += '<div>30~60%：<b>炒黄</b> ✅</div>';
-    html += '<div>60~90%：<b>炒焦</b> ⚠️</div>';
-    html += '<div>90% 以上：焦黑废弃 ❌</div>';
-
-    showModal('炮制说明书', html, true);
-});
-
-/* ============================================================
-   通用弹窗
-   ============================================================ */
-
-function showModal(title, text, isManual = false) {
-    modalTitle.textContent = title;
-    if (isManual) {
-        modalText.style.display = 'none';
-        manualContent.style.display = 'block';
-        manualContent.innerHTML = text;
-    } else {
-        modalText.style.display = 'block';
-        manualContent.style.display = 'none';
-        modalText.textContent = text;
-    }
-    modalOverlay.classList.add('active');
-}
-function hideModal() { modalOverlay.classList.remove('active'); }
-modalConfirm.addEventListener('click', hideModal);
-
-/* ============================================================
-   初始化
-   ============================================================ */
-
-function init() {
-    renderHerbRows();
-    renderTools();
-    renderPlate();
-    loadNewOrder();
-    setStageHerb(null);
-    counterHerb.textContent = '请选择药材';
-    counterStatus.textContent = '工具已自备，辅料初始各 1 份，可购买';
-}
-init();
-</script>
-</body>
-</html>
+        '桂枝
