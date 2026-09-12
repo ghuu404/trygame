@@ -415,55 +415,49 @@ body {
     'use strict';
 
     var FORMULAS = [
-        { name: '桂枝汤', patient: 'images/patient_guizhi.png', speak: '大夫，我发热，一直出汗，特别怕风。',
+        { name: '桂枝汤', patient: 'images/patient_guizhi.webp', speak: '大夫，我发热，一直出汗，特别怕风。',
           s: { head: ['头痛'], chest: ['发热','汗出','恶风'], belly: [], limbs: [], pulse: ['脉浮缓'] } },
-        { name: '麻黄汤', patient: 'images/patient_mahuang.png', speak: '大夫，我头痛发热，浑身骨节都疼，一点汗都出不来，还喘。',
+        { name: '麻黄汤', patient: 'images/patient_mahuang.webp', speak: '大夫，我头痛发热，浑身骨节都疼，一点汗都出不来，还喘。',
           s: { head: ['头痛'], chest: ['发热','无汗','恶风','喘'], belly: [], limbs: ['身疼','腰痛','骨节疼痛'], pulse: ['脉浮紧'] } },
-        { name: '葛根汤', patient: 'images/patient_gegen.png', speak: '大夫，我脖子后背僵硬得难受，发热怕冷，不出汗。',
+        { name: '葛根汤', patient: 'images/patient_gegen.webp', speak: '大夫，我脖子后背僵硬得难受，发热怕冷，不出汗。',
           s: { head: ['项背强几几'], chest: ['发热','无汗','恶风'], belly: [], limbs: [], pulse: ['脉浮'] } },
-        { name: '小青龙汤', patient: 'images/patient_xiaoqinglong.png', speak: '大夫，我怕冷发热，一直咳嗽，还干呕。',
+        { name: '小青龙汤', patient: 'images/patient_xiaoqinglong.webp', speak: '大夫，我怕冷发热，一直咳嗽，还干呕。',
           s: { head: [], chest: ['发热','恶寒','心下有水气','咳'], belly: [], limbs: ['干呕'], pulse: [] } },
-        { name: '大青龙汤', patient: 'images/patient_daqinglong.png', speak: '大夫，我发热怕冷，浑身疼得厉害，一点汗都出不来，心里烦躁得很。',
+        { name: '大青龙汤', patient: 'images/patient_daqinglong.webp', speak: '大夫，我发热怕冷，浑身疼得厉害，一点汗都出不来，心里烦躁得很。',
           s: { head: ['烦躁'], chest: ['发热','恶寒','身疼痛','不汗出'], belly: [], limbs: [], pulse: [] } },
-        { name: '小柴胡汤', patient: 'images/patient_xiaochaihu.png', speak: '大夫，我一会冷一会热，胸口两肋胀得难受，不想吃饭，老想吐。',
+        { name: '小柴胡汤', patient: 'images/patient_xiaochaihu.webp', speak: '大夫，我一会冷一会热，胸口两肋胀得难受，不想吃饭，老想吐。',
           s: { head: ['心烦'], chest: ['往来寒热','胸胁苦满'], belly: ['不欲饮食','喜呕'], limbs: [], pulse: ['脉弦'] } },
-        { name: '大柴胡汤', patient: 'images/patient_dachaihu.png', speak: '大夫，我一会冷一会热，心口下面堵得慌，又吐又拉。',
+        { name: '大柴胡汤', patient: 'images/patient_dachaihu.webp', speak: '大夫，我一会冷一会热，心口下面堵得慌，又吐又拉。',
           s: { head: [], chest: ['往来寒热'], belly: ['心下痞硬','呕吐','下利'], limbs: [], pulse: ['脉弦'] } },
-        { name: '白虎汤', patient: 'images/patient_baihu.png', speak: '大夫，我浑身滚烫，出大汗，渴得厉害。',
+        { name: '白虎汤', patient: 'images/patient_baihu.webp', speak: '大夫，我浑身滚烫，出大汗，渴得厉害。',
           s: { head: [], chest: ['身大热','汗大出','口大渴'], belly: [], limbs: [], pulse: ['脉洪大'] } },
-        { name: '大承气汤', patient: 'images/patient_dachengqi.png', speak: '大夫，我肚子胀痛，大便好几天不通了，下午发热，手脚出汗。',
+        { name: '大承气汤', patient: 'images/patient_dachengqi.webp', speak: '大夫，我肚子胀痛，大便好几天不通了，下午发热，手脚出汗。',
           s: { head: ['潮热'], chest: [], belly: ['腹满痛','大便不通'], limbs: ['手足汗出'], pulse: [] } },
-        { name: '小承气汤', patient: 'images/patient_xiaochengqi.png', speak: '大夫，我肚子胀得厉害，大便干硬，心里烦躁。',
+        { name: '小承气汤', patient: 'images/patient_xiaochengqi.webp', speak: '大夫，我肚子胀得厉害，大便干硬，心里烦躁。',
           s: { head: ['微烦'], chest: [], belly: ['腹大满','大便硬'], limbs: [], pulse: [] } },
-        { name: '调胃承气汤', patient: 'images/patient_tiaowei.png', speak: '大夫，我身上发热，肚子胀。',
+        { name: '调胃承气汤', patient: 'images/patient_tiaowei.webp', speak: '大夫，我身上发热，肚子胀。',
           s: { head: [], chest: ['蒸蒸发热'], belly: ['腹胀满'], limbs: [], pulse: [] } },
-        { name: '理中汤', patient: 'images/patient_lizhong.png', speak: '大夫，我肚子胀，又吐又拉，不想吃饭，肚子一阵一阵疼。',
+        { name: '理中汤', patient: 'images/patient_lizhong.webp', speak: '大夫，我肚子胀，又吐又拉，不想吃饭，肚子一阵一阵疼。',
           s: { head: [], chest: [], belly: ['腹满','吐利','不欲食','时腹自痛'], limbs: [], pulse: [] } },
-        { name: '四逆汤', patient: 'images/patient_sini.png', speak: '大夫，我手脚冰凉，拉肚子都是没消化的东西。',
+        { name: '四逆汤', patient: 'images/patient_sini.webp', speak: '大夫，我手脚冰凉，拉肚子都是没消化的东西。',
           s: { head: [], chest: [], belly: ['下利清谷'], limbs: ['四肢厥逆'], pulse: ['脉微欲绝'] } },
-        { name: '真武汤', patient: 'images/patient_zhenwu.png', speak: '大夫，我头晕心慌，身上肌肉跳，小便不通畅。',
+        { name: '真武汤', patient: 'images/patient_zhenwu.webp', speak: '大夫，我头晕心慌，身上肌肉跳，小便不通畅。',
           s: { head: ['头眩'], chest: ['心下悸','身瞤动'], belly: ['小便不利'], limbs: [], pulse: [] } },
-        { name: '五苓散', patient: 'images/patient_wuling.png', speak: '大夫，我渴得想喝水，喝了又吐出来，小便不通畅。',
+        { name: '五苓散', patient: 'images/patient_wuling.webp', speak: '大夫，我渴得想喝水，喝了又吐出来，小便不通畅。',
           s: { head: [], chest: ['渴欲饮水','水入则吐'], belly: ['小便不利'], limbs: [], pulse: [] } },
-        { name: '半夏泻心汤', patient: 'images/patient_banxia.png', speak: '大夫，我心口堵得慌，又吐又肠鸣，还拉肚子。',
+        { name: '半夏泻心汤', patient: 'images/patient_banxia.webp', speak: '大夫，我心口堵得慌，又吐又肠鸣，还拉肚子。',
           s: { head: [], chest: [], belly: ['心下痞满','呕而肠鸣','下利'], limbs: [], pulse: [] } },
-        { name: '栀子豉汤', patient: 'images/patient_zhizi.png', speak: '大夫，我心里烦得睡不着觉，辗转反侧。',
+        { name: '栀子豉汤', patient: 'images/patient_zhizi.webp', speak: '大夫，我心里烦得睡不着觉，辗转反侧。',
           s: { head: ['虚烦不得眠','心中懊憹'], chest: [], belly: [], limbs: [], pulse: [] } },
-        { name: '茵陈蒿汤', patient: 'images/patient_yinchen.png', speak: '大夫，我浑身发黄，像橘子皮那么黄，小便不通畅，肚子有点胀。',
+        { name: '茵陈蒿汤', patient: 'images/patient_yinchen.webp', speak: '大夫，我浑身发黄，像橘子皮那么黄，小便不通畅，肚子有点胀。',
           s: { head: [], chest: ['身黄如橘子色'], belly: ['小便不利','腹微满'], limbs: [], pulse: [] } },
-        { name: '当归四逆汤', patient: 'images/patient_dangguisini.png', speak: '大夫，我手脚冰凉得厉害，怎么也暖不热。',
+        { name: '当归四逆汤', patient: 'images/patient_dangguisini.webp', speak: '大夫，我手脚冰凉得厉害，怎么也暖不热。',
           s: { head: [], chest: [], belly: [], limbs: ['手足厥寒'], pulse: ['脉细欲绝'] } },
-        { name: '小建中汤', patient: 'images/patient_xiaojianzhong.png', speak: '大夫，我肚子一阵一阵绞痛，心里慌得很。',
+        { name: '小建中汤', patient: 'images/patient_xiaojianzhong.webp', speak: '大夫，我肚子一阵一阵绞痛，心里慌得很。',
           s: { head: ['心中悸而烦'], chest: [], belly: ['腹中急痛'], limbs: [], pulse: [] } }
     ];
 
-    var PATIENT_IMAGES = [
-        'images/patient1.png',
-        'images/patient2.png',
-        'images/patient3.png',
-        'images/patient4.png'
-    ];
-    var patientImgIndex = 0;
+    
 
     // ===== 医力：读全局 power 键 =====
     function getPower() {
@@ -627,24 +621,12 @@ body {
         var fig = document.createElement('div');
         fig.id = 'patientFigure';
 
-        var mainSrc = state.formula.patient || '';
-        var fallbackSrc = PATIENT_IMAGES[patientImgIndex % PATIENT_IMAGES.length];
-        patientImgIndex++;
-
         var img = document.createElement('img');
-        img.className = 'patient-img';
-        img.alt = '';
-        var tried = false;
-        img.onerror = function() {
-            if (!tried && mainSrc) {
-                tried = true;
-                this.src = fallbackSrc;
-            } else {
-                this.style.display = 'none';
-            }
-        };
-        img.src = mainSrc || fallbackSrc;
-        fig.appendChild(img);
+img.className = 'patient-img';
+img.alt = '';
+img.onerror = function() { this.style.display = 'none'; };
+img.src = state.formula.patient || '';
+fig.appendChild(img);
 
         var parts = [
             { part: 'head',  cls: 'hit-head'  },
@@ -801,7 +783,7 @@ body {
     }
 
     // ===== 版本号 =====
-    var CURRENT_VERSION = 'v132';
+    var CURRENT_VERSION = 'v133';
     document.getElementById('versionTag').textContent = CURRENT_VERSION;
 
     queueCountEl.textContent = queueCount;
