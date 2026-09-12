@@ -1,276 +1,509 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>抓药 · 重生之我是赤脚医生</title>
+<title>配药 - 重生之我是赤脚医生</title>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box;
-        font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
-    html, body { height: 100%; overflow: hidden; }
-    body {
-        display: flex; flex-direction: column;
-        user-select: none; -webkit-tap-highlight-color: transparent;
-        background: #dcedc8 url('images/main-bg.jpg') no-repeat center center;
-        background-size: cover;
-    }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: sans-serif;
+    user-select: none;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #f5f0e8;
+}
+#topBar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px; background: #33691e; color: #fff;
+    font-size: 13px; font-weight: bold; flex-shrink: 0; gap: 6px;
+}
+.top-btn {
+    background: #aed581; border: 2px solid #fff;
+    border-radius: 14px; padding: 3px 10px;
+    font-size: 12px; font-weight: bold;
+    color: #33691e; cursor: pointer; text-decoration: none;
+}
+#main {
+    flex: 1; display: flex; padding: 6px; gap: 6px; overflow: hidden;
+}
+/* 左侧处方单 */
+#orderPanel {
+    flex: 0 0 30%;
+    background: #fff9e6;
+    border: 3px solid #b89a72;
+    border-radius: 14px;
+    padding: 10px;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+}
+#orderTitle {
+    font-size: 18px; font-weight: bold; color: #33691e;
+    text-align: center; margin-bottom: 10px;
+    border-bottom: 2px dashed #b89a72; padding-bottom: 6px;
+}
+.order-item {
+    display: flex; justify-content: space-between;
+    font-size: 14px; color: #5a3e2b;
+    padding: 5px 6px; border-bottom: 1px dotted #ddd;
+}
+.order-item.done { color: #2e7d32; font-weight: bold; }
+.order-item .cnt { color: #c62828; }
+/* 中间餐盘 */
+#platePanel {
+    flex: 1;
+    background: #f0e6d8;
+    border: 3px solid #b89a72;
+    border-radius: 14px;
+    padding: 8px;
+    display: flex; flex-direction: column;
+    align-items: center;
+}
+#plateTitle {
+    font-size: 14px; font-weight: bold; color: #5a3e2b;
+    margin-bottom: 6px;
+}
+#plateGrid {
+    flex: 1; width: 100%;
+    display: flex; flex-wrap: wrap;
+    align-content: flex-start; gap: 6px;
+    overflow-y: auto; padding: 4px;
+    background: #e8d5c0;
+    border-radius: 10px;
+    border: 2px dashed #8b5e3c;
+}
+.plate-herb {
+    width: 64px; height: 72px;
+    background: #fff; border: 2px solid #8b5e3c;
+    border-radius: 8px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer; font-size: 10px;
+    font-weight: bold; color: #3a2a1a;
+    position: relative;
+    transition: transform 0.15s;
+}
+.plate-herb:active { transform: scale(0.92); }
+.plate-herb img {
+    width: 36px; height: 36px;
+    object-fit: contain;
+}
+.plate-herb .pcount {
+    position: absolute; top: 2px; right: 4px;
+    font-size: 10px; color: #c62828;
+    background: rgba(255,255,255,0.85);
+    border-radius: 6px; padding: 0 4px;
+}
+#btnPack {
+    margin-top: 8px;
+    padding: 10px 30px;
+    font-size: 16px; font-weight: bold;
+    background: #aed581; border: 2px solid #33691e;
+    border-radius: 20px; color: #33691e;
+    cursor: pointer;
+}
+#btnPack:active { transform: scale(0.95); }
+#btnPack:disabled { opacity: 0.5; cursor: not-allowed; }
+/* 右侧库存 */
+#stockPanel {
+    flex: 0 0 30%;
+    background: #fff;
+    border: 3px solid #b89a72;
+    border-radius: 14px;
+    padding: 8px;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+}
+#stockTitle {
+    font-size: 14px; font-weight: bold; color: #33691e;
+    text-align: center; margin-bottom: 6px;
+}
+.stock-item {
+    display: flex; align-items: center;
+    gap: 6px; padding: 5px 6px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer; border-radius: 8px;
+    transition: background 0.15s;
+}
+.stock-item:hover { background: #f1f8e9; }
+.stock-item img {
+    width: 34px; height: 34px;
+    object-fit: contain;
+}
+.stock-item .sinfo { flex: 1; }
+.stock-item .sname { font-size: 12px; font-weight: bold; color: #3a2a1a; }
+.stock-item .scount { font-size: 11px; color: #777; }
+.stock-item.out { opacity: 0.4; cursor: not-allowed; }
 
-    /* ===== 顶栏 ===== */
-    #topBar {
-        flex: 0 0 auto;
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 8px; padding: 8px 12px;
-        background: rgba(51, 105, 30, 0.92);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    .top-btn {
-        width: 34px; height: 34px; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 50%; background: rgba(255,255,255,0.18);
-        color: #fff; font-size: 20px; font-weight: bold;
-        text-decoration: none; transition: transform 0.15s;
-    }
-    .top-btn:active { transform: scale(0.9); }
-    .top-title { font-size: 17px; font-weight: bold; color: #fff; letter-spacing: 2px; }
-    .top-right { display: flex; gap: 6px; }
-    .resource {
-        font-size: 13px; font-weight: bold;
-        background: rgba(255,255,255,0.9); color: #33691e;
-        padding: 3px 10px; border-radius: 12px;
-        white-space: nowrap;
-    }
-
-    /* ===== 病人区 ===== */
-    #stage { flex: 0 0 auto; padding: 10px 12px; }
-    #patientBox {
-        display: flex; align-items: center; gap: 10px;
-        background: rgba(255,255,255,0.9);
-        border: 3px solid #558b2f; border-radius: 16px;
-        padding: 8px 12px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.12);
-        transition: opacity 0.25s;
-    }
-    #patientBox.gone { opacity: 0; }
-    #patientEmoji {
-        font-size: 46px; line-height: 1; flex-shrink: 0;
-        animation: bob 2.2s ease-in-out infinite;
-    }
-    @keyframes bob {
-        0%, 100% { transform: translateY(0); }
-        50%      { transform: translateY(-5px); }
-    }
-    #patientBox.happy #patientEmoji { animation: happyPop 0.5s ease; }
-    @keyframes happyPop {
-        0%   { transform: scale(1); }
-        50%  { transform: scale(1.45) rotate(-10deg); }
-        100% { transform: scale(1); }
-    }
-    #patientBox.angry #patientEmoji { animation: angryShake 0.4s ease 2; }
-    @keyframes angryShake {
-        0%, 100% { transform: translateX(0); }
-        25%      { transform: translateX(-6px) rotate(-6deg); }
-        75%      { transform: translateX(6px) rotate(6deg); }
-    }
-    #bubble { flex: 1; min-width: 0; }
-    .bubble-head { font-size: 12px; font-weight: bold; color: #33691e; margin-bottom: 5px; }
-    #prescriptionList { display: flex; flex-wrap: wrap; gap: 5px; }
-    .rx-chip {
-        background: #f1f8e9; border: 1.5px solid #aed581;
-        border-radius: 10px; padding: 2px 9px;
-        font-size: 13px; font-weight: bold; color: #33691e;
-        transition: all 0.15s;
-    }
-    .rx-chip.done {
-        background: #aed581; border-color: #558b2f;
-        color: #fff; text-decoration: line-through;
-    }
-    .bubble-foot { margin-top: 6px; font-size: 12px; font-weight: bold; color: #b85c00; }
-
-    /* ===== 药柜 ===== */
-    #cabinetWrap {
-        flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch;
-        padding: 8px 12px 12px;
-        background: rgba(255,255,255,0.78);
-        border-top: 3px solid #558b2f;
-    }
-    #cabinet {
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-    }
-    .herb-cell {
-        background: #fff; border: 2px solid #c5e1a5; border-radius: 10px;
-        padding: 8px 3px; text-align: center; cursor: pointer;
-        display: flex; flex-direction: column; gap: 2px;
-        transition: transform 0.12s, background 0.12s;
-    }
-    .herb-cell:active { transform: scale(0.92); background: #dcedc8; }
-    .herb-cell .hname { font-size: 14px; font-weight: bold; color: #33691e; }
-    .herb-cell .hcount { font-size: 10px; color: #999; }
-    .herb-cell.empty { opacity: 0.3; pointer-events: none; }
-    .herb-cell.hint-pulse {
-        animation: hintPulse 0.5s ease-in-out 4;
-        border-color: #ff9800; box-shadow: 0 0 12px #ffb74d;
-    }
-    @keyframes hintPulse {
-        0%, 100% { transform: scale(1); }
-        50%      { transform: scale(1.12); }
-    }
-    .cabinet-empty {
-        grid-column: 1 / -1; text-align: center;
-        color: #999; font-size: 13px; padding: 28px 0;
-    }
-
-    /* ===== 药盘 ===== */
-    #trayWrap {
-        flex: 0 0 auto; min-height: 66px;
-        padding: 6px 12px 8px;
-        background: rgba(51,105,30,0.12);
-        border-top: 3px solid #558b2f;
-    }
-    #trayTitle { font-size: 11px; font-weight: bold; color: #558b2f; margin-bottom: 4px; }
-    #tray { display: flex; flex-wrap: wrap; gap: 5px; }
-    .tray-chip {
-        background: #fff; border: 2px solid #558b2f; border-radius: 14px;
-        padding: 3px 10px; font-size: 13px; font-weight: bold; color: #33691e;
-        cursor: pointer; animation: popIn 0.18s ease-out;
-    }
-    .tray-chip:active { transform: scale(0.9); background: #ffcdd2; }
-    @keyframes popIn {
-        from { transform: scale(0.5); opacity: 0; }
-        to   { transform: scale(1);   opacity: 1; }
-    }
-    #trayEmpty { font-size: 12px; color: #999; padding: 6px 0; }
-
-    /* ===== 底部按钮 ===== */
-    #actionRow {
-        flex: 0 0 auto;
-        display: flex; gap: 8px; padding: 8px 12px 14px;
-        background: rgba(51,105,30,0.92);
-    }
-    .act-btn {
-        flex: 1; padding: 11px 4px;
-        font-family: inherit; font-size: 15px; font-weight: bold;
-        border-radius: 12px; border: 2px solid #aed581;
-        background: #f1f8e9; color: #33691e;
-        cursor: pointer; transition: transform 0.12s, background 0.12s;
-    }
-    .act-btn:active { transform: scale(0.95); }
-    .act-btn.primary { background: #aed581; border-color: #33691e; color: #1b5e20; }
-    .act-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* ===== 飘字提示 ===== */
-    .toast {
-        position: fixed; left: 50%; top: 38%;
-        transform: translate(-50%, -50%) scale(0.85);
-        background: rgba(20, 40, 10, 0.86);
-        color: #fff; font-size: 14px; font-weight: bold;
-        padding: 10px 22px; border-radius: 20px;
-        z-index: 9999; opacity: 0; pointer-events: none;
-        transition: all 0.2s ease-out; white-space: nowrap;
-    }
-    .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
-    /* 金币飘字 */
-    .coin-float {
-        position: fixed; font-size: 20px; font-weight: bold;
-        color: #ffb300; text-shadow: 0 0 6px #fff, 0 2px 4px rgba(0,0,0,0.4);
-        pointer-events: none; z-index: 9999;
-        animation: coinUp 0.9s ease-out forwards;
-    }
-    @keyframes coinUp {
-        0%   { opacity: 0; transform: translateY(0) scale(0.6); }
-        25%  { opacity: 1; transform: translateY(-14px) scale(1.2); }
-        100% { opacity: 0; transform: translateY(-56px) scale(1); }
-    }
+/* 药包弹窗 */
+#bagModal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000;
+}
+#bagModal.active { display: flex; }
+.bag-box {
+    background: #f5f0e8; border-radius: 20px;
+    padding: 20px; text-align: center;
+    width: 80%; max-width: 320px;
+    border: 3px solid #558b2f;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.bag-box img { width: 160px; height: 160px; object-fit: contain; }
+.bag-emoji { font-size: 100px; }
+.bag-name { font-size: 22px; font-weight: bold; color: #33691e; margin: 10px 0; }
+.bag-herbs { font-size: 12px; color: #666; margin-bottom: 14px; line-height: 1.6; }
+.modal-btn {
+    display: block; width: 100%; font-size: 16px; font-weight: bold;
+    padding: 10px; margin: 6px 0; border: 2px solid #558b2f;
+    border-radius: 12px; background: #aed581; color: #33691e;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
 
-<!-- 顶栏 -->
-<header id="topBar">
-    <a class="top-btn" href="index.html">←</a>
-    <div class="top-title">抓 药</div>
-    <div class="top-right">
-        <span class="resource">💰 <span id="coinText">0</span></span>
-        <span class="resource">💡 <span id="hintText">3</span></span>
+<div id="topBar">
+    <div style="display:flex;gap:6px;">
+        <a class="top-btn" href="index.html">← 返回</a>
+        <a class="top-btn" href="process.html">⚗️ 去炮制</a>
     </div>
-</header>
+    <div style="font-size:14px;">📋 配药台</div>
+    <div class="top-btn" id="coinDisplay">💰 0</div>
+</div>
 
-<!-- 病人 -->
-<main id="stage">
-    <div id="patientBox">
-        <div id="patientEmoji">🧑</div>
-        <div id="bubble">
-            <div class="bubble-head">📋 <span id="patientName">病人</span> 的药方</div>
-            <div id="prescriptionList"></div>
-            <div class="bubble-foot">诊金：💰 <span id="rewardText">0</span></div>
-        </div>
+<div id="main">
+    <!-- 左：处方单 -->
+    <div id="orderPanel">
+        <div id="orderTitle">处方</div>
+        <div id="orderList"></div>
     </div>
-</main>
 
-<!-- 药柜 -->
-<section id="cabinetWrap">
-    <div id="cabinet"></div>
-</section>
+    <!-- 中：餐盘 -->
+    <div id="platePanel">
+        <div id="plateTitle">🫙 药盘（点击可移除）</div>
+        <div id="plateGrid"></div>
+        <button id="btnPack">打包药包</button>
+    </div>
 
-<!-- 药盘 -->
-<section id="trayWrap">
-    <div id="trayTitle">药盘（点击已抓的药可退回）</div>
-    <div id="tray"></div>
-</section>
+    <!-- 右：库存 -->
+    <div id="stockPanel">
+        <div id="stockTitle">📦 库存（点击加药）</div>
+        <div id="stockList"></div>
+    </div>
+</div>
 
-<!-- 操作 -->
-<footer id="actionRow">
-    <button class="act-btn" id="btnClear">清空</button>
-    <button class="act-btn" id="btnHint">💡 提示 <span id="hintCount">3</span></button>
-    <button class="act-btn primary" id="btnSubmit">抓 药</button>
-</footer>
+<!-- 药包弹窗 -->
+<div id="bagModal">
+    <div class="bag-box">
+        <img id="bagImg" src="images/medicine-bag.png"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+        <div class="bag-emoji" style="display:none;">🎁</div>
+        <div class="bag-name" id="bagName">麻黄汤</div>
+        <div class="bag-herbs" id="bagHerbs"></div>
+        <button class="modal-btn" id="bagConfirm">交给病人</button>
+    </div>
+</div>
 
 <script>
-/* =========================================================
-   常量
-========================================================= */
-const MAX_HINTS   = 3;
-const WAREHOUSE_KEY = 'warehouse';
+/* 处方数据：每味药 + 剂量（两） */
+const PRESCRIPTIONS = [
+    { name: '麻黄汤', herbs: [
+        { name: '麻黄(去节)', amount: 3 },
+        { name: '桂枝(去皮)', amount: 2 },
+        { name: '杏仁(去皮尖)', amount: 3 },
+        { name: '甘草(蜜炙)', amount: 1 }
+    ]},
+    { name: '桂枝汤', herbs: [
+        { name: '桂枝(去皮)', amount: 3 },
+        { name: '芍药(切片)', amount: 3 },
+        { name: '甘草(蜜炙)', amount: 2 },
+        { name: '生姜(切片)', amount: 3 },
+        { name: '大枣(擘)', amount: 3 }
+    ]},
+    { name: '葛根汤', herbs: [
+        { name: '葛根(切片)', amount: 3 },
+        { name: '麻黄(去节)', amount: 3 },
+        { name: '桂枝(去皮)', amount: 2 },
+        { name: '芍药(切片)', amount: 2 },
+        { name: '甘草(蜜炙)', amount: 2 },
+        { name: '生姜(切片)', amount: 3 },
+        { name: '大枣(擘)', amount: 3 }
+    ]},
+    { name: '小青龙汤', herbs: [
+        { name: '麻黄(去节)', amount: 3 },
+        { name: '芍药(切片)', amount: 3 },
+        { name: '细辛', amount: 3 },
+        { name: '干姜(切片)', amount: 3 },
+        { name: '甘草(蜜炙)', amount: 3 },
+        { name: '桂枝(去皮)', amount: 3 },
+        { name: '五味子', amount: 3 },
+        { name: '汤洗半夏', amount: 3 }
+    ]},
+    { name: '大青龙汤', herbs: [
+        { name: '麻黄(去节)', amount: 4 },
+        { name: '桂枝(去皮)', amount: 2 },
+        { name: '甘草(蜜炙)', amount: 2 },
+        { name: '杏仁(去皮尖)', amount: 3 },
+        { name: '生姜(切片)', amount: 3 },
+        { name: '大枣(擘)', amount: 3 },
+        { name: '碎石膏', amount: 3 }
+    ]},
+    { name: '小柴胡汤', herbs: [
+        { name: '柴胡', amount: 4 },
+        { name: '黄芩', amount: 3 },
+        { name: '人参', amount: 3 },
+        { name: '汤洗半夏', amount: 3 },
+        { name: '甘草(蜜炙)', amount: 3 },
+        { name: '生姜(切片)', amount: 3 },
+        { name: '大枣(擘)', amount: 3 }
+    ]},
+    { name: '大柴胡汤', herbs: [
+        { name: '柴胡', amount: 4 },
+        { name: '黄芩', amount: 3 },
+        { name: '芍药(切片)', amount: 3 },
+        { name: '汤洗半夏', amount: 3 },
+        { name: '生姜(切片)', amount: 3 },
+        { name: '炒枳实', amount: 3 },
+        { name: '大枣(擘)', amount: 3 },
+        { name: '酒洗大黄', amount: 2 }
+    ]},
+    { name: '白虎汤', herbs: [
+        { name: '知母(去毛)', amount: 3 },
+        { name: '碎石膏', amount: 4 },
+        { name: '甘草(蜜炙)', amount: 1 },
+        { name: '粳米', amount: 3 }
+    ]},
+    { name: '小承气汤', herbs: [
+        { name: '酒洗大黄', amount: 3 },
+        { name: '炒枳实', amount: 3 },
+        { name: '姜炙厚朴', amount: 2 }
+    ]},
+    { name: '大承气汤', herbs: [
+        { name: '酒洗大黄', amount: 3 },
+        { name: '姜炙厚朴', amount: 3 },
+        { name: '炒枳实', amount: 3 },
+        { name: '芒硝', amount: 2 }
+    ]},
+    { name: '调味承气汤', herbs: [
+        { name: '酒洗大黄', amount: 3 },
+        { name: '芒硝', amount: 2 },
+        { name: '甘草(蜜炙)', amount: 2 }
+    ]},
+    { name: '理中汤', herbs: [
+        { name: '人参', amount: 3 },
+        { name: '干姜(切片)', amount: 3 },
+        { name: '甘草(蜜炙)', amount: 3 },
+        { name: '炒白术', amount: 3 }
+    ]},
+    { name: '四逆汤', herbs: [
+        { name: '炮附子', amount: 1 },
+        { name: '干姜(切片)', amount: 2 },
+        { name: '甘草(蜜炙)', amount: 2 }
+    ]},
+    { name: '真武汤', herbs: [
+        { name: '茯苓', amount: 3 },
+        { name: '芍药(切片)', amount: 3 },
+        { name: '生姜(切片)', amount: 3 },
+        { name: '炒白术', amount: 2 },
+        { name: '炮附子', amount: 1 }
+    ]},
+    { name: '五苓散', herbs: [
+        { name: '猪苓(去皮)', amount: 2 },
+        { name: '盐炙泽泻', amount: 3 },
+        { name: '炒白术', amount: 2 },
+        { name: '茯苓', amount: 2 },
+        { name: '桂枝(去皮)', amount: 2 }
+    ]},
+    { name: '半夏泻心汤', herbs: [
+        { name: '汤洗半夏', amount: 3 },
+        { name: '黄芩', amount: 3 },
+        { name: '干姜(切片)', amount: 3 },
+        { name: '人参', amount: 3 },
+        { name: '甘草(蜜炙)', amount: 3 },
+        { name: '黄连', amount: 1 },
+        { name: '大枣(擘)', amount: 3 }
+    ]},
+    { name: '栀子豉汤', herbs: [
+        { name: '栀子(擘)', amount: 2 },
+        { name: '淡豆豉', amount: 3 }
+    ]},
+    { name: '茵陈蒿汤', herbs: [
+        { name: '茵陈', amount: 3 },
+        { name: '栀子(擘)', amount: 2 },
+        { name: '酒洗大黄', amount: 2 }
+    ]},
+    { name: '当归四逆汤', herbs: [
+        { name: '酒洗当归', amount: 3 },
+        { name: '桂枝(去皮)', amount: 3 },
+        { name: '芍药(切片)', amount: 3 },
+        { name: '细辛', amount: 3 },
+        { name: '甘草(蜜炙)', amount: 2 },
+        { name: '通草', amount: 2 },
+        { name: '大枣(擘)', amount: 3 }
+    ]},
+    { name: '小建中汤', herbs: [
+        { name: '桂枝(去皮)', amount: 3 },
+        { name: '芍药(切片)', amount: 3 },
+        { name: '甘草(蜜炙)', amount: 2 },
+        { name: '生姜(切片)', amount: 3 },
+        { name: '大枣(擘)', amount: 3 },
+        { name: '饴糖', amount: 2 }
+    ]}
+];
 
-const PATIENT_EMOJIS = ['🧑','👨','👩','🧓','👴','👵','🧒','👦','👧','🧔'];
-const PATIENT_NAMES  = ['王大爷','李大婶','张大叔','刘奶奶','陈小哥','赵姑娘','孙婆婆','周先生'];
+let processedInventory = JSON.parse(localStorage.getItem('processedInventory') || '{}');
+let coins = parseInt(localStorage.getItem('playerCoins')) || 0;
+document.getElementById('coinDisplay').textContent = '💰 ' + coins;
 
-// 仓库为空时的演示药材（方便调试，正常游戏中不会用到）
-const DEMO_HERBS = ['桂枝','芍药','甘草','生姜','大枣','麻黄','杏仁','柴胡','黄芩','半夏','茯苓','白术'];
+let currentOrder = null;
+let plate = {}; // { herbName: count }
 
-/* =========================================================
-   与 index.html 共用的仓库 / 铜币
-========================================================= */
-function getWarehouse() {
-    try {
-        return JSON.parse(localStorage.getItem(WAREHOUSE_KEY)) ||
-            { herbs: {}, seeds: {}, materials: {}, processed: {} };
-    } catch (e) {
-        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
+function saveProcessed() { localStorage.setItem('processedInventory', JSON.stringify(processedInventory)); }
+function saveCoins() { localStorage.setItem('playerCoins', coins); document.getElementById('coinDisplay').textContent = '💰 ' + coins; }
+
+function loadNewOrder() {
+    const idx = Math.floor(Math.random() * PRESCRIPTIONS.length);
+    currentOrder = JSON.parse(JSON.stringify(PRESCRIPTIONS[idx]));
+    plate = {};
+    renderAll();
+}
+
+function renderAll() {
+    renderOrder();
+    renderPlate();
+    renderStock();
+    checkReady();
+}
+
+function renderOrder() {
+    document.getElementById('orderTitle').textContent = '📜 ' + currentOrder.name;
+    const list = document.getElementById('orderList');
+    list.innerHTML = '';
+    currentOrder.herbs.forEach(h => {
+        const got = plate[h.name] || 0;
+        const div = document.createElement('div');
+        div.className = 'order-item' + (got === h.amount ? ' done' : '');
+        div.innerHTML = `<span>${h.name}</span><span class="cnt">${got} / ${h.amount} 两</span>`;
+        list.appendChild(div);
+    });
+}
+
+function renderPlate() {
+    const grid = document.getElementById('plateGrid');
+    grid.innerHTML = '';
+    for (let [name, count] of Object.entries(plate)) {
+        if (count <= 0) continue;
+        const div = document.createElement('div');
+        div.className = 'plate-herb';
+        div.innerHTML = `
+            <img src="images/herbs/processed/${name}.png" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <span style="display:none;font-size:20px;">🌿</span>
+            <span>${name}</span>
+            <span class="pcount">×${count}</span>
+        `;
+        div.addEventListener('click', () => removeFromPlate(name));
+        grid.appendChild(div);
     }
 }
-function saveWarehouse(w) {
-    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
-}
-function getCoins() { return parseInt(localStorage.getItem('coins') || 0); }
-function addCoins(n) {
-    const t = getCoins() + n;
-    localStorage.setItem('coins', t);
-    return t;
+
+function renderStock() {
+    const list = document.getElementById('stockList');
+    list.innerHTML = '';
+    const keys = Object.keys(processedInventory).filter(k => processedInventory[k] > 0);
+    if (keys.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">库存为空，去炮制药材吧</div>';
+        return;
+    }
+    keys.sort();
+    keys.forEach(name => {
+        const count = processedInventory[name];
+        const div = document.createElement('div');
+        div.className = 'stock-item';
+        div.innerHTML = `
+            <img src="images/herbs/processed/${name}.png" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <span style="display:none;font-size:20px;">🌿</span>
+            <div class="sinfo">
+                <div class="sname">${name}</div>
+                <div class="scount">剩余 ${count} 份</div>
+            </div>
+        `;
+        div.addEventListener('click', () => addToPlate(name));
+        list.appendChild(div);
+    });
 }
 
-/* =========================================================
-   游戏状态
-========================================================= */
-const state = {
-    cabinet: {},          // 药柜 { 药材名: 数量 }
-    tray: [],             // 药盘 [药材名, ...]
-    patient: null,        // { name, emoji, herbs:[], reward }
-    hintsLeft: MAX_HINTS, // 剩余提示次数
-    busy: false,          // 动画中锁定操作
-    usingDemo: false,     // 是否使用演示药材
-};
+function addToPlate(name) {
+    if (!currentOrder) return;
+    const need = currentOrder.herbs.find(h => h.name === name);
+    if (!need) { return; }
+    const current = plate[name] || 0;
+    if (current >= need.amount) { return; }
+    if ((processedInventory[name] || 0) <= 0) { return; }
+    processedInventory[name] -= 1;
+    plate[name] = current + 1;
+    saveProcessed();
+    renderAll();
+}
 
-/* =========================================================
-   仓库 ↔ 药柜
-=============
+function removeFromPlate(name) {
+    if ((plate[name] || 0) <= 0) return;
+    plate[name] -= 1;
+    processedInventory[name] = (processedInventory[name] || 0) + 1;
+    if (plate[name] === 0) delete plate[name];
+    saveProcessed();
+    renderAll();
+}
+
+function checkReady() {
+    if (!currentOrder) return;
+    let ok = true;
+    for (let h of currentOrder.herbs) {
+        if ((plate[h.name] || 0) !== h.amount) { ok = false; break; }
+    }
+    document.getElementById('btnPack').disabled = !ok;
+}
+
+document.getElementById('btnPack').addEventListener('click', () => {
+    if (!currentOrder) return;
+    // 校验
+    for (let h of currentOrder.herbs) {
+        if ((plate[h.name] || 0) !== h.amount) {
+            return;
+        }
+    }
+    // 存药包
+    const bag = {
+        id: 'bag_' + Date.now(),
+        name: currentOrder.name,
+        herbs: currentOrder.herbs.map(h => `${h.name} ×${h.amount}两`),
+        createdAt: Date.now()
+    };
+    const bags = JSON.parse(localStorage.getItem('medicineBags') || '[]');
+    bags.push(bag);
+    localStorage.setItem('medicineBags', JSON.stringify(bags));
+
+    coins += 50;
+    saveCoins();
+
+    showBag(bag);
+});
+
+function showBag(bag) {
+    document.getElementById('bagName').textContent = bag.name;
+    document.getElementById('bagHerbs').innerHTML = bag.herbs.join('<br>') + '<br><br>💰 +50';
+    document.getElementById('bagModal').classList.add('active');
+}
+
+document.getElementById('bagConfirm').addEventListener('click', () => {
+    document.getElementById('bagModal').classList.remove('active');
+    loadNewOrder();
+});
+
+loadNewOrder();
+</script>
+</body>
+</html>
