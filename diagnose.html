@@ -107,7 +107,7 @@ body {
 #patientFigure {
     position: absolute;
     inset: 0;
-    transition: transform 0.55s ease, opacity 0.55s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 #patientFigure.enter { animation: walkIn 0.55s ease-out forwards; }
 #patientFigure.exit { animation: walkOut 0.55s ease-in forwards; }
@@ -183,69 +183,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-#toast {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(58,42,26,0.9);
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-size: 14px;
-    z-index: 999;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-}
-#toast.show { opacity: 1; }
-
-#symptomPanel {
-    position: absolute;
-    left: 50%;
-    bottom: 28%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 380px;
-    background: rgba(255,255,255,0.95);
-    border: 2px solid #d4c4a8;
-    border-radius: 12px;
-    padding: 6px 12px;
-    min-height: 42px;
-    max-height: 16vh;
-    overflow-y: auto;
-    font-size: 13px;
-    line-height: 1.7;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    z-index: 6;
-    pointer-events: none;
-}
-#symptomPanel .placeholder { color: #999; font-style: italic; font-size: 12px; }
-#symptomPanel .sym-item {
-    display: inline-block;
-    background: #fff3e0;
-    border: 1px solid #d4a574;
-    border-radius: 6px;
-    padding: 1px 8px;
-    margin: 2px 3px 2px 0;
-    font-weight: bold;
-    color: #8b5e3c;
-    font-size: 12px;
-}
-#symptomPanel .sym-speak {
-    display: block;
-    background: #fff9e0;
-    border: 1px dashed #e0a800;
-    border-radius: 8px;
-    padding: 4px 10px;
-    margin: 5px 0;
-    color: #8b5e3c;
-    font-style: italic;
-    font-size: 12px;
-    line-height: 1.5;
-    white-space: normal;
-}
-/* 病人口述气泡（头顶） */
 .speak-bubble {
     position: absolute;
     left: 50%;
@@ -295,6 +232,56 @@ body {
     from { opacity: 0; transform: translateX(-50%) scale(0.7); }
     to { opacity: 1; transform: translateX(-50%) scale(1); }
 }
+
+#toast {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(58,42,26,0.9);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+#toast.show { opacity: 1; }
+
+#symptomPanel {
+    position: absolute;
+    left: 50%;
+    bottom: 28%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 380px;
+    background: rgba(255,255,255,0.95);
+    border: 2px solid #d4c4a8;
+    border-radius: 12px;
+    padding: 6px 12px;
+    min-height: 42px;
+    max-height: 16vh;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.7;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    z-index: 6;
+    pointer-events: none;
+}
+#symptomPanel .placeholder { color: #999; font-style: italic; font-size: 12px; }
+#symptomPanel .sym-item {
+    display: inline-block;
+    background: #fff3e0;
+    border: 1px solid #d4a574;
+    border-radius: 6px;
+    padding: 1px 8px;
+    margin: 2px 3px 2px 0;
+    font-weight: bold;
+    color: #8b5e3c;
+    font-size: 12px;
+}
 #symptomPanel .sym-pulse {
     background: #e8f5e9;
     border-color: #558b2f;
@@ -321,7 +308,7 @@ body {
 .option-btn {
     flex: 1;
     padding: 14px 6px;
-    background-image: url('images/option-bg.webp');
+    background-image: url('images/option-bg.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-color: rgba(255,248,225,0.95);
@@ -340,6 +327,42 @@ body {
 .option-btn.correct { color: #2e7d32; background-color: #c8e6c9; }
 .option-btn.wrong { color: #c62828; background-color: #ffcdd2; }
 .option-btn:disabled { cursor: default; opacity: 0.9; }
+
+/* 暂无病人遮罩 */
+#noPatientOverlay {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translateX(-50%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255,255,255,0.95);
+    border: 2px solid #d4c4a8;
+    border-radius: 20px;
+    padding: 26px 32px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    z-index: 50;
+    text-align: center;
+}
+#noPatientOverlay.active { display: flex; }
+#noPatientOverlay .np-icon { font-size: 36px; margin-bottom: 8px; }
+#noPatientOverlay .np-title {
+    font-size: 20px; font-weight: bold; color: #3a2a1a; margin-bottom: 6px;
+}
+#noPatientOverlay .np-text {
+    font-size: 14px; color: #8b5e3c; margin-bottom: 16px; line-height: 1.6;
+}
+#noPatientOverlay .np-btn {
+    display: inline-block;
+    padding: 10px 26px;
+    background: #d4a574; color: #fff;
+    border: 2px solid #8b5e3c;
+    border-radius: 10px;
+    font-family: inherit; font-size: 15px; font-weight: bold;
+    cursor: pointer;
+}
+#noPatientOverlay .np-btn:active { transform: scale(0.96); }
 
 #modalOverlay {
     position: fixed; inset: 0;
@@ -386,14 +409,21 @@ body {
             <div id="playerPower">医力 <span id="powerText">1</span></div>
         </div>
     </div>
-    <div id="coinBox"><img src="images/icon-coin.webp" style="width:18px;height:18px;vertical-align:middle;margin-right:3px;" onerror="this.style.display='none'"> <span id="coinText">0</span></div>
+    <div id="coinBox">💰 <span id="coinText">0</span></div>
 </div>
 <div id="coinGain"></div>
 
-<div id="queueInfo">👥 排队：<span id="queueCount">5</span></div>
+<div id="queueInfo">👥 排队：<span id="queueCount">0</span></div>
 
 <div id="patientArea">
     <div id="patientStage"></div>
+</div>
+
+<div id="noPatientOverlay">
+    <div class="np-icon">🍵</div>
+    <div class="np-title">暂无病人</div>
+    <div class="np-text">请您休息一下～<br>过一会儿病人会陆续前来</div>
+    <button class="np-btn" onclick="location.href='index.html'">返回主页</button>
 </div>
 
 <div id="symptomPanel">
@@ -415,51 +445,49 @@ body {
     'use strict';
 
     var FORMULAS = [
-        { name: '桂枝汤', patient: 'images/patient_guizhi.webp', speak: '大夫，我发热，一直出汗，特别怕风。',
+        { name: '桂枝汤', patient: 'images/patient_guizhi.png', speak: '大夫，我发热，一直出汗，特别怕风。',
           s: { head: ['头痛'], chest: ['发热','汗出','恶风'], belly: [], limbs: [], pulse: ['脉浮缓'] } },
-        { name: '麻黄汤', patient: 'images/patient_mahuang.webp', speak: '大夫，我头痛发热，浑身骨节都疼，一点汗都出不来，还喘。',
+        { name: '麻黄汤', patient: 'images/patient_mahuang.png', speak: '大夫，我头痛发热，浑身骨节都疼，一点汗都出不来，还喘。',
           s: { head: ['头痛'], chest: ['发热','无汗','恶风','喘'], belly: [], limbs: ['身疼','腰痛','骨节疼痛'], pulse: ['脉浮紧'] } },
-        { name: '葛根汤', patient: 'images/patient_gegen.webp', speak: '大夫，我脖子后背僵硬得难受，发热怕冷，不出汗。',
+        { name: '葛根汤', patient: 'images/patient_gegen.png', speak: '大夫，我脖子后背僵硬得难受，发热怕冷，不出汗。',
           s: { head: ['项背强几几'], chest: ['发热','无汗','恶风'], belly: [], limbs: [], pulse: ['脉浮'] } },
-        { name: '小青龙汤', patient: 'images/patient_xiaoqinglong.webp', speak: '大夫，我怕冷发热，一直咳嗽，还干呕。',
+        { name: '小青龙汤', patient: 'images/patient_xiaoqinglong.png', speak: '大夫，我怕冷发热，一直咳嗽，还干呕。',
           s: { head: [], chest: ['发热','恶寒','心下有水气','咳'], belly: [], limbs: ['干呕'], pulse: [] } },
-        { name: '大青龙汤', patient: 'images/patient_daqinglong.webp', speak: '大夫，我发热怕冷，浑身疼得厉害，一点汗都出不来，心里烦躁得很。',
+        { name: '大青龙汤', patient: 'images/patient_daqinglong.png', speak: '大夫，我发热怕冷，浑身疼得厉害，一点汗都出不来，心里烦躁得很。',
           s: { head: ['烦躁'], chest: ['发热','恶寒','身疼痛','不汗出'], belly: [], limbs: [], pulse: [] } },
-        { name: '小柴胡汤', patient: 'images/patient_xiaochaihu.webp', speak: '大夫，我一会冷一会热，胸口两肋胀得难受，不想吃饭，老想吐。',
+        { name: '小柴胡汤', patient: 'images/patient_xiaochaihu.png', speak: '大夫，我一会冷一会热，胸口两肋胀得难受，不想吃饭，老想吐。',
           s: { head: ['心烦'], chest: ['往来寒热','胸胁苦满'], belly: ['不欲饮食','喜呕'], limbs: [], pulse: ['脉弦'] } },
-        { name: '大柴胡汤', patient: 'images/patient_dachaihu.webp', speak: '大夫，我一会冷一会热，心口下面堵得慌，又吐又拉。',
+        { name: '大柴胡汤', patient: 'images/patient_dachaihu.png', speak: '大夫，我一会冷一会热，心口下面堵得慌，又吐又拉。',
           s: { head: [], chest: ['往来寒热'], belly: ['心下痞硬','呕吐','下利'], limbs: [], pulse: ['脉弦'] } },
-        { name: '白虎汤', patient: 'images/patient_baihu.webp', speak: '大夫，我浑身滚烫，出大汗，渴得厉害。',
+        { name: '白虎汤', patient: 'images/patient_baihu.png', speak: '大夫，我浑身滚烫，出大汗，渴得厉害。',
           s: { head: [], chest: ['身大热','汗大出','口大渴'], belly: [], limbs: [], pulse: ['脉洪大'] } },
-        { name: '大承气汤', patient: 'images/patient_dachengqi.webp', speak: '大夫，我肚子胀痛，大便好几天不通了，下午发热，手脚出汗。',
+        { name: '大承气汤', patient: 'images/patient_dachengqi.png', speak: '大夫，我肚子胀痛，大便好几天不通了，下午发热，手脚出汗。',
           s: { head: ['潮热'], chest: [], belly: ['腹满痛','大便不通'], limbs: ['手足汗出'], pulse: [] } },
-        { name: '小承气汤', patient: 'images/patient_xiaochengqi.webp', speak: '大夫，我肚子胀得厉害，大便干硬，心里烦躁。',
+        { name: '小承气汤', patient: 'images/patient_xiaochengqi.png', speak: '大夫，我肚子胀得厉害，大便干硬，心里烦躁。',
           s: { head: ['微烦'], chest: [], belly: ['腹大满','大便硬'], limbs: [], pulse: [] } },
-        { name: '调胃承气汤', patient: 'images/patient_tiaowei.webp', speak: '大夫，我身上发热，肚子胀。',
+        { name: '调胃承气汤', patient: 'images/patient_tiaowei.png', speak: '大夫，我身上发热，肚子胀。',
           s: { head: [], chest: ['蒸蒸发热'], belly: ['腹胀满'], limbs: [], pulse: [] } },
-        { name: '理中汤', patient: 'images/patient_lizhong.webp', speak: '大夫，我肚子胀，又吐又拉，不想吃饭，肚子一阵一阵疼。',
+        { name: '理中汤', patient: 'images/patient_lizhong.png', speak: '大夫，我肚子胀，又吐又拉，不想吃饭，肚子一阵一阵疼。',
           s: { head: [], chest: [], belly: ['腹满','吐利','不欲食','时腹自痛'], limbs: [], pulse: [] } },
-        { name: '四逆汤', patient: 'images/patient_sini.webp', speak: '大夫，我手脚冰凉，拉肚子都是没消化的东西。',
+        { name: '四逆汤', patient: 'images/patient_sini.png', speak: '大夫，我手脚冰凉，拉肚子都是没消化的东西。',
           s: { head: [], chest: [], belly: ['下利清谷'], limbs: ['四肢厥逆'], pulse: ['脉微欲绝'] } },
-        { name: '真武汤', patient: 'images/patient_zhenwu.webp', speak: '大夫，我头晕心慌，身上肌肉跳，小便不通畅。',
+        { name: '真武汤', patient: 'images/patient_zhenwu.png', speak: '大夫，我头晕心慌，身上肌肉跳，小便不通畅。',
           s: { head: ['头眩'], chest: ['心下悸','身瞤动'], belly: ['小便不利'], limbs: [], pulse: [] } },
-        { name: '五苓散', patient: 'images/patient_wuling.webp', speak: '大夫，我渴得想喝水，喝了又吐出来，小便不通畅。',
+        { name: '五苓散', patient: 'images/patient_wuling.png', speak: '大夫，我渴得想喝水，喝了又吐出来，小便不通畅。',
           s: { head: [], chest: ['渴欲饮水','水入则吐'], belly: ['小便不利'], limbs: [], pulse: [] } },
-        { name: '半夏泻心汤', patient: 'images/patient_banxia.webp', speak: '大夫，我心口堵得慌，又吐又肠鸣，还拉肚子。',
+        { name: '半夏泻心汤', patient: 'images/patient_banxia.png', speak: '大夫，我心口堵得慌，又吐又肠鸣，还拉肚子。',
           s: { head: [], chest: [], belly: ['心下痞满','呕而肠鸣','下利'], limbs: [], pulse: [] } },
-        { name: '栀子豉汤', patient: 'images/patient_zhizi.webp', speak: '大夫，我心里烦得睡不着觉，辗转反侧。',
+        { name: '栀子豉汤', patient: 'images/patient_zhizi.png', speak: '大夫，我心里烦得睡不着觉，辗转反侧。',
           s: { head: ['虚烦不得眠','心中懊憹'], chest: [], belly: [], limbs: [], pulse: [] } },
-        { name: '茵陈蒿汤', patient: 'images/patient_yinchen.webp', speak: '大夫，我浑身发黄，像橘子皮那么黄，小便不通畅，肚子有点胀。',
+        { name: '茵陈蒿汤', patient: 'images/patient_yinchen.png', speak: '大夫，我浑身发黄，像橘子皮那么黄，小便不通畅，肚子有点胀。',
           s: { head: [], chest: ['身黄如橘子色'], belly: ['小便不利','腹微满'], limbs: [], pulse: [] } },
-        { name: '当归四逆汤', patient: 'images/patient_dangguisini.webp', speak: '大夫，我手脚冰凉得厉害，怎么也暖不热。',
+        { name: '当归四逆汤', patient: 'images/patient_dangguisini.png', speak: '大夫，我手脚冰凉得厉害，怎么也暖不热。',
           s: { head: [], chest: [], belly: [], limbs: ['手足厥寒'], pulse: ['脉细欲绝'] } },
-        { name: '小建中汤', patient: 'images/patient_xiaojianzhong.webp', speak: '大夫，我肚子一阵一阵绞痛，心里慌得很。',
+        { name: '小建中汤', patient: 'images/patient_xiaojianzhong.png', speak: '大夫，我肚子一阵一阵绞痛，心里慌得很。',
           s: { head: ['心中悸而烦'], chest: [], belly: ['腹中急痛'], limbs: [], pulse: [] } }
     ];
 
-    
-
-    // ===== 医力：读全局 power 键 =====
+    // ===== 医力 =====
     function getPower() {
         var v = localStorage.getItem('power');
         return v ? parseFloat(v) : 1;
@@ -469,19 +497,6 @@ body {
         localStorage.setItem('power', String(p));
         return p;
     }
-    function getCorrectCount() {
-        var v = localStorage.getItem('diagnoseCorrect');
-        return v ? parseInt(v) : 0;
-    }
-    function addCorrectCount() {
-        var n = getCorrectCount() + 1;
-        localStorage.setItem('diagnoseCorrect', String(n));
-        return n;
-    }
-    // 每次诊对固定 10 铜币
-    function getDiagnoseFee() {
-        return 10;
-    }
     function getCoins() {
         var v = localStorage.getItem('coins');
         return v ? parseInt(v) : 0;
@@ -489,6 +504,108 @@ body {
     function addCoins(n) {
         var t = getCoins() + n;
         localStorage.setItem('coins', String(t));
+    }
+
+    // ===== 20 个方子的随机池（一轮一轮洗牌）=====
+    function loadPool() {
+        try {
+            var p = JSON.parse(localStorage.getItem('formulaPool') || 'null');
+            if (Array.isArray(p)) return p;
+        } catch(e) {}
+        return null;
+    }
+    function savePool(pool) {
+        localStorage.setItem('formulaPool', JSON.stringify(pool));
+    }
+    function reshufflePool() {
+        var arr = [];
+        for (var i = 0; i < FORMULAS.length; i++) arr.push(i);
+        for (var j = arr.length - 1; j > 0; j--) {
+            var k = Math.floor(Math.random() * (j + 1));
+            var t = arr[j]; arr[j] = arr[k]; arr[k] = t;
+        }
+        savePool(arr);
+        return arr;
+    }
+    function pickNextFormulaIndex() {
+        var pool = loadPool();
+        if (!pool || pool.length === 0) {
+            pool = reshufflePool();
+        }
+        var idx = pool.shift();
+        savePool(pool);
+        return idx;
+    }
+
+    // ===== 排队系统（持久化 + 离线累积）=====
+    var QUEUE_GROW_INTERVAL = 5 * 60 * 1000;
+    var QUEUE_BASE_MAX = 20;
+    var queueCount = 0;
+
+    function getQueueMax() {
+        var powerInt = Math.floor(getPower());
+        return QUEUE_BASE_MAX + Math.max(0, powerInt - 1);
+    }
+
+    function loadQueue() {
+        var now = Date.now();
+        var savedCount = localStorage.getItem('queueCount');
+        var savedTime = localStorage.getItem('queueTime');
+
+        if (savedCount === null) {
+            queueCount = 6 + Math.floor(Math.random() * 4);
+            localStorage.setItem('queueCount', String(queueCount));
+            localStorage.setItem('queueTime', String(now));
+            return;
+        }
+
+        queueCount = parseInt(savedCount);
+        var lastTime = parseInt(savedTime) || now;
+        var elapsed = now - lastTime;
+        var max = getQueueMax();
+
+        var gained = Math.floor(elapsed / QUEUE_GROW_INTERVAL);
+        if (gained > 0 && queueCount < max) {
+            queueCount = Math.min(max, queueCount + gained);
+            var remainder = elapsed % QUEUE_GROW_INTERVAL;
+            localStorage.setItem('queueTime', String(now - remainder));
+        }
+        localStorage.setItem('queueCount', String(queueCount));
+    }
+
+    function saveQueue() {
+        localStorage.setItem('queueCount', String(queueCount));
+        localStorage.setItem('queueTime', String(Date.now()));
+    }
+
+    function isNoPatientShown() {
+        return document.getElementById('noPatientOverlay').classList.contains('active');
+    }
+    function showNoPatient() {
+        document.getElementById('noPatientOverlay').classList.add('active');
+        document.getElementById('symptomPanel').style.display = 'none';
+        document.getElementById('optionsBar').style.display = 'none';
+    }
+    function hideNoPatient() {
+        document.getElementById('noPatientOverlay').classList.remove('active');
+        document.getElementById('symptomPanel').style.display = '';
+        document.getElementById('optionsBar').style.display = '';
+    }
+
+    function startQueueTimer() {
+        setInterval(function() {
+            var max = getQueueMax();
+            if (queueCount < max) {
+                queueCount++;
+                saveQueue();
+                queueCountEl.textContent = queueCount;
+                // 之前"暂无病人"现在有病人了，恢复
+                if (isNoPatientShown()) {
+                    hideNoPatient();
+                    spawnPatient();
+                }
+            }
+        }, QUEUE_GROW_INTERVAL);
     }
 
     var patientStage = document.getElementById('patientStage');
@@ -504,79 +621,6 @@ body {
 
     var state = null;
     var waiting = false;
-
-    // ===== 排队系统（持久化 + 离线累积）=====
-var QUEUE_GROW_INTERVAL = 5 * 60 * 1000; // 每5分钟 +1
-var QUEUE_BASE_MAX = 20;                 // 基础上限
-var queueCount = 0;
-
-function getQueueMax() {
-    var powerInt = Math.floor(getPower());
-    return QUEUE_BASE_MAX + Math.max(0, powerInt - 1);
-}
-
-// 读取排队人数，并按离线时间补足
-function loadQueue() {
-    var now = Date.now();
-    var savedCount = localStorage.getItem('queueCount');
-    var savedTime = localStorage.getItem('queueTime');
-
-    if (savedCount === null) {
-        // 第一次进入：6~9 个
-        queueCount = 6 + Math.floor(Math.random() * 4);
-        localStorage.setItem('queueCount', String(queueCount));
-        localStorage.setItem('queueTime', String(now));
-        return;
-    }
-
-    queueCount = parseInt(savedCount);
-    var lastTime = parseInt(savedTime) || now;
-    var elapsed = now - lastTime;
-    var max = getQueueMax();
-
-    // 离线期间每 5 分钟 +1
-    var gained = Math.floor(elapsed / QUEUE_GROW_INTERVAL);
-    if (gained > 0 && queueCount < max) {
-        queueCount = Math.min(max, queueCount + gained);
-        // 保留余数时间
-        var remainder = elapsed % QUEUE_GROW_INTERVAL;
-        localStorage.setItem('queueTime', String(now - remainder));
-    }
-    localStorage.setItem('queueCount', String(queueCount));
-}
-
-function saveQueue() {
-    localStorage.setItem('queueCount', String(queueCount));
-    localStorage.setItem('queueTime', String(Date.now()));
-}
-
-// 在线时每 5 分钟 +1
-function startQueueTimer() {
-    setInterval(function() {
-        var max = getQueueMax();
-        if (queueCount < max) {
-            queueCount++;
-            saveQueue();
-            queueCountEl.textContent = queueCount;
-        }
-    }, QUEUE_GROW_INTERVAL);
-}
-
-    function getMaxQueue() {
-        var powerInt = Math.floor(getPower());
-        return 20 + Math.max(0, powerInt - 1);
-    }
-
-    var QUEUE_GROW_INTERVAL = 5 * 60 * 1000;
-    function startQueueTimer() {
-        setInterval(function() {
-            var max = getMaxQueue();
-            if (queueCount < max) {
-                queueCount++;
-                queueCountEl.textContent = queueCount;
-            }
-        }, QUEUE_GROW_INTERVAL);
-    }
 
     function renderTop() {
         powerText.textContent = Math.floor(getPower());
@@ -596,30 +640,28 @@ function startQueueTimer() {
     }
 
     function enterSpeakPhase() {
-    state.phase = 'speak';
+        state.phase = 'speak';
 
-    // 病人口述气泡：显示在病人头顶
-    var fig = document.getElementById('patientFigure');
-    if (fig) {
-        var oldBubble = fig.querySelector('.speak-bubble');
-        if (oldBubble) oldBubble.remove();
-        var bubble = document.createElement('div');
-        bubble.className = 'speak-bubble';
-        bubble.textContent = '「' + state.formula.speak + '」';
-        fig.appendChild(bubble);
+        var fig = document.getElementById('patientFigure');
+        if (fig) {
+            var oldBubble = fig.querySelector('.speak-bubble');
+            if (oldBubble) oldBubble.remove();
+            var bubble = document.createElement('div');
+            bubble.className = 'speak-bubble';
+            bubble.textContent = '「' + state.formula.speak + '」';
+            fig.appendChild(bubble);
+        }
+
+        var pulseEl = patientStage.querySelector('.hit-pulse');
+        if (pulseEl) pulseEl.classList.add('hint-glow');
     }
-
-    // 脉诊区闪烁提示
-    var pulseEl = patientStage.querySelector('.hit-pulse');
-    if (pulseEl) pulseEl.classList.add('hint-glow');
-}
 
     function onPartClick(part, el) {
         if (!state) return;
         if (state.checked[part]) return;
 
         if (part === 'pulse' && state.phase === 'look') {
-            showToast('请先完成了望诊');
+            showToast('请先完成望诊');
             return;
         }
 
@@ -656,14 +698,12 @@ function startQueueTimer() {
             }
         }
 
-        // 望诊完成：每次 +10 医力
         if (part !== 'pulse' && state.phase === 'look' && isLookDone()) {
             addPower(10);
             renderTop();
-            setTimeout(enterSpeakPhase, 300);
+            setTimeout(enterSpeakPhase, 150);
         }
 
-        // 脉诊完成
         if (part === 'pulse') {
             state.phase = 'choose';
             var pEl = patientStage.querySelector('.hit-pulse');
@@ -677,11 +717,11 @@ function startQueueTimer() {
         fig.id = 'patientFigure';
 
         var img = document.createElement('img');
-img.className = 'patient-img';
-img.alt = '';
-img.onerror = function() { this.style.display = 'none'; };
-img.src = state.formula.patient || '';
-fig.appendChild(img);
+        img.className = 'patient-img';
+        img.alt = '';
+        img.onerror = function() { this.style.display = 'none'; };
+        img.src = state.formula.patient || '';
+        fig.appendChild(img);
 
         var parts = [
             { part: 'head',  cls: 'hit-head'  },
@@ -709,7 +749,7 @@ fig.appendChild(img);
     function spawnPatient() {
         patientStage.innerHTML = '';
 
-        var idx = Math.floor(Math.random() * FORMULAS.length);
+        var idx = pickNextFormulaIndex();
         var formula = FORMULAS[idx];
 
         var pool = [];
@@ -774,11 +814,20 @@ fig.appendChild(img);
     }
 
     function nextPatient() {
-    queueCount = Math.max(0, queueCount - 1);
-    queueCountEl.textContent = queueCount;
-    saveQueue();
-    patientLeave(function() { spawnPatient(); });
-}
+        queueCount = Math.max(0, queueCount - 1);
+        queueCountEl.textContent = queueCount;
+        saveQueue();
+
+        if (queueCount <= 0) {
+            // 没有病人了，让当前病人离场后显示"暂无病人"
+            patientLeave(function() {
+                patientStage.innerHTML = '';
+                showNoPatient();
+            });
+            return;
+        }
+        patientLeave(function() { spawnPatient(); });
+    }
 
     for (var b = 0; b < optionBtns.length; b++) {
         (function(btn) {
@@ -789,18 +838,17 @@ fig.appendChild(img);
                 if (state.attempts >= 2) return;
 
                 if (state.phase === 'look') {
-    showToast('请先完成望诊');
-    return;
-}
-if (state.phase === 'speak') {
-    showToast('请先完成切诊');
-    return;
-}
-if (state.phase !== 'choose') {
-    showToast('请先完成诊断');
-    return;
-}
-                 
+                    showToast('请先完成望诊');
+                    return;
+                }
+                if (state.phase === 'speak') {
+                    showToast('请先完成切诊');
+                    return;
+                }
+                if (state.phase !== 'choose') {
+                    showToast('请先完成诊断');
+                    return;
+                }
 
                 var chosen = btn.textContent;
                 var correct = state.formula.name;
@@ -809,16 +857,13 @@ if (state.phase !== 'choose') {
                     btn.classList.add('correct');
                     for (var i = 0; i < optionBtns.length; i++) optionBtns[i].disabled = true;
 
-                    var fee = getDiagnoseFee();
-                    addCoins(fee);
-                    // 答对：+20 医力
+                    addCoins(10);
                     addPower(20);
-                    addCorrectCount();
                     renderTop();
-                    showCoinGain(fee);
+                    showCoinGain(10);
                     waiting = true;
 
-                    setTimeout(function() { nextPatient(); }, 250);
+                    setTimeout(function() { nextPatient(); }, 400);
                 } else {
                     state.attempts++;
                     btn.classList.add('wrong');
@@ -835,7 +880,7 @@ if (state.phase !== 'choose') {
                                 '两次都诊断错误，病人生气离开。<br>正确方证是：<b>' + correct + '</b>',
                                 '下一位病人',
                                 function() { closeModal(); nextPatient(); });
-                        }, 700);
+                        }, 500);
                     } else {
                         showModal('诊断有误',
                             '您还有 <b>1 次</b> 机会，请再仔细看症状，选择正确的方证。',
@@ -848,13 +893,19 @@ if (state.phase !== 'choose') {
     }
 
     // ===== 版本号 =====
-    var CURRENT_VERSION = 'v137';
+    var CURRENT_VERSION = 'v138';
     document.getElementById('versionTag').textContent = CURRENT_VERSION;
 
+    // ===== 初始化 =====
     loadQueue();
-queueCountEl.textContent = queueCount;
-startQueueTimer();
-spawnPatient();
+    queueCountEl.textContent = queueCount;
+    startQueueTimer();
+
+    if (queueCount > 0) {
+        spawnPatient();
+    } else {
+        showNoPatient();
+    }
 })();
 </script>
 </body>
