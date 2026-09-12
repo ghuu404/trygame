@@ -505,7 +505,62 @@ body {
     var state = null;
     var waiting = false;
 
-    var queueCount = 6 + Math.floor(Math.random() * 4);
+    // ===== 排队系统（持久化 + 离线累积）=====
+var QUEUE_GROW_INTERVAL = 5 * 60 * 1000; // 每5分钟 +1
+var QUEUE_BASE_MAX = 20;                 // 基础上限
+var queueCount = 0;
+
+function getQueueMax() {
+    var powerInt = Math.floor(getPower());
+    return QUEUE_BASE_MAX + Math.max(0, powerInt - 1);
+}
+
+// 读取排队人数，并按离线时间补足
+function loadQueue() {
+    var now = Date.now();
+    var savedCount = localStorage.getItem('queueCount');
+    var savedTime = localStorage.getItem('queueTime');
+
+    if (savedCount === null) {
+        // 第一次进入：6~9 个
+        queueCount = 6 + Math.floor(Math.random() * 4);
+        localStorage.setItem('queueCount', String(queueCount));
+        localStorage.setItem('queueTime', String(now));
+        return;
+    }
+
+    queueCount = parseInt(savedCount);
+    var lastTime = parseInt(savedTime) || now;
+    var elapsed = now - lastTime;
+    var max = getQueueMax();
+
+    // 离线期间每 5 分钟 +1
+    var gained = Math.floor(elapsed / QUEUE_GROW_INTERVAL);
+    if (gained > 0 && queueCount < max) {
+        queueCount = Math.min(max, queueCount + gained);
+        // 保留余数时间
+        var remainder = elapsed % QUEUE_GROW_INTERVAL;
+        localStorage.setItem('queueTime', String(now - remainder));
+    }
+    localStorage.setItem('queueCount', String(queueCount));
+}
+
+function saveQueue() {
+    localStorage.setItem('queueCount', String(queueCount));
+    localStorage.setItem('queueTime', String(Date.now()));
+}
+
+// 在线时每 5 分钟 +1
+function startQueueTimer() {
+    setInterval(function() {
+        var max = getQueueMax();
+        if (queueCount < max) {
+            queueCount++;
+            saveQueue();
+            queueCountEl.textContent = queueCount;
+        }
+    }, QUEUE_GROW_INTERVAL);
+}
 
     function getMaxQueue() {
         var powerInt = Math.floor(getPower());
@@ -719,10 +774,11 @@ fig.appendChild(img);
     }
 
     function nextPatient() {
-        queueCount = Math.max(0, queueCount - 1);
-        queueCountEl.textContent = queueCount;
-        patientLeave(function() { spawnPatient(); });
-    }
+    queueCount = Math.max(0, queueCount - 1);
+    queueCountEl.textContent = queueCount;
+    saveQueue();
+    patientLeave(function() { spawnPatient(); });
+}
 
     for (var b = 0; b < optionBtns.length; b++) {
         (function(btn) {
@@ -762,7 +818,7 @@ if (state.phase !== 'choose') {
                     showCoinGain(fee);
                     waiting = true;
 
-                    setTimeout(function() { nextPatient(); }, 500);
+                    setTimeout(function() { nextPatient(); }, 250);
                 } else {
                     state.attempts++;
                     btn.classList.add('wrong');
@@ -792,12 +848,13 @@ if (state.phase !== 'choose') {
     }
 
     // ===== 版本号 =====
-    var CURRENT_VERSION = 'v133';
+    var CURRENT_VERSION = 'v137';
     document.getElementById('versionTag').textContent = CURRENT_VERSION;
 
-    queueCountEl.textContent = queueCount;
-    startQueueTimer();
-    spawnPatient();
+    loadQueue();
+queueCountEl.textContent = queueCount;
+startQueueTimer();
+spawnPatient();
 })();
 </script>
 </body>
