@@ -35,7 +35,7 @@ body {
 }
 /* ===== 主体 ===== */
 #main {
-    flex: 1; display: flex; flex-direction: column;
+    flex: 0 0 320px; display: flex; flex-direction: column;
     padding: 2px; gap: 2px; overflow: hidden;
 }
 /* 药材栏 */
@@ -68,7 +68,7 @@ body {
 
 /* 操作区 */
 #workArea {
-    flex: 1; display: flex; background: rgba(255,255,255,0.5);
+    flex: 0 0 320px; display: flex; background: rgba(255,255,255,0.5);
     border-radius: 10px; border: 2px solid #b89a72;
     padding: 4px; gap: 4px; min-height: 0; overflow: hidden;
 }
@@ -106,7 +106,7 @@ body {
 
 /* 中间操作台：自适应 */
 #counter {
-    flex: 1; display: flex; flex-direction: column;
+    flex: 0 0 320px; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     background: #f0e6d8; border-radius: 10px;
     border: 2px dashed #b89a72;
@@ -359,8 +359,10 @@ const HERB_RULES = {
 
 /* ===== 状态 ===== */
 // 生药库存：初始每种 1 份
-let inventory = JSON.parse(localStorage.getItem('herbInventory'));
-if (!inventory || Object.keys(inventory).length === 0) {
+// 从主页面仓库读取生药
+let inventory = JSON.parse(localStorage.getItem('herbInventory') || '{}');
+// 如果为空，发一份默认药材（首次打开时用）
+if (Object.keys(inventory).length === 0) {
     inventory = {
         '桂枝': 1, '麻黄': 1, '杏仁': 1, '甘草': 1, '芍药': 1,
         '生姜': 1, '大枣': 1, '葛根': 1, '细辛': 1, '干姜': 1,
