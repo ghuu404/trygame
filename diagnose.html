@@ -341,7 +341,7 @@ body {
         <div id="playerText">
             <div id="playerName">赤脚医生</div>
             <div id="playerStatus">行医中...</div>
-            <div id="playerPower">医力 <span id="powerText">1.00</span>/100</div>
+            <div id="playerPower">医力 <span id="powerText">1</span>/100</div>
         </div>
     </div>
     <div id="coinBox">💰 <span id="coinText">0</span></div>
@@ -427,20 +427,24 @@ body {
     var POWER_PER_CORRECT = 0.01;
     var POWER_UP_PER = 100;
 
-    function getCorrectCount() {
-        var v = localStorage.getItem('diagnoseCorrect');
-        return v ? parseInt(v) : 0;
-    }
     function addCorrectCount() {
-        var n = getCorrectCount() + 1;
-        localStorage.setItem('diagnoseCorrect', String(n));
-        return n;
-    }
-    function getPower() { return INITIAL_POWER + getCorrectCount() * POWER_PER_CORRECT; }
+    var n = getCorrectCount() + 1;
+    localStorage.setItem('diagnoseCorrect', String(n));
+    return n;
+}
+// 医力：读全局 power，无上限
+function getPower() {
+    var v = localStorage.getItem('power');
+    return v ? parseFloat(v) : 1;
+}
+function addPower(n) {
+    var p = getPower() + n;
+    localStorage.setItem('power', String(p));
+    return p;
+}
     function getDiagnoseFee() {
-        var p = Math.floor(getPower());
-        return 1 + (p - 1) * 2;
-    }
+    return 10;   // 每诊对一个病人 +10 铜币
+}
     function getCoins() {
         var v = localStorage.getItem('coins');
         return v ? parseInt(v) : 0;
@@ -564,9 +568,12 @@ body {
         }
 
         // 望诊完成后，进入口述阶段
-        if (part !== 'pulse' && state.phase === 'look' && isLookDone()) {
-            setTimeout(enterSpeakPhase, 300);
-        }
+if (part !== 'pulse' && state.phase === 'look' && isLookDone()) {
+    // 每次望诊完成 +10 医力
+    addPower(10);
+    renderTop();
+    setTimeout(enterSpeakPhase, 300);
+}
 
         // 脉诊完成
         if (part === 'pulse') {
@@ -718,13 +725,15 @@ body {
                     for (var i = 0; i < optionBtns.length; i++) optionBtns[i].disabled = true;
 
                     var fee = getDiagnoseFee();
-                    addCoins(fee);
-                    var newCount = addCorrectCount();
-                    renderTop();
-                    showCoinGain(fee);
-                    waiting = true;
+addCoins(fee);
+var newCount = addCorrectCount();
+// 答对加 20 医力
+addPower(20);
+renderTop();
+showCoinGain(fee);
+waiting = true;
 
-                    if (newCount % POWER_UP_PER === 0) {
+if (false) {  // 医力无上限，不再触发升级弹窗
                         var newPowerInt = Math.floor(getPower());
                         setTimeout(function() {
                             showModal('🎉 恭喜！',
