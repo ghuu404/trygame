@@ -128,7 +128,6 @@ body {
     pointer-events: none;
 }
 
-/* 点击区 */
 .hit-area {
     position: absolute;
     cursor: pointer;
@@ -146,7 +145,6 @@ body {
 .hit-limbs { top: 65%;  left: 25%; width: 50%; height: 33%; }
 .hit-pulse { top: 38%;  right: 0%; width: 24%; height: 18%; }
 
-/* 脉诊提示闪烁 */
 .hit-pulse.hint-glow {
     animation: pulseGlow 1s ease-in-out infinite;
     border-radius: 50%;
@@ -162,7 +160,6 @@ body {
     }
 }
 
-/* 气泡 */
 .hint {
     position: absolute;
     background: #fff;
@@ -186,7 +183,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* 提示气泡（不能点脉诊时） */
 #toast {
     position: fixed;
     left: 50%;
@@ -204,7 +200,6 @@ body {
 }
 #toast.show { opacity: 1; }
 
-/* 症状面板 */
 #symptomPanel {
     position: absolute;
     left: 50%;
@@ -237,7 +232,6 @@ body {
     color: #8b5e3c;
     font-size: 12px;
 }
-/* 口述症状：黄色调、斜体、带引号 */
 #symptomPanel .sym-speak {
     display: block;
     background: #fff9e0;
@@ -251,14 +245,62 @@ body {
     line-height: 1.5;
     white-space: normal;
 }
-/* 脉诊症状：绿色调 */
+/* 病人口述气泡（头顶） */
+.speak-bubble {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 10px);
+    background: #fff9e0;
+    border: 2px solid #e0a800;
+    border-radius: 14px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-style: italic;
+    color: #8b5e3c;
+    white-space: normal;
+    max-width: 240px;
+    min-width: 140px;
+    text-align: center;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 100;
+    animation: bubblePop 0.4s ease-out;
+    pointer-events: none;
+}
+.speak-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #e0a800;
+}
+.speak-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #fff9e0;
+    z-index: 1;
+}
+@keyframes bubblePop {
+    from { opacity: 0; transform: translateX(-50%) scale(0.7); }
+    to { opacity: 1; transform: translateX(-50%) scale(1); }
+}
 #symptomPanel .sym-pulse {
     background: #e8f5e9;
     border-color: #558b2f;
     color: #2e7d32;
 }
 
-/* 方剂选择栏 */
 #optionsBar {
     position: absolute;
     left: 50%;
@@ -341,7 +383,7 @@ body {
         <div id="playerText">
             <div id="playerName">赤脚医生</div>
             <div id="playerStatus">行医中...</div>
-            <div id="playerPower">医力 <span id="powerText">1</span>/100</div>
+            <div id="playerPower">医力 <span id="powerText">1</span></div>
         </div>
     </div>
     <div id="coinBox">💰 <span id="coinText">0</span></div>
@@ -373,11 +415,11 @@ body {
     'use strict';
 
     var FORMULAS = [
-        { name: '桂枝汤', patient: 'images/patient_guizhi.png', speak: '大夫，我发热，一直出汗，还特别怕吹风。',
+        { name: '桂枝汤', patient: 'images/patient_guizhi.png', speak: '大夫，我发热，一直出汗，特别怕风。',
           s: { head: ['头痛'], chest: ['发热','汗出','恶风'], belly: [], limbs: [], pulse: ['脉浮缓'] } },
         { name: '麻黄汤', patient: 'images/patient_mahuang.png', speak: '大夫，我头痛发热，浑身骨节都疼，一点汗都出不来，还喘。',
           s: { head: ['头痛'], chest: ['发热','无汗','恶风','喘'], belly: [], limbs: ['身疼','腰痛','骨节疼痛'], pulse: ['脉浮紧'] } },
-        { name: '葛根汤', patient: 'images/patient_gegen.png', speak: '大夫，我脖子后背僵硬得难受，发热怕冷，又不出汗。',
+        { name: '葛根汤', patient: 'images/patient_gegen.png', speak: '大夫，我脖子后背僵硬得难受，发热怕冷，不出汗。',
           s: { head: ['项背强几几'], chest: ['发热','无汗','恶风'], belly: [], limbs: [], pulse: ['脉浮'] } },
         { name: '小青龙汤', patient: 'images/patient_xiaoqinglong.png', speak: '大夫，我怕冷发热，一直咳嗽，还干呕。',
           s: { head: [], chest: ['发热','恶寒','心下有水气','咳'], belly: [], limbs: ['干呕'], pulse: [] } },
@@ -393,7 +435,7 @@ body {
           s: { head: ['潮热'], chest: [], belly: ['腹满痛','大便不通'], limbs: ['手足汗出'], pulse: [] } },
         { name: '小承气汤', patient: 'images/patient_xiaochengqi.png', speak: '大夫，我肚子胀得厉害，大便干硬，心里烦躁。',
           s: { head: ['微烦'], chest: [], belly: ['腹大满','大便硬'], limbs: [], pulse: [] } },
-        { name: '调胃承气汤', patient: 'images/patient_tiaowei.png', speak: '大夫，我身上发热，肚子很胀。',
+        { name: '调胃承气汤', patient: 'images/patient_tiaowei.png', speak: '大夫，我身上发热，肚子胀。',
           s: { head: [], chest: ['蒸蒸发热'], belly: ['腹胀满'], limbs: [], pulse: [] } },
         { name: '理中汤', patient: 'images/patient_lizhong.png', speak: '大夫，我肚子胀，又吐又拉，不想吃饭，肚子一阵一阵疼。',
           s: { head: [], chest: [], belly: ['腹满','吐利','不欲食','时腹自痛'], limbs: [], pulse: [] } },
@@ -423,28 +465,29 @@ body {
     ];
     var patientImgIndex = 0;
 
-    var INITIAL_POWER = 1;
-    var POWER_PER_CORRECT = 0.01;
-    var POWER_UP_PER = 100;
-
+    // ===== 医力：读全局 power 键 =====
+    function getPower() {
+        var v = localStorage.getItem('power');
+        return v ? parseFloat(v) : 1;
+    }
+    function addPower(n) {
+        var p = getPower() + n;
+        localStorage.setItem('power', String(p));
+        return p;
+    }
+    function getCorrectCount() {
+        var v = localStorage.getItem('diagnoseCorrect');
+        return v ? parseInt(v) : 0;
+    }
     function addCorrectCount() {
-    var n = getCorrectCount() + 1;
-    localStorage.setItem('diagnoseCorrect', String(n));
-    return n;
-}
-// 医力：读全局 power，无上限
-function getPower() {
-    var v = localStorage.getItem('power');
-    return v ? parseFloat(v) : 1;
-}
-function addPower(n) {
-    var p = getPower() + n;
-    localStorage.setItem('power', String(p));
-    return p;
-}
+        var n = getCorrectCount() + 1;
+        localStorage.setItem('diagnoseCorrect', String(n));
+        return n;
+    }
+    // 每次诊对固定 10 铜币
     function getDiagnoseFee() {
-    return 10;   // 每诊对一个病人 +10 铜币
-}
+        return 10;
+    }
     function getCoins() {
         var v = localStorage.getItem('coins');
         return v ? parseInt(v) : 0;
@@ -487,45 +530,45 @@ function addPower(n) {
     }
 
     function renderTop() {
-        powerText.textContent = getPower().toFixed(2);
+        powerText.textContent = Math.floor(getPower());
         coinText.textContent = getCoins();
     }
     renderTop();
 
-    // 短暂提示
     function showToast(msg) {
         toastEl.textContent = msg;
         toastEl.classList.add('show');
         setTimeout(function() { toastEl.classList.remove('show'); }, 1500);
     }
 
-    // 望诊是否完成
     function isLookDone() {
         return state.checked.head && state.checked.chest
             && state.checked.belly && state.checked.limbs;
     }
 
-    // 进入口述阶段
     function enterSpeakPhase() {
-        state.phase = 'speak';
+    state.phase = 'speak';
 
-        // 在症状面板加一条口述
-        var speakSpan = document.createElement('span');
-        speakSpan.className = 'sym-speak';
-        speakSpan.textContent = '「' + state.formula.speak + '」';
-        symptomPanel.appendChild(speakSpan);
-
-        // 脉诊区闪烁提示
-        var pulseEl = patientStage.querySelector('.hit-pulse');
-        if (pulseEl) pulseEl.classList.add('hint-glow');
+    // 病人口述气泡：显示在病人头顶
+    var fig = document.getElementById('patientFigure');
+    if (fig) {
+        var oldBubble = fig.querySelector('.speak-bubble');
+        if (oldBubble) oldBubble.remove();
+        var bubble = document.createElement('div');
+        bubble.className = 'speak-bubble';
+        bubble.textContent = '「' + state.formula.speak + '」';
+        fig.appendChild(bubble);
     }
 
-    // 点击部位
+    // 脉诊区闪烁提示
+    var pulseEl = patientStage.querySelector('.hit-pulse');
+    if (pulseEl) pulseEl.classList.add('hint-glow');
+}
+
     function onPartClick(part, el) {
         if (!state) return;
         if (state.checked[part]) return;
 
-        // 脉诊还没到阶段
         if (part === 'pulse' && state.phase === 'look') {
             showToast('请先查看病人的身体状况');
             return;
@@ -534,7 +577,6 @@ function addPower(n) {
         state.checked[part] = true;
         el.classList.add('checked');
 
-        // 移除该部位的旧气泡
         var oldHints = patientStage.querySelectorAll('.hint');
         for (var i = 0; i < oldHints.length; i++) {
             if (oldHints[i].getAttribute('data-part') === part) oldHints[i].remove();
@@ -542,7 +584,6 @@ function addPower(n) {
 
         var symptoms = state.formula.s[part] || [];
 
-        // 显示气泡
         var hint = document.createElement('div');
         hint.className = 'hint ' + part + '-hint';
         hint.setAttribute('data-part', part);
@@ -555,7 +596,6 @@ function addPower(n) {
         }
         patientStage.appendChild(hint);
 
-        // 加入症状面板
         if (symptoms.length > 0) {
             var ph = symptomPanel.querySelector('.placeholder');
             if (ph) symptomPanel.innerHTML = '';
@@ -567,13 +607,12 @@ function addPower(n) {
             }
         }
 
-        // 望诊完成后，进入口述阶段
-if (part !== 'pulse' && state.phase === 'look' && isLookDone()) {
-    // 每次望诊完成 +10 医力
-    addPower(10);
-    renderTop();
-    setTimeout(enterSpeakPhase, 300);
-}
+        // 望诊完成：每次 +10 医力
+        if (part !== 'pulse' && state.phase === 'look' && isLookDone()) {
+            addPower(10);
+            renderTop();
+            setTimeout(enterSpeakPhase, 300);
+        }
 
         // 脉诊完成
         if (part === 'pulse') {
@@ -654,7 +693,7 @@ if (part !== 'pulse' && state.phase === 'look' && isLookDone()) {
             formula: formula,
             checked: { head: false, chest: false, belly: false, limbs: false, pulse: false },
             attempts: 0,
-            phase: 'look'  // look → speak → choose
+            phase: 'look'
         };
 
         symptomPanel.innerHTML = '<span class="placeholder">先点击病人的头、胸、腹、腿进行望诊...</span>';
@@ -711,7 +750,6 @@ if (part !== 'pulse' && state.phase === 'look' && isLookDone()) {
                 if (waiting) return;
                 if (state.attempts >= 2) return;
 
-                // 提示：脉诊还没看
                 if (state.phase !== 'choose') {
                     showToast('请先完成望诊、闻诊、切诊');
                     return;
@@ -725,25 +763,15 @@ if (part !== 'pulse' && state.phase === 'look' && isLookDone()) {
                     for (var i = 0; i < optionBtns.length; i++) optionBtns[i].disabled = true;
 
                     var fee = getDiagnoseFee();
-addCoins(fee);
-var newCount = addCorrectCount();
-// 答对加 20 医力
-addPower(20);
-renderTop();
-showCoinGain(fee);
-waiting = true;
+                    addCoins(fee);
+                    // 答对：+20 医力
+                    addPower(20);
+                    addCorrectCount();
+                    renderTop();
+                    showCoinGain(fee);
+                    waiting = true;
 
-if (false) {  // 医力无上限，不再触发升级弹窗
-                        var newPowerInt = Math.floor(getPower());
-                        setTimeout(function() {
-                            showModal('🎉 恭喜！',
-                                '您的医力提升至 ' + newPowerInt + '/100<br>诊费已提升至 ' + getDiagnoseFee() + ' 铜币',
-                                '继续行医',
-                                function() { closeModal(); nextPatient(); });
-                        }, 700);
-                    } else {
-                        setTimeout(function() { nextPatient(); }, 900);
-                    }
+                    setTimeout(function() { nextPatient(); }, 900);
                 } else {
                     state.attempts++;
                     btn.classList.add('wrong');
@@ -773,7 +801,7 @@ if (false) {  // 医力无上限，不再触发升级弹窗
     }
 
     // ===== 版本号 =====
-    var CURRENT_VERSION = 'v123';
+    var CURRENT_VERSION = 'v132';
     document.getElementById('versionTag').textContent = CURRENT_VERSION;
 
     queueCountEl.textContent = queueCount;
