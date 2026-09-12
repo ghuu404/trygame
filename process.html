@@ -739,13 +739,7 @@ btnCancel.addEventListener('click', () => {
 });
 
 document.getElementById('btnManual').addEventListener('click', () => {
-    let html = '<h4>🔧 切制工具</h4>';
-    for (let [k, t] of Object.entries(TOOLS_LEFT)) html += `<div>· ${t.icon} <b>${t.name}</b></div>`;
-    html += '<h4>🔥 炒制工具</h4>';
-    for (let [k, t] of Object.entries(TOOLS_RIGHT)) html += `<div>· ${t.icon} <b>${t.name}</b></div>`;
-    html += '<h4>🧂 辅料</h4>';
-    for (let [k, m] of Object.entries(MATERIALS)) html += `<div>· ${m.icon} <b>${k}</b></div>`;
-    html += '<h4>🌿 药材炮制</h4>';
+    let html = '<h4>🌿 药材炮制指南</h4>';
     for (let [herb, rules] of Object.entries(HERB_RULES)) {
         let parts = rules.map(r => {
             if (r.type === 'none') return `${r.result}（无需炮制）`;
