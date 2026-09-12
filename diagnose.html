@@ -715,7 +715,7 @@ fig.appendChild(img);
         if (!fig) { callback(); return; }
         fig.classList.remove('enter');
         fig.classList.add('exit');
-        setTimeout(callback, 550);
+        setTimeout(callback, 300);
     }
 
     function nextPatient() {
@@ -762,7 +762,7 @@ if (state.phase !== 'choose') {
                     showCoinGain(fee);
                     waiting = true;
 
-                    setTimeout(function() { nextPatient(); }, 900);
+                    setTimeout(function() { nextPatient(); }, 500);
                 } else {
                     state.attempts++;
                     btn.classList.add('wrong');
