@@ -633,7 +633,6 @@ function playMaterialAnim(name, callback) {
 function startFrying(rule) {
     isFrying = true; fryProgress = 0; fryRule = rule;
     fryBarContainer.style.display = 'block';
-    btnFinish.disabled = true;
     counterHerb.textContent = `炒制中：${currentHerb}`;
     counterStatus.textContent = '火候：冷锅';
     fryBar.style.width = '0%';
@@ -700,15 +699,22 @@ function finishFry() {
 }
 
 btnFinish.addEventListener('click', () => {
-    if (isFrying) { finishFry(); return; }
+    // 如果正在炒制：先判断火候
+    if (isFrying) {
+        if (fryProgress < 30) {
+            counterStatus.textContent = '火候不足，继续炒到炒黄再取出～';
+            return;
+        }
+        finishFry();               // 停止炒制
+        if (!currentHerb) return;  // 焦黑报废了，直接返回
+    }
+
     if (!currentHerb) return;
 
     const resultName = currentProcessed || currentHerb;
-    // 炮制成功：1 份生药 -> 10 份炮制品
     processedInventory[resultName] = (processedInventory[resultName] || 0) + 10;
     saveProcessed();
     updateProcessedCount();
-
 
     currentHerb = null; currentProcessed = null;
     setStageHerb(null);
