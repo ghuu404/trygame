@@ -528,24 +528,39 @@ body {
         return arr;
     }
     function pickNextFormulaIndex() {
-        var pool = loadPool();
-        if (!pool || pool.length === 0) {
-            pool = reshufflePool();
-        }
-        var idx = pool.shift();
-        savePool(pool);
-        return idx;
+    var pool = loadPool();
+    if (!pool || pool.length === 0) {
+        pool = reshufflePool();
     }
+    var idx = pool.shift();
+
+    // 防止和上一个病人完全相同
+    var lastIdx = parseInt(localStorage.getItem('lastFormulaIdx') || '-1');
+    if (idx === lastIdx && pool.length > 0) {
+        var t = idx;
+        idx = pool.shift();
+        pool.push(t);
+        // 重新洗一下剩余池子
+        for (var i = pool.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+        }
+    }
+    savePool(pool);
+    localStorage.setItem('lastFormulaIdx', String(idx));
+    return idx;
+}
 
     // ===== 排队系统（持久化 + 离线累积）=====
-    var QUEUE_GROW_INTERVAL = 5 * 60 * 1000;
+    var QUEUE_GROW_INTERVAL = 1 * 60 * 1000;
     var QUEUE_BASE_MAX = 20;
     var queueCount = 0;
 
     function getQueueMax() {
-        var powerInt = Math.floor(getPower());
-        return QUEUE_BASE_MAX + Math.max(0, powerInt - 1);
-    }
+    var powerInt = Math.floor(getPower());
+    // 医力每 +1000，排队上限 +10
+    return QUEUE_BASE_MAX + Math.floor(powerInt / 1000) * 10;
+}
 
     function loadQueue() {
         var now = Date.now();
@@ -565,13 +580,17 @@ body {
         var max = getQueueMax();
 
         var gained = Math.floor(elapsed / QUEUE_GROW_INTERVAL);
-        if (gained > 0 && queueCount < max) {
-            queueCount = Math.min(max, queueCount + gained);
-            var remainder = elapsed % QUEUE_GROW_INTERVAL;
-            localStorage.setItem('queueTime', String(now - remainder));
-        }
-        localStorage.setItem('queueCount', String(queueCount));
-    }
+if (gained > 0 && queueCount < max) {
+    queueCount = Math.min(max, queueCount + gained);
+    var remainder = elapsed % QUEUE_GROW_INTERVAL;
+    localStorage.setItem('queueTime', String(now - remainder));
+}
+
+// 超过上限就截断
+if (queueCount > max) {
+    queueCount = max;
+}
+localStorage.setItem('queueCount', String(queueCount));
 
     function saveQueue() {
         localStorage.setItem('queueCount', String(queueCount));
@@ -893,7 +912,7 @@ body {
     }
 
     // ===== 版本号 =====
-    var CURRENT_VERSION = 'v139';
+    var CURRENT_VERSION = 'v140';
     document.getElementById('versionTag').textContent = CURRENT_VERSION;
 
     // ===== 初始化 =====
