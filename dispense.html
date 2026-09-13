@@ -206,7 +206,10 @@ body {
         <a class="top-btn" href="process.html">⚗️ 去炮制</a>
     </div>
     <div style="font-size:14px;">📋 配药台</div>
-    <div class="top-btn" id="coinDisplay">💰 0</div>
+    <div class="top-btn" id="coinDisplay"><div id="coinDisplay" style="display:flex;align-items:center;gap:3px;">
+    <img src="images/icon-coin.webp" style="width:16px;height:16px;" onerror="this.style.display='none'">
+    <span id="coinText">0</span>
+</div> 0</div>
 </div>
 
 <div id="main">
@@ -394,7 +397,8 @@ const PRESCRIPTIONS = [
 
 let processedInventory = JSON.parse(localStorage.getItem('processedInventory') || '{}');
 let coins = parseInt(localStorage.getItem('playerCoins')) || 0;
-document.getElementById('coinDisplay').textContent = '💰 ' + coins;
+document.getElementById('coinDisplay').textContent = 'document.getElementById('coinText').textContent = coins;">0</span>
+</div> ' + coins;
 
 // 用 localStorage 记住当前处方索引
 let currentOrderIndex = parseInt(localStorage.getItem('currentPrescriptionIndex'));
@@ -407,7 +411,8 @@ let currentOrder = null;
 let plate = {};
 
 function saveProcessed() { localStorage.setItem('processedInventory', JSON.stringify(processedInventory)); }
-function saveCoins() { localStorage.setItem('playerCoins', coins); document.getElementById('coinDisplay').textContent = '💰 ' + coins; }
+function saveCoins() { localStorage.setItem('playerCoins', coins); document.getElementById('coinDisplay').textContent = 'document.getElementById('coinText').textContent = coins;">0</span>
+</div> ' + coins; }
 function saveOrderIndex() { localStorage.setItem('currentPrescriptionIndex', currentOrderIndex); }
 
 function loadOrder(index) {
@@ -550,7 +555,8 @@ document.getElementById('btnPack').addEventListener('click', () => {
 
 function showBag(bag) {
     document.getElementById('bagName').textContent = bag.name;
-    document.getElementById('bagHerbs').innerHTML = bag.herbs.join('<br>') + '<br><br>💰 +50';
+    document.getElementById('bagHerbs').innerHTML = bag.herbs.join('<br>') + '<br><br>document.getElementById('coinText').textContent = coins;">0</span>
+</div> +50';
     document.getElementById('bagModal').classList.add('active');
 }
 
