@@ -775,7 +775,6 @@ btnFinish.addEventListener('click', () => {
     const resultName = currentProcessed || currentHerb;
     processedInventory[resultName] = (processedInventory[resultName] || 0) + 10;
     saveProcessed();
-    updateProcessedCount();
 
     currentHerb = null; currentProcessed = null;
     setStageHerb(null);
@@ -870,6 +869,10 @@ function showModal(title, text, isManual = false) {
 }
 document.getElementById('modalConfirm').addEventListener('click', () => modalOverlay.classList.remove('active'));
 
+/* ===== 已炮制计数（保留函数，不再显示）===== */
+function updateProcessedCount() {
+    // 已移除显示，函数保留为空，防止调用报错
+}
 /* ===== 初始化 ===== */
 
 function init() {
