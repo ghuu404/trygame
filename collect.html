@@ -11,19 +11,18 @@ html, body { height: 100%; overflow: hidden; }
 body {
     user-select: none; color: #3a2a1a;
     background: #f5ead3;
-    background-image: url('images/forest-bg.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
     flex-direction: column;
     position: relative;
+    transition: background-image 0.4s;
 }
 
-/* 顶栏 */
 #topBar {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 12px;
+    padding: 6px 10px;
     background: rgba(255,255,255,0.6);
     border-bottom: 2px solid #d4c4a8;
     flex-shrink: 0; z-index: 10;
@@ -35,20 +34,52 @@ body {
     border: 2px solid #8b5e3c;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; font-size: 18px; color: #3a2a1a;
-    text-decoration: none;
+    text-decoration: none; flex-shrink: 0;
 }
 #backBtn:active { transform: scale(0.93); }
 .info-chip {
     font-size: 13px; font-weight: bold;
     background: rgba(255,255,255,0.85);
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: 12px;
     border: 2px solid #d4c4a8;
     color: #8b5e3c;
-    margin-left: 6px;
+    margin-left: 4px;
 }
 
-/* 卡片区 */
+/* 区域切换栏 */
+#areaBar {
+    display: flex;
+    gap: 6px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.5);
+    border-bottom: 1px solid #d4c4a8;
+    flex-shrink: 0;
+    justify-content: center;
+    z-index: 9;
+}
+.area-btn {
+    flex: 1;
+    max-width: 110px;
+    padding: 6px 0;
+    background: rgba(240,230,216,0.85);
+    border: 2px solid #8b5e3c;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    color: #8b5e3c;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+}
+.area-btn.active {
+    background: #d4a574;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(139,94,60,0.4);
+}
+.area-btn:active { transform: scale(0.95); }
+
 #cardArea {
     flex: 1;
     position: relative;
@@ -77,13 +108,9 @@ body {
     object-fit: contain;
     pointer-events: none;
 }
-.card.blocked {
-    filter: brightness(0.7);
-    cursor: not-allowed;
-}
+.card.blocked { filter: brightness(0.7); cursor: not-allowed; }
 .card:not(.blocked):active { transform: scale(0.9); }
 
-/* 卡槽 */
 #slotBar {
     flex-shrink: 0;
     padding: 4px 12px;
@@ -104,7 +131,6 @@ body {
 .slot.filled { animation: slotPop 0.25s ease-out; }
 @keyframes slotPop { from { transform: scale(0.5); } to { transform: scale(1); } }
 
-/* 底部功能区 */
 #bottomBar {
     flex-shrink: 0;
     padding: 6px 10px 12px;
@@ -129,12 +155,8 @@ body {
     text-align: center;
 }
 .bottom-btn:active { transform: scale(0.95); }
-.bottom-btn.secondary {
-    background: #f0e6d8;
-    color: #8b5e3c;
-}
+.bottom-btn.secondary { background: #f0e6d8; color: #8b5e3c; }
 
-/* 飘字提示：屏幕中下方 */
 .toast {
     position: fixed;
     left: 50%;
@@ -156,12 +178,11 @@ body {
 .toast.good { background: rgba(46,125,50,0.92); }
 .toast.bad { background: rgba(198,40,40,0.92); }
 
-/* 开始弹窗：小、半透明 */
 #startModal {
     position: fixed;
     left: 50%; top: 45%;
     transform: translate(-50%, -50%);
-    background: rgba(245,240,232,0.82);
+    background: rgba(245,240,232,0.85);
     border: 2px solid rgba(139,94,60,0.7);
     border-radius: 18px;
     padding: 20px 24px;
@@ -182,12 +203,9 @@ body {
     border: 2px solid #8b5e3c;
     background: #d4a574; color: #fff;
 }
-#startModal .sm-btn.secondary {
-    background: rgba(224,224,224,0.9); border-color: #999; color: #555;
-}
+#startModal .sm-btn.secondary { background: rgba(224,224,224,0.9); border-color: #999; color: #555; }
 #startModal .sm-btn:active { transform: scale(0.96); }
 
-/* 通用弹窗 */
 #modalOverlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.6);
@@ -196,10 +214,8 @@ body {
 }
 #modalOverlay.active { display: flex; }
 .modal-box {
-    background: #f5f0e8;
-    border-radius: 18px;
-    padding: 22px 26px;
-    text-align: center;
+    background: #f5f0e8; border-radius: 18px;
+    padding: 22px 26px; text-align: center;
     border: 3px solid #8b5e3c;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     max-width: 320px; width: 85%;
@@ -214,32 +230,19 @@ body {
     background: #d4a574; color: #fff;
     border: 2px solid #8b5e3c; border-radius: 10px; cursor: pointer;
 }
-.modal-btn.secondary {
-    background: #e0e0e0; border-color: #999; color: #555;
-}
+.modal-btn.secondary { background: #e0e0e0; border-color: #999; color: #555; }
 .modal-btn:active { transform: scale(0.97); }
 
-/* 药书图鉴 */
 #bookGrid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    margin: 8px 0;
-    text-align: left;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 6px; margin: 8px 0; text-align: left;
 }
 .book-item {
-    background: #fff;
-    border: 1px solid #d4c4a8;
-    border-radius: 8px;
-    padding: 4px;
-    font-size: 11px;
-    text-align: center;
-    color: #3a2a1a;
+    background: #fff; border: 1px solid #d4c4a8;
+    border-radius: 8px; padding: 4px; font-size: 11px;
+    text-align: center; color: #3a2a1a;
 }
-.book-item img {
-    width: 100%; height: 42px;
-    object-fit: contain;
-}
+.book-item img { width: 100%; height: 42px; object-fit: contain; }
 .book-item .bn { font-size: 10px; margin-top: 2px; }
 </style>
 </head>
@@ -252,6 +255,12 @@ body {
         <span class="info-chip">💰 <span id="coinText">0</span></span>
         <span class="info-chip">🌿 <span id="groupText">0</span>/6</span>
     </div>
+</div>
+
+<div id="areaBar">
+    <button class="area-btn active" data-area="forest">🌲 丛林</button>
+    <button class="area-btn" data-area="mountain">⛰️ 山地</button>
+    <button class="area-btn" data-area="field">🌾 田野</button>
 </div>
 
 <div id="cardArea"></div>
@@ -283,19 +292,29 @@ body {
     var MAX_STAMINA = 5;
     var STAMINA_RECOVER_MS = 10 * 60 * 1000;
     var SLOT_MAX = 7;
-    var TARGET_GROUPS = 6;         // 收集 6 组通关
+    var TARGET_GROUPS = 6;      // 收集 6 组通关
+    var CARDS_PER_HERB = 6;     // 每种药 6 张（2组）
 
-    // 全部药材池（一次全部出现）
-    var HERB_POOL = [
-        '桂枝','麻黄','杏仁','甘草','芍药','生姜',
-        '大枣','葛根','细辛','干姜'
-    ];
-    // 杂草池（多种）
+    // ===== 三个区域的药材池 =====
+    var AREAS = {
+        forest: {
+            name: '丛林',
+            bg: 'images/forest-bg.webp',
+            herbs: ['桂枝','茯苓','葛根','黄连','人参','细辛','厚朴','枳实','猪苓']
+        },
+        mountain: {
+            name: '山地',
+            bg: 'images/mountain-bg.webp',
+            herbs: ['麻黄','杏仁','柴胡','黄芩','知母','附子','白术','大黄','当归','五味子','石膏','芒硝']
+        },
+        field: {
+            name: '田野',
+            bg: 'images/field-bg.webp',
+            herbs: ['芍药','甘草','生姜','大枣','半夏','茵陈','泽泻','栀子','通草','干姜','粳米']
+        }
+    };
+
     var WEED_POOL = ['杂草','枯枝','落叶','藤蔓','苔藓','烂草','野蒿'];
-    var WEED_REAL_NAME = '杂草'; // 实际都当杂草处理
-
-    // 每种药出现 6 张（3组）
-    var CARDS_PER_HERB = 6;
 
     // ===== 仓库 =====
     function getWarehouse() {
@@ -357,6 +376,7 @@ body {
     var allCards = [];
     var collectedGroups = 0;
     var gameActive = false;
+    var currentArea = 'forest';
 
     // ===== 顶栏 =====
     function renderTop() {
@@ -365,6 +385,12 @@ body {
         groupText.textContent = collectedGroups;
     }
     renderTop();
+
+    // ===== 切换区域背景 =====
+    function applyAreaBackground() {
+        document.body.style.backgroundImage = 'url("' + AREAS[currentArea].bg + '")';
+    }
+    applyAreaBackground();
 
     // ===== 弹窗 =====
     function showModal(title, html, buttons) {
@@ -388,13 +414,14 @@ body {
 
     // ===== 卡片生成 =====
     function generateCardList() {
+        var herbs = AREAS[currentArea].herbs;
         var list = [];
-        // 每种药材 9 张
-        for (var i = 0; i < HERB_POOL.length; i++) {
-            for (var j = 0; j < CARDS_PER_HERB; j++) list.push(HERB_POOL[i]);
+        // 每种药材 6 张
+        for (var i = 0; i < herbs.length; i++) {
+            for (var j = 0; j < CARDS_PER_HERB; j++) list.push(herbs[i]);
         }
-        // 杂草数量 = 药材种类 / 3（向上取整）
-        var weedTypes = Math.ceil(HERB_POOL.length / 3);
+        // 杂草种类数 = ceil(药材种类 / 3)
+        var weedTypes = Math.ceil(herbs.length / 3);
         for (var k = 0; k < weedTypes; k++) {
             var weedName = WEED_POOL[k % WEED_POOL.length];
             for (var m = 0; m < CARDS_PER_HERB; m++) list.push(weedName);
@@ -417,7 +444,7 @@ body {
         el.dataset.herb = name;
 
         var img = document.createElement('img');
-        img.src = 'images/herbs/' + name + '.png';
+        img.src = 'images/herbs/' + name + '.webp';
         img.onerror = function() { this.style.display = 'none'; };
         el.appendChild(img);
 
@@ -487,11 +514,6 @@ body {
         el.style.pointerEvents = 'none';
         setTimeout(function() { updateBlocked(); }, 250);
 
-        if (isWeed(name)) {
-            showToast('这是杂草，扔掉了', 'bad');
-            return;
-        }
-
         slot.push(name);
         renderSlot();
         checkMatch();
@@ -510,14 +532,17 @@ body {
                     if (n === name && removed < 3) { removed++; return false; }
                     return true;
                 });
+                renderSlot();
+
+                if (isWeed(name)) {
+                    showToast('这是杂草，扔掉了', 'bad');
+                    return;
+                }
+
                 addHerb(name, 3);
                 collectedGroups++;
-                renderSlot();
                 renderTop();
                 showToast('采得 ' + name + ' ×3', 'good');
-
-                // 场景里该药材的卡片也一起消失（可选）
-                // 这里保留，玩家可以继续收集
                 setTimeout(checkWin, 350);
                 return;
             }
@@ -547,7 +572,7 @@ body {
             if (i < slot.length) {
                 s.classList.add('filled');
                 var img = document.createElement('img');
-                img.src = 'images/herbs/' + slot[i] + '.png';
+                img.src = 'images/herbs/' + slot[i] + '.webp';
                 img.onerror = function() { this.style.display = 'none'; };
                 s.appendChild(img);
                 s.title = slot[i];
@@ -575,13 +600,15 @@ body {
         }, 1400);
     }
 
-    // ===== 药书图鉴 =====
+    // ===== 药书 =====
     function showBook() {
-        var html = '<div id="bookGrid">';
-        for (var i = 0; i < HERB_POOL.length; i++) {
-            var n = HERB_POOL[i];
+        var herbs = AREAS[currentArea].herbs;
+        var html = '<div style="font-size:13px;color:#8b5e3c;margin-bottom:6px;">当前区域：' + AREAS[currentArea].name + '</div>';
+        html += '<div id="bookGrid">';
+        for (var i = 0; i < herbs.length; i++) {
+            var n = herbs[i];
             html += '<div class="book-item">' +
-                '<img src="images/herbs/' + n + '.png" onerror="this.style.display=\'none\';">' +
+                '<img src="images/herbs/' + n + '.webp" onerror="this.style.display=\'none\';">' +
                 '<div class="bn">' + n + '</div></div>';
         }
         html += '</div>';
@@ -592,14 +619,16 @@ body {
 
     // ===== 提示 =====
     function showHint() {
-        // 找卡槽里数量最多的药材，提示玩家凑齐它
         var counts = {};
         for (var i = 0; i < slot.length; i++) {
             counts[slot[i]] = (counts[slot[i]] || 0) + 1;
         }
         var bestName = null, bestCount = 0;
         for (var name in counts) {
-            if (counts[name] > bestCount) { bestCount = counts[name]; bestName = name; }
+            if (!isWeed(name) && counts[name] > bestCount) {
+                bestCount = counts[name];
+                bestName = name;
+            }
         }
         var msg;
         if (bestName) {
@@ -612,7 +641,7 @@ body {
         ]);
     }
 
-    // ===== 转换（洗牌）=====
+    // ===== 洗牌 =====
     function shuffleCards() {
         if (!gameActive) return;
         var w = cardArea.clientWidth;
@@ -652,6 +681,36 @@ body {
         var list = generateCardList();
         setTimeout(function() { layoutCards(list); }, 20);
     }
+
+    // ===== 区域切换 =====
+    function switchArea(area) {
+        if (currentArea === area) return;
+        currentArea = area;
+        document.querySelectorAll('.area-btn').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.area === area);
+        });
+        applyAreaBackground();
+
+        // 如果正在游戏中，提示玩家重新开始本局
+        if (gameActive) {
+            gameActive = false;
+            slot = [];
+            collectedGroups = 0;
+            renderSlot();
+            renderTop();
+            cardArea.innerHTML = '';
+            allCards = [];
+            showToast('切换至' + AREAS[area].name + '，已重置本局', 'good');
+        }
+        // 显示开始弹窗
+        openStartModal();
+    }
+
+    document.querySelectorAll('.area-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            switchArea(this.dataset.area);
+        });
+    });
 
     document.getElementById('btnStart').addEventListener('click', function() {
         startModal.classList.remove('active');

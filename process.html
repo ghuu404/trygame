@@ -550,9 +550,9 @@ function setStageHerb(name, isProcessed = false) {
     if (!name) return;
 
     var primary = isProcessed
-        ? 'images/herbs/processed/' + name + '.png'
-        : 'images/herbs/' + name + '.png';
-    var fallback = 'images/herbs/' + name.replace(/\(.*?\)/g, '').replace(/^(炒|煅|炮|姜炙|盐炙|酒炙|酒洗|酒浸|醋|汤洗|矾制|蜜炙|洗)/, '') + '.png';
+        ? 'images/herbs/processed/' + name + '.webp'
+        : 'images/herbs/' + name + '.webp';
+    var fallback = 'images/herbs/' + name.replace(/\(.*?\)/g, '').replace(/^(炒|煅|炮|姜炙|盐炙|酒炙|酒洗|酒浸|醋|汤洗|矾制|蜜炙|洗)/, '') + '.webp';
 
     stageHerbImg.src = primary;
     stageHerbImg.style.display = 'block';
