@@ -294,6 +294,7 @@ body {
     </div>
     <div id="rightPanel">
         <div class="resource"><img src="images/icon-coin.webp" style="width:16px;height:16px;vertical-align:middle;margin-right:3px;" onerror="this.style.display='none'"> <span id="coinText">0</span></div>
+        <div class="resource">⚡ <span id="staminaText">5/5</span></div>
         <div class="right-btn" id="btnWarehouse">📦 仓库</div>
     </div>
 </div>
@@ -406,13 +407,16 @@ function yesterdayStr() {
 }
 
 // ===== 体力 =====
+var MAX_STAMINA = 5;
+var STAMINA_RECOVER_MS = 10 * 60 * 1000;
+
 function getStamina() {
     var now = Date.now();
     var stamina = parseInt(localStorage.getItem('stamina') || MAX_STAMINA);
     var lastTime = parseInt(localStorage.getItem('staminaTime') || now);
     if (stamina >= MAX_STAMINA) {
-        localStorage.setItem('staminaTime', now);
-        localStorage.setItem('stamina', MAX_STAMINA);
+        localStorage.setItem('staminaTime', String(now));
+        localStorage.setItem('stamina', String(MAX_STAMINA));
         return MAX_STAMINA;
     }
     var elapsed = now - lastTime;
@@ -422,7 +426,7 @@ function getStamina() {
         var remainder = elapsed % STAMINA_RECOVER_MS;
         localStorage.setItem('staminaTime', String(now - remainder));
     }
-    localStorage.setItem('stamina', stamina);
+    localStorage.setItem('stamina', String(stamina));
     return stamina;
 }
 
@@ -473,10 +477,14 @@ function getSignReward(day, state) {
     return r;
 }
 
+
 // ===== 渲染 =====
 function renderTop() {
     document.getElementById('coinText').textContent = getCoins();
     document.getElementById('powerText').textContent = Math.floor(getPower());
+    var s = getStamina();
+    var el = document.getElementById('staminaText');
+    if (el) el.textContent = s + ' / ' + MAX_STAMINA;
 }
 function renderLocks() {
     var unlocked = isUnlocked();
