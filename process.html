@@ -238,9 +238,7 @@ body {
         <button class="top-btn" id="btnShop">🛒 购买辅料</button>
     </div>
     <div style="display:flex;gap:6px;align-items:center;">
-        <div id="processedCount">已炮制：0 份</div>
-        <div id="coinDisplay">💰 0</div>
-    </div>
+        <div id="coinDisplay"><img src="images/icon-coin.webp" style="width:16px;height:16px;vertical-align:middle;margin-right:3px;" onerror="this.style.display='none'"> <span id="coinText">0</span></div>
 </div>
 
 <div id="main">
@@ -302,7 +300,7 @@ function saveProcessed() { warehouse.processed = processedInventory; saveWarehou
 function getCoins() { return parseInt(localStorage.getItem('coins') || 0); }
 function setCoins(n) { localStorage.setItem('coins', String(n)); }
 function updateCoinDisplay() {
-    document.getElementById('coinDisplay').textContent = '💰 ' + getCoins();
+    document.getElementById('coinText').textContent = getCoins();
 }
 
 /* 首次进入炮制页面：如果仓库里没有生药，给一份测试药材 */
