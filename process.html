@@ -26,9 +26,10 @@ body {
     color: #33691e; cursor: pointer; text-decoration: none;
     white-space: nowrap;
 }
-#processedCount, #coinDisplay {
+#coinDisplay {
     background: #aed581; border: 2px solid #fff; border-radius: 14px;
     padding: 4px 10px; font-size: 12px; color: #33691e;
+    display: flex; align-items: center;
 }
 #main {
     flex: 1; display: flex; flex-direction: column;
@@ -237,8 +238,10 @@ body {
         <button class="top-btn" id="btnManual">📖 说明书</button>
         <button class="top-btn" id="btnShop">🛒 购买辅料</button>
     </div>
-    <div style="display:flex;gap:6px;align-items:center;">
-        <div id="coinDisplay"><img src="images/icon-coin.webp" style="width:16px;height:16px;vertical-align:middle;margin-right:3px;" onerror="this.style.display='none'"> <span id="coinText">0</span></div>
+    <div id="coinDisplay">
+        <img src="images/icon-coin.webp" style="width:16px;height:16px;vertical-align:middle;margin-right:3px;" onerror="this.style.display='none'">
+        <span id="coinText">0</span>
+    </div>
 </div>
 
 <div id="main">
@@ -273,7 +276,7 @@ body {
 </div>
 
 <script>
-/* ===== 仓库系统（与主页面/采药/行医共用）===== */
+/* ===== 仓库系统 ===== */
 const WAREHOUSE_KEY = 'warehouse';
 function getWarehouse() {
     try {
@@ -296,14 +299,13 @@ function saveInventory() { warehouse.herbs = inventory; saveWarehouse(warehouse)
 function saveMaterial()  { warehouse.materials = materialInventory; saveWarehouse(warehouse); }
 function saveProcessed() { warehouse.processed = processedInventory; saveWarehouse(warehouse); }
 
-/* 铜币统一用 coins 键 */
 function getCoins() { return parseInt(localStorage.getItem('coins') || 0); }
 function setCoins(n) { localStorage.setItem('coins', String(n)); }
 function updateCoinDisplay() {
-    document.getElementById('coinText').textContent = getCoins();
+    var el = document.getElementById('coinText');
+    if (el) el.textContent = getCoins();
 }
 
-/* 首次进入炮制页面：如果仓库里没有生药，给一份测试药材 */
 if (Object.keys(inventory).length === 0) {
     const testHerbs = {
         '桂枝': 1, '麻黄': 1, '山杏': 1, '甘草': 1, '芍药': 1,
@@ -369,8 +371,8 @@ const HERB_RULES = {
     '猪苓': [{ type: 'tool', tool: 'scrape', result: '猪苓(去皮)', desc: '刮去外皮' }],
     '麻黄': [{ type: 'tool', tool: 'remove', result: '麻黄(去节)', desc: '摘除节部' }],
     '山杏': [
-        { type: 'tool', tool: 'peel', result: '杏仁(去皮尖)', desc: '剥皮去尖' },
-        { type: 'tool', tool: 'fry',  result: '炒杏仁', desc: '炒至焦黑' }
+        { type: 'tool', tool: 'peel', result: '山杏(去皮尖)', desc: '剥皮去尖' },
+        { type: 'tool', tool: 'fry',  result: '炒山杏', desc: '炒至焦黑' }
     ],
     '柴胡': [{ type: 'none', result: '柴胡', desc: '无需炮制' }],
     '黄芩': [{ type: 'none', result: '黄芩', desc: '无需炮制' }],
@@ -571,6 +573,7 @@ function setStageHerb(name, isProcessed = false) {
         stageEmoji.style.display = 'none';
     };
 }
+
 function selectHerb(name) {
     if (isFrying) { showModal('提示', '正在炒制中，请先取出！'); return; }
     if (currentHerb) { showModal('提示', '操作台上已有药材。'); return; }
@@ -819,7 +822,7 @@ document.getElementById('btnManual').addEventListener('click', () => {
     showModal('炮制说明书', html, true);
 });
 
-/* ===== 购买辅料（价格和主页面商店一致，共用仓库）===== */
+/* ===== 购买辅料 ===== */
 document.getElementById('btnShop').addEventListener('click', () => {
     let html = '<div id="shopGrid">';
     for (let [name, info] of Object.entries(MATERIALS)) {
@@ -869,16 +872,10 @@ function showModal(title, text, isManual = false) {
 }
 document.getElementById('modalConfirm').addEventListener('click', () => modalOverlay.classList.remove('active'));
 
-/* ===== 已炮制计数（保留函数，不再显示）===== */
-function updateProcessedCount() {
-    // 已移除显示，函数保留为空，防止调用报错
-}
 /* ===== 初始化 ===== */
-
 function init() {
     renderHerbRows();
     renderTools();
-    
     updateCoinDisplay();
     setStageHerb(null);
 }
