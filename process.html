@@ -8,13 +8,12 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; }
 body {
-    font-family: sans-serif;
+    font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif;
     user-select: none;
     background: #f5f0e8;
     display: flex;
     flex-direction: column;
 }
-/* ===== 顶部栏 ===== */
 #topBar {
     display: flex; align-items: center; justify-content: space-between;
     padding: 6px 10px; background: #33691e; color: #fff;
@@ -31,12 +30,10 @@ body {
     background: #aed581; border: 2px solid #fff; border-radius: 14px;
     padding: 4px 10px; font-size: 12px; color: #33691e;
 }
-/* ===== 主体 ===== */
 #main {
     flex: 1; display: flex; flex-direction: column;
     padding: 4px; gap: 4px; overflow: hidden; min-height: 0;
 }
-/* 上下药材栏：左右留白，第一个药名不再被切 */
 .herb-row {
     display: flex; gap: 6px;
     padding: 4px 16px;
@@ -69,7 +66,6 @@ body {
 .herb-slot.empty { background: #d0c0b0; border-style: dashed; color: #999; cursor: default; }
 .herb-slot.selected { border-color: #ff8c00; box-shadow: 0 0 8px #ff8c00; }
 
-/* ===== 操作区 ===== */
 #workArea {
     flex: 1; display: flex;
     background: rgba(255,255,255,0.5);
@@ -78,7 +74,6 @@ body {
     min-height: 0; overflow: hidden;
     justify-content: center;
 }
-/* 左右工具和辅料栏 */
 #leftTools, #rightTools {
     display: flex; flex-direction: column; gap: 6px;
     width: 24%; overflow-y: auto; flex-shrink: 0;
@@ -110,7 +105,6 @@ body {
 }
 .material-btn.out { opacity: 0.4; cursor: not-allowed; }
 
-/* 中间操作台：占 42% 宽，上下布局 */
 #counter {
     flex: 0 0 42%;
     max-width: 42%;
@@ -159,6 +153,7 @@ body {
     border-radius: 10px; cursor: pointer;
     border: 2px solid #558b2f;
     background: #aed581; color: #33691e;
+    font-family: inherit;
 }
 #btnCancel { background: #e0e0e0; border-color: #999; color: #555; }
 #btnFinish:disabled, #btnCancel:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -172,7 +167,6 @@ body {
 }
 .shake { animation: herbShake 0.4s; }
 
-/* ===== 弹窗 ===== */
 #modalOverlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.65);
@@ -197,7 +191,7 @@ body {
     display: block; width: 100%; font-size: 15px; font-weight: bold;
     padding: 8px; margin: 4px 0; border: 2px solid #558b2f;
     border-radius: 10px; background: #aed581; color: #33691e;
-    cursor: pointer;
+    cursor: pointer; font-family: inherit;
 }
 #manualContent {
     text-align: left; font-size: 12px; line-height: 1.6;
@@ -207,7 +201,6 @@ body {
     color: #33691e; margin: 6px 0 4px;
     border-bottom: 1px solid #ccc; padding-bottom: 2px;
 }
-/* 商店卡片 */
 #shopGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -222,9 +215,7 @@ body {
     display: flex; flex-direction: column;
     align-items: center; gap: 4px;
 }
-.shop-card img {
-    width: 50px; height: 50px; object-fit: contain;
-}
+.shop-card img { width: 50px; height: 50px; object-fit: contain; }
 .shop-card .shop-icon { font-size: 40px; line-height: 1; }
 .shop-card .shop-name { font-size: 14px; font-weight: bold; color: #33691e; }
 .shop-card .shop-price { font-size: 13px; font-weight: bold; color: #c62828; }
@@ -233,7 +224,7 @@ body {
     border: 2px solid #558b2f; border-radius: 18px;
     background: #aed581; color: #33691e;
     font-weight: bold; font-size: 13px;
-    cursor: pointer;
+    cursor: pointer; font-family: inherit;
 }
 .shop-card .shop-stock { font-size: 11px; color: #777; }
 </style>
@@ -248,19 +239,14 @@ body {
     </div>
     <div style="display:flex;gap:6px;align-items:center;">
         <div id="processedCount">已炮制：0 份</div>
-<div id="coinDisplay" style="display:flex;align-items:center;gap:3px;">
-    <img src="images/icon-coin.webp" style="width:16px;height:16px;" onerror="this.style.display='none'">
-    <span id="coinText">0</span>
-</div>
+        <div id="coinDisplay">💰 0</div>
     </div>
 </div>
 
 <div id="main">
     <div class="herb-row" id="herbRowTop"></div>
-
     <div id="workArea">
         <div id="leftTools"></div>
-
         <div id="counter">
             <div id="stage">
                 <img id="stageHerbImg" style="display:none;">
@@ -274,10 +260,8 @@ body {
                 <button id="btnCancel" disabled>放弃</button>
             </div>
         </div>
-
         <div id="rightTools"></div>
     </div>
-
     <div class="herb-row" id="herbRowBottom"></div>
 </div>
 
@@ -291,13 +275,52 @@ body {
 </div>
 
 <script>
-/* 图片路径：
-   生药：images/herbs/药材名.png
-   炮制品：images/herbs/processed/炮制品名.png
-   工具：images/tools/工具key.png
-   辅料：images/materials/辅料名.png
-*/
+/* ===== 仓库系统（与主页面/采药/行医共用）===== */
+const WAREHOUSE_KEY = 'warehouse';
+function getWarehouse() {
+    try {
+        return JSON.parse(localStorage.getItem(WAREHOUSE_KEY)) ||
+            { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    } catch(e) {
+        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    }
+}
+function saveWarehouse(w) {
+    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
+}
 
+const warehouse = getWarehouse();
+const inventory = warehouse.herbs;
+const materialInventory = warehouse.materials;
+const processedInventory = warehouse.processed;
+
+function saveInventory() { warehouse.herbs = inventory; saveWarehouse(warehouse); }
+function saveMaterial()  { warehouse.materials = materialInventory; saveWarehouse(warehouse); }
+function saveProcessed() { warehouse.processed = processedInventory; saveWarehouse(warehouse); }
+
+/* 铜币统一用 coins 键 */
+function getCoins() { return parseInt(localStorage.getItem('coins') || 0); }
+function setCoins(n) { localStorage.setItem('coins', String(n)); }
+function updateCoinDisplay() {
+    document.getElementById('coinDisplay').textContent = '💰 ' + getCoins();
+}
+
+/* 首次进入炮制页面：如果仓库里没有生药，给一份测试药材 */
+if (Object.keys(inventory).length === 0) {
+    const testHerbs = {
+        '桂枝': 1, '麻黄': 1, '山杏': 1, '甘草': 1, '芍药': 1,
+        '生姜': 1, '大枣': 1, '葛根': 1, '细辛': 1, '干姜': 1,
+        '五味子': 1, '半夏': 1, '柴胡': 1, '黄芩': 1, '人参': 1,
+        '枳实': 1, '大黄': 1, '厚朴': 1, '茯苓': 1, '猪苓': 1,
+        '泽泻': 1, '白术': 1, '知母': 1, '石膏': 1, '芒硝': 1,
+        '附子': 1, '栀子': 1, '淡豆豉': 1, '饴糖': 1, '当归': 1,
+        '通草': 1, '茵陈': 1, '黄连': 1, '粳米': 1
+    };
+    Object.assign(inventory, testHerbs);
+    saveInventory();
+}
+
+/* ===== 工具/辅料/规则 ===== */
 const TOOLS_LEFT = {
     cut:    { name: '切刀', icon: '🔪' },
     scrape: { name: '刮刀', icon: '🪒' },
@@ -347,7 +370,7 @@ const HERB_RULES = {
     ],
     '猪苓': [{ type: 'tool', tool: 'scrape', result: '猪苓(去皮)', desc: '刮去外皮' }],
     '麻黄': [{ type: 'tool', tool: 'remove', result: '麻黄(去节)', desc: '摘除节部' }],
-    '杏仁': [
+    '山杏': [
         { type: 'tool', tool: 'peel', result: '杏仁(去皮尖)', desc: '剥皮去尖' },
         { type: 'tool', tool: 'fry',  result: '炒杏仁', desc: '炒至焦黑' }
     ],
@@ -422,40 +445,7 @@ const HERB_RULES = {
     '吴茱萸': [{ type: 'material', material: '清水', result: '洗吴茱萸', desc: '清水冲洗' }]
 };
 
-/* ===== 数据 ===== */
-// 从主页面仓库读取生药
-let inventory = JSON.parse(localStorage.getItem('herbInventory') || '{}');
-if (Object.keys(inventory).length === 0) {
-    inventory = {
-        '桂枝': 1, '麻黄': 1, '杏仁': 1, '甘草': 1, '芍药': 1,
-        '生姜': 1, '大枣': 1, '葛根': 1, '细辛': 1, '干姜': 1,
-        '五味子': 1, '半夏': 1, '柴胡': 1, '黄芩': 1, '人参': 1,
-        '枳实': 1, '大黄': 1, '厚朴': 1, '茯苓': 1, '猪苓': 1,
-        '泽泻': 1, '白术': 1, '知母': 1, '石膏': 1, '芒硝': 1,
-        '附子': 1, '栀子': 1, '淡豆豉': 1, '饴糖': 1, '当归': 1,
-        '通草': 1, '茵陈': 1, '黄连': 1, '粳米': 1
-    };
-    localStorage.setItem('herbInventory', JSON.stringify(inventory));
-}
-let processedInventory = JSON.parse(localStorage.getItem('processedInventory') || '{}');
-let materialInventory = JSON.parse(localStorage.getItem('materialInventory'));
-if (!materialInventory || Object.keys(materialInventory).length === 0) {
-    materialInventory = {};
-    Object.keys(MATERIALS).forEach(k => { materialInventory[k] = 1; });
-    localStorage.setItem('materialInventory', JSON.stringify(materialInventory));
-}
-let coins = parseInt(localStorage.getItem('playerCoins')) || 0;
-
-function saveInventory() { localStorage.setItem('herbInventory', JSON.stringify(inventory)); }
-function saveProcessed() { localStorage.setItem('processedInventory', JSON.stringify(processedInventory)); }
-function saveMaterial() { localStorage.setItem('materialInventory', JSON.stringify(materialInventory)); }
-function updateCoinDisplay() { document.getElementById('coinText').textContent = coins; }
-function updateProcessedCount() {
-    let total = 0;
-    for (let v of Object.values(processedInventory)) total += v;
-    document.getElementById('processedCount').textContent = '已炮制：' + total + ' 份';
-}
-
+/* ===== 元素 ===== */
 const herbRowTop = document.getElementById('herbRowTop');
 const herbRowBottom = document.getElementById('herbRowBottom');
 const leftTools = document.getElementById('leftTools');
@@ -478,37 +468,37 @@ let fryInterval = null;
 let fryProgress = 0;
 let fryRule = null;
 
-/* ===== 渲染药材栏：按名字排序 ===== */
+/* ===== 渲染药材栏 ===== */
 function renderHerbRows() {
     const allHerbs = Object.keys(inventory)
         .filter(n => inventory[n] > 0)
         .sort();
     const mid = Math.ceil(allHerbs.length / 2);
-    const top = allHerbs.slice(0, mid);
-    const bottom = allHerbs.slice(mid);
-    renderRow(herbRowTop, top);
-    renderRow(herbRowBottom, bottom);
+    renderRow(herbRowTop, allHerbs.slice(0, mid));
+    renderRow(herbRowBottom, allHerbs.slice(mid));
 }
 function renderRow(rowEl, herbs) {
     rowEl.innerHTML = '';
+    if (herbs.length === 0) {
+        const slot = document.createElement('div');
+        slot.className = 'herb-slot empty';
+        slot.textContent = '仓库暂无药材，先去采药吧';
+        slot.style.width = '100%';
+        rowEl.appendChild(slot);
+        return;
+    }
     herbs.forEach(name => {
         const slot = document.createElement('div');
         slot.className = 'herb-slot';
         if (currentHerb === name) slot.classList.add('selected');
         slot.innerHTML = `
-            <img src="images/herbs/${name}.png" onerror="this.style.display='none';">
+            <img src="images/herbs/${name}.webp" onerror="this.style.display='none';">
             <span class="hname">${name}</span>
             <span class="hcount">x${inventory[name]}</span>
         `;
         slot.addEventListener('click', () => selectHerb(name));
         rowEl.appendChild(slot);
     });
-    for (let i = herbs.length; i < 5; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'herb-slot empty';
-        slot.textContent = '空';
-        rowEl.appendChild(slot);
-    }
 }
 
 function renderTools() {
@@ -518,7 +508,7 @@ function renderTools() {
         const btn = document.createElement('div');
         btn.className = 'tool-btn';
         btn.innerHTML = `
-            <img src="images/tools/${key}.png" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <img src="images/tools/${key}.webp" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
             <span class="ticon" style="display:none;">${tool.icon}</span>
             <span>${tool.name}</span>
         `;
@@ -531,7 +521,7 @@ function renderTools() {
         const btn = document.createElement('div');
         btn.className = 'tool-btn';
         btn.innerHTML = `
-            <img src="images/tools/${key}.png" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <img src="images/tools/${key}.webp" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
             <span class="ticon" style="display:none;">${tool.icon}</span>
             <span>${tool.name}</span>
         `;
@@ -543,7 +533,7 @@ function renderTools() {
         const btn = document.createElement('div');
         btn.className = 'material-btn' + (count <= 0 ? ' out' : '');
         btn.innerHTML = `
-            <img src="images/materials/${name}.png" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <img src="images/materials/${name}.webp" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
             <span class="ticon" style="display:none;">${info.icon}</span>
             <span>${name}</span>
             <span class="mcount">x${count}</span>
@@ -558,12 +548,22 @@ function setStageHerb(name, isProcessed = false) {
     stageEmoji.style.display = 'none';
     stageHerbImg.src = '';
     if (!name) return;
-    const p = isProcessed
-        ? `images/herbs/processed/${name}.png`
-        : `images/herbs/${name}.png`;
-    stageHerbImg.src = p;
+
+    var primary = isProcessed
+        ? 'images/herbs/processed/' + name + '.webp'
+        : 'images/herbs/' + name + '.webp';
+    var fallback = 'images/herbs/' + name.replace(/\(.*?\)/g, '').replace(/^(炒|煅|炮|姜炙|盐炙|酒炙|酒洗|酒浸|醋|汤洗|矾制|蜜炙|洗)/, '') + '.webp';
+
+    stageHerbImg.src = primary;
     stageHerbImg.style.display = 'block';
+
+    var tried = false;
     stageHerbImg.onerror = function () {
+        if (!tried && isProcessed && fallback && fallback !== primary) {
+            tried = true;
+            this.src = fallback;
+            return;
+        }
         this.style.display = 'none';
         stageEmoji.style.display = 'block';
         stageEmoji.textContent = '🌿';
@@ -573,7 +573,6 @@ function setStageHerb(name, isProcessed = false) {
         stageEmoji.style.display = 'none';
     };
 }
-
 function selectHerb(name) {
     if (isFrying) { showModal('提示', '正在炒制中，请先取出！'); return; }
     if (currentHerb) { showModal('提示', '操作台上已有药材。'); return; }
@@ -589,7 +588,7 @@ function selectHerb(name) {
     const rules = HERB_RULES[name] || [];
     const noneRule = rules.find(r => r.type === 'none');
     if (noneRule) {
-        counterStatus.textContent = '无需炮制，直接点“收好”';
+        counterStatus.textContent = '无需炮制，直接点"收好"';
         btnFinish.disabled = false;
         btnCancel.disabled = false;
     } else {
@@ -603,7 +602,7 @@ function selectHerb(name) {
 function useTool(key) {
     if (isFrying) { showModal('提示', '正在炒制中！'); return; }
     if (!currentHerb) { showModal('提示', '请先选择药材。'); return; }
-    if (currentProcessed) { showModal('提示', '已经炮制过了，点“收好”。'); return; }
+    if (currentProcessed) { showModal('提示', '已经炮制过了，点"收好"。'); return; }
 
     const rules = HERB_RULES[currentHerb] || [];
     const rule = rules.find(r => r.type === 'tool' && r.tool === key);
@@ -627,14 +626,14 @@ function useTool(key) {
 function useMaterial(name) {
     if (isFrying) { showModal('提示', '正在炒制中！'); return; }
     if (!currentHerb) { showModal('提示', '请先选择药材。'); return; }
-    if (currentProcessed) { showModal('提示', '已经炮制过了，点“收好”。'); return; }
+    if (currentProcessed) { showModal('提示', '已经炮制过了，点"收好"。'); return; }
 
     const rules = HERB_RULES[currentHerb] || [];
     const rule = rules.find(r => r.type === 'material' && r.material === name);
 
     if (!rule) { showModal('提示', `【${currentHerb}】不能用【${name}】。`); return; }
     if (!materialInventory[name] || materialInventory[name] <= 0) {
-        showModal('辅料不足', `【${name}】已用完。\n请点击顶部“🛒 购买辅料”补充。`);
+        showModal('辅料不足', `【${name}】已用完。\n请点击顶部"🛒 购买辅料"补充。`);
         return;
     }
 
@@ -700,7 +699,6 @@ function startFrying(rule) {
     fryBar.style.width = '0%';
     fryBar.style.background = '#ffeb3b';
     stageHerbImg.classList.add('shake');
-    // 炒制期间保持按钮可点
     btnFinish.disabled = false;
     btnCancel.disabled = false;
 
@@ -809,7 +807,7 @@ btnCancel.addEventListener('click', () => {
     renderHerbRows();
 });
 
-/* ===== 说明书：只保留药材炮制指南 ===== */
+/* ===== 说明书 ===== */
 document.getElementById('btnManual').addEventListener('click', () => {
     let html = '<h4>🌿 药材炮制指南</h4>';
     for (let [herb, rules] of Object.entries(HERB_RULES)) {
@@ -824,14 +822,14 @@ document.getElementById('btnManual').addEventListener('click', () => {
     showModal('炮制说明书', html, true);
 });
 
-/* ===== 购买辅料 ===== */
+/* ===== 购买辅料（价格和主页面商店一致，共用仓库）===== */
 document.getElementById('btnShop').addEventListener('click', () => {
     let html = '<div id="shopGrid">';
     for (let [name, info] of Object.entries(MATERIALS)) {
         const count = materialInventory[name] || 0;
         html += `
             <div class="shop-card">
-                <img src="images/materials/${name}.png"
+                <img src="images/materials/${name}.webp"
                      onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
                 <div class="shop-icon" style="display:none;">${info.icon}</div>
                 <div class="shop-name">${name}</div>
@@ -849,9 +847,9 @@ document.getElementById('btnShop').addEventListener('click', () => {
             btn.addEventListener('click', () => {
                 const mat = btn.dataset.material;
                 const price = parseInt(btn.dataset.price);
-                if (coins < price) { alert('铜币不足！'); return; }
-                coins -= price;
-                localStorage.setItem('playerCoins', coins);
+                const curCoins = getCoins();
+                if (curCoins < price) { alert('铜币不足！'); return; }
+                setCoins(curCoins - price);
                 updateCoinDisplay();
                 materialInventory[mat] = (materialInventory[mat] || 0) + 1;
                 saveMaterial();
@@ -875,6 +873,11 @@ function showModal(title, text, isManual = false) {
 document.getElementById('modalConfirm').addEventListener('click', () => modalOverlay.classList.remove('active'));
 
 /* ===== 初始化 ===== */
+function updateProcessedCount() {
+    let total = 0;
+    for (let v of Object.values(processedInventory)) total += v;
+    document.getElementById('processedCount').textContent = '已炮制：' + total + ' 份';
+}
 function init() {
     renderHerbRows();
     renderTools();
