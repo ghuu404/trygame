@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>采药</title>
+    <title>采药 - 重生之我是赤脚医生</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box;
-    font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: sans-serif;
             user-select: none;
@@ -81,7 +80,7 @@
         /* ===== 游戏界面 ===== */
         #gameScreen {
             width: 100%;
-            max-width: 420px;
+            max-width: 480px;
             height: 100%;
             display: none;
             flex-direction: column;
@@ -128,7 +127,7 @@
             position: relative;
             width: 95%;
             height: 48vh;
-            max-height: 400px;
+            max-height: 420px;
             margin: 5px auto;
             background: rgba(255,255,255,0.3);
             border-radius: 16px;
@@ -304,57 +303,22 @@
     </div>
 
     <script>
-    // ===== 仓库系统（通用）=====
-const WAREHOUSE_KEY = 'warehouse';
-function getWarehouse() {
-    try {
-        return JSON.parse(localStorage.getItem(WAREHOUSE_KEY)) ||
-            { herbs: {}, seeds: {}, materials: {}, processed: {} };
-    } catch(e) {
-        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
-    }
-}
-function saveWarehouse(w) {
-    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
-}
-function addItem(category, name, count) {
-    if (!name || count <= 0) return;
-    const w = getWarehouse();
-    if (!w[category]) w[category] = {};
-    w[category][name] = (w[category][name] || 0) + count;
-    saveWarehouse(w);
-}
-        // ===== 体力系统（与主页面保持一致）=====
-        
+        // ===== 体力系统 =====
         const MAX_STAMINA = 5;
-        const STAMINA_RECOVER_MS = 10 * 60 * 1000;
+        const STORAGE_KEY = 'playerStamina';
 
         function getStamina() {
-            const now = Date.now();
-            let stamina = parseInt(localStorage.getItem('stamina') || MAX_STAMINA);
-            let lastTime = parseInt(localStorage.getItem('staminaTime') || now);
-
-            if (stamina >= MAX_STAMINA) {
-                localStorage.setItem('staminaTime', now);
-                localStorage.setItem('stamina', MAX_STAMINA);
+            let s = localStorage.getItem(STORAGE_KEY);
+            if (s === null) {
+                localStorage.setItem(STORAGE_KEY, MAX_STAMINA);
                 return MAX_STAMINA;
             }
-
-            const elapsed = now - lastTime;
-            if (elapsed >= STAMINA_RECOVER_MS) {
-                const gained = Math.floor(elapsed / STAMINA_RECOVER_MS);
-                stamina = Math.min(MAX_STAMINA, stamina + gained);
-                const remainder = elapsed % STAMINA_RECOVER_MS;
-                localStorage.setItem('staminaTime', (now - remainder).toString());
-            }
-
-            localStorage.setItem('stamina', stamina);
-            return stamina;
+            return Math.min(parseInt(s), MAX_STAMINA);
         }
+
         function setStamina(v) {
             v = Math.max(0, Math.min(v, MAX_STAMINA));
-            localStorage.setItem('stamina', v);
-            localStorage.setItem('staminaTime', Date.now().toString());
+            localStorage.setItem(STORAGE_KEY, v);
         }
 
         // ===== 药材数据 =====
@@ -365,18 +329,30 @@ function addItem(category, name, count) {
             { name: '黄连', img: '', area: 'forest' },
             { name: '人参', img: '', area: 'forest' },
             { name: '细辛', img: '', area: 'forest' },
+            { name: '厚朴', img: '', area: 'forest' },
+            { name: '枳实', img: '', area: 'forest' },
+            { name: '猪苓', img: '', area: 'forest' },
             { name: '麻黄', img: '', area: 'mountain' },
             { name: '杏仁', img: '', area: 'mountain' },
             { name: '柴胡', img: '', area: 'mountain' },
             { name: '黄芩', img: '', area: 'mountain' },
             { name: '知母', img: '', area: 'mountain' },
             { name: '附子', img: '', area: 'mountain' },
+            { name: '白术', img: '', area: 'mountain' },
+            { name: '大黄', img: '', area: 'mountain' },
+            { name: '当归', img: '', area: 'mountain' },
+            { name: '五味子', img: '', area: 'mountain' },
             { name: '芍药', img: '', area: 'field' },
             { name: '甘草', img: '', area: 'field' },
             { name: '生姜', img: '', area: 'field' },
             { name: '大枣', img: '', area: 'field' },
             { name: '半夏', img: '', area: 'field' },
             { name: '茵陈', img: '', area: 'field' },
+            { name: '泽泻', img: '', area: 'field' },
+            { name: '栀子', img: '', area: 'field' },
+            { name: '通草', img: '', area: 'field' },
+            { name: '干姜', img: '', area: 'field' },
+            { name: '粳米', img: '', area: 'field' }
         ];
 
         const areaBackgrounds = {
@@ -412,7 +388,7 @@ function addItem(category, name, count) {
         const modalContinue = document.getElementById('modalContinue');
         const modalBack = document.getElementById('modalBack');
 
-        // ===== 界面切换 =====
+        // ===== 开始界面 =====
         function showStartScreen() {
             startScreenEl.style.display = 'flex';
             gameScreenEl.classList.remove('active');
@@ -424,7 +400,6 @@ function addItem(category, name, count) {
             gameScreenEl.classList.add('active');
         }
 
-        // ===== 尝试开始采药 =====
         function tryStart() {
             const stamina = getStamina();
             if (stamina < 1) {
@@ -433,11 +408,9 @@ function addItem(category, name, count) {
             }
             setStamina(stamina - 1);
             showGameScreen();
-            // 等界面渲染完成后再生成卡片，保证位置计算准确
-            setTimeout(() => initLevel(), 50);
+            initLevel();
         }
 
-        // ===== 弹窗 =====
         function showModal(title, text) {
             modalTitle.textContent = title;
             modalText.textContent = text;
@@ -521,7 +494,6 @@ function addItem(category, name, count) {
             updateBlocked();
         }
 
-        // ===== 生成随机重叠位置 =====
         function generatePositions(count) {
             const positions = [];
             const areaWidth = cardAreaEl.clientWidth;
@@ -541,7 +513,6 @@ function addItem(category, name, count) {
             return positions;
         }
 
-        // ===== 遮挡判断 =====
         function updateBlocked() {
             allCards.forEach(card => card.el.classList.remove('blocked'));
 
@@ -578,7 +549,6 @@ function addItem(category, name, count) {
             return overlapArea > cardArea * 0.3;
         }
 
-        // ===== 点击卡片 =====
         function clickCard(cardEl, herbName) {
             if (slot.length >= SLOT_MAX) {
                 messageEl.textContent = '❌ 卡槽满了！';
@@ -595,7 +565,13 @@ function addItem(category, name, count) {
             updateBlocked();
         }
 
-        // ===== 消除检查 =====
+        // ===== 同步写入仓库 =====
+        function addToInventory(name, count) {
+            let inv = JSON.parse(localStorage.getItem('herbInventory') || '{}');
+            inv[name] = (inv[name] || 0) + count;
+            localStorage.setItem('herbInventory', JSON.stringify(inv));
+        }
+
         function checkSlotMatch() {
             const counts = {};
             for (let name of slot) {
@@ -615,6 +591,7 @@ function addItem(category, name, count) {
 
                     if (currentGoal[name] !== undefined) {
                         collected[name] = (collected[name] || 0) + 3;
+                        addToInventory(name, 3);
                     }
 
                     renderSlot();
@@ -633,29 +610,25 @@ function addItem(category, name, count) {
             }
         }
 
-        // ===== 胜利 =====
-function checkWin() {
-    for (let [name, total] of Object.entries(currentGoal)) {
-        if ((collected[name] || 0) < total) return;
-    }
+        function checkWin() {
+            for (let [name, total] of Object.entries(currentGoal)) {
+                if ((collected[name] || 0) < total) return;
+            }
 
-    messageEl.textContent = '🎉 过关！';
-    messageEl.style.color = 'green';
+            messageEl.textContent = '🎉 过关！';
+            messageEl.style.color = 'green';
 
-    // 发放奖励到仓库：每消除 3 张卡片获得 1 个药材
-    for (let [name, total] of Object.entries(currentGoal)) {
-        const reward = Math.floor(total / 3); // 9张 → 3个
-        addItem('herbs', name, reward);
-        totalRewards[name] = (totalRewards[name] || 0) + reward;
-    }
-    updateRewards();
+            for (let [name, total] of Object.entries(currentGoal)) {
+                totalRewards[name] = (totalRewards[name] || 0) + total;
+                addToInventory(name, total);
+            }
+            updateRewards();
 
-    setTimeout(() => {
-        showModal('采药成功', '已获得奖励（已入仓库），继续采药需要消耗 1 点体力');
-    }, 500);
-}
+            setTimeout(() => {
+                showModal('采药成功', '已获得奖励，继续采药需要消耗 1 点体力');
+            }, 500);
+        }
 
-        // ===== 渲染卡槽 =====
         function renderSlot() {
             slotEl.innerHTML = '';
             for (let name of slot) {
@@ -675,7 +648,6 @@ function checkWin() {
             }
         }
 
-        // ===== 奖励 =====
         function updateRewards() {
             if (Object.keys(totalRewards).length === 0) {
                 rewardsEl.textContent = '🏆 已获得：暂无';
@@ -698,7 +670,7 @@ function checkWin() {
             });
         });
 
-        // ===== 按钮 =====
+        // ===== 按钮事件 =====
         document.getElementById('btnStart').addEventListener('click', tryStart);
         document.getElementById('btnBack').addEventListener('click', () => {
             window.location.href = 'index.html';
@@ -713,6 +685,7 @@ function checkWin() {
             setStamina(stamina - 1);
             hideModal();
             initLevel();
+            messageEl.textContent = '';
         });
 
         modalBack.addEventListener('click', () => {

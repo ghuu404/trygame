@@ -6,14 +6,13 @@
 <title>炮制药材 - 重生之我是赤脚医生</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
 body {
     font-family: sans-serif;
     user-select: none;
-    overflow: hidden;
-    height: 100vh;
+    background: #f5f0e8;
     display: flex;
     flex-direction: column;
-    background: #f5f0e8;
 }
 /* ===== 顶部栏 ===== */
 #topBar {
@@ -21,7 +20,6 @@ body {
     padding: 6px 10px; background: #33691e; color: #fff;
     font-size: 13px; font-weight: bold; flex-shrink: 0; gap: 6px;
 }
-#topBar .left, #topBar .right { display: flex; gap: 6px; align-items: center; }
 .top-btn {
     background: #aed581; border: 2px solid #fff;
     border-radius: 14px; padding: 4px 10px;
@@ -29,7 +27,6 @@ body {
     color: #33691e; cursor: pointer; text-decoration: none;
     white-space: nowrap;
 }
-.top-btn:active { transform: scale(0.95); }
 #processedCount, #coinDisplay {
     background: #aed581; border: 2px solid #fff; border-radius: 14px;
     padding: 4px 10px; font-size: 12px; color: #33691e;
@@ -37,111 +34,128 @@ body {
 /* ===== 主体 ===== */
 #main {
     flex: 1; display: flex; flex-direction: column;
-    padding: 4px; gap: 4px; overflow: hidden;
+    padding: 4px; gap: 4px; overflow: hidden; min-height: 0;
 }
-/* 药材栏 */
+/* 上下药材栏：左右留白，第一个药名不再被切 */
 .herb-row {
-    display: flex; gap: 4px; padding: 2px;
-    flex-shrink: 0; justify-content: center; overflow-x: auto;
+    display: flex; gap: 6px;
+    padding: 4px 16px;
+    flex-shrink: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-padding: 16px;
+    height: 100px;
 }
 .herb-slot {
-    width: 62px; height: 70px;
+    width: 76px; height: 86px;
     background: #e8d5c0; border: 2px solid #8b5e3c;
-    border-radius: 8px; display: flex; flex-direction: column;
+    border-radius: 10px;
+    display: flex; flex-direction: column;
     align-items: flex-end; justify-content: flex-end;
-    cursor: pointer; font-size: 10px; font-weight: bold;
+    cursor: pointer; font-size: 11px; font-weight: bold;
     color: #3a2a1a; flex-shrink: 0; position: relative;
-    overflow: hidden; transition: all 0.15s; padding-bottom: 2px;
+    overflow: hidden; transition: all 0.15s; padding-bottom: 3px;
 }
-.herb-slot:active { transform: scale(0.94); }
 .herb-slot img {
-    width: 32px; height: 32px; object-fit: contain;
-    position: absolute; top: 4px; left: 50%;
+    width: 42px; height: 42px; object-fit: contain;
+    position: absolute; top: 6px; left: 50%;
     transform: translateX(-50%); pointer-events: none;
 }
-.herb-slot .hname { font-size: 10px; text-align: center; width: 100%; }
+.herb-slot .hname { font-size: 11px; text-align: center; width: 100%; }
 .herb-slot .hcount {
-    position: absolute; top: 1px; right: 2px; font-size: 9px; color: #c62828;
-    background: rgba(255,255,255,0.85); border-radius: 5px; padding: 0 3px;
+    position: absolute; top: 2px; right: 4px; font-size: 10px; color: #c62828;
+    background: rgba(255,255,255,0.85); border-radius: 6px; padding: 0 4px;
 }
 .herb-slot.empty { background: #d0c0b0; border-style: dashed; color: #999; cursor: default; }
-.herb-slot.selected { border-color: #ff8c00; box-shadow: 0 0 6px #ff8c00; }
+.herb-slot.selected { border-color: #ff8c00; box-shadow: 0 0 8px #ff8c00; }
 
 /* ===== 操作区 ===== */
 #workArea {
-    flex: 1; display: flex; background: rgba(255,255,255,0.5);
+    flex: 1; display: flex;
+    background: rgba(255,255,255,0.5);
     border-radius: 10px; border: 2px solid #b89a72;
-    padding: 4px; gap: 4px; min-height: 0; overflow: hidden;
+    padding: 6px; gap: 6px;
+    min-height: 0; overflow: hidden;
     justify-content: center;
 }
-/* 左右工具和辅料栏：默认较窄，适配手机 */
+/* 左右工具和辅料栏 */
 #leftTools, #rightTools {
-    display: flex; flex-direction: column; gap: 4px;
-    width: 22%; overflow-y: auto; flex-shrink: 0; padding-right: 1px;
+    display: flex; flex-direction: column; gap: 6px;
+    width: 24%; overflow-y: auto; flex-shrink: 0;
+    padding-right: 2px;
 }
-#leftTools::-webkit-scrollbar, #rightTools::-webkit-scrollbar { width: 3px; }
+#leftTools::-webkit-scrollbar, #rightTools::-webkit-scrollbar { width: 4px; }
 #leftTools::-webkit-scrollbar-thumb, #rightTools::-webkit-scrollbar-thumb {
     background: #b89a72; border-radius: 2px;
 }
 .tool-btn, .material-btn {
-    width: 56px; min-height: 44px;
+    width: 100%; min-height: 56px;
     background: #fff; border: 2px solid #8b5e3c;
-    border-radius: 8px; display: flex; flex-direction: column;
+    border-radius: 10px;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    cursor: pointer; font-size: 10px; font-weight: bold;
-    color: #5a3e2b; flex-shrink: 0; padding: 2px;
+    cursor: pointer; font-size: 11px; font-weight: bold;
+    color: #5a3e2b; flex-shrink: 0; padding: 3px;
     transition: all 0.15s; line-height: 1.1;
     text-align: center; position: relative;
 }
-.tool-btn:active, .material-btn:active { transform: scale(0.94); }
 .tool-btn img, .material-btn img {
-    width: 22px; height: 22px; object-fit: contain;
+    width: 28px; height: 28px; object-fit: contain;
     pointer-events: none;
 }
-.tool-btn .ticon, .material-btn .ticon { font-size: 18px; line-height: 1; }
+.tool-btn .ticon, .material-btn .ticon { font-size: 22px; line-height: 1; }
 .material-btn .mcount {
-    position: absolute; top: 1px; right: 2px; font-size: 9px; color: #c62828;
-    background: rgba(255,255,255,0.85); border-radius: 5px; padding: 0 3px;
+    position: absolute; top: 2px; right: 4px; font-size: 10px; color: #c62828;
+    background: rgba(255,255,255,0.85); border-radius: 6px; padding: 0 4px;
 }
 .material-btn.out { opacity: 0.4; cursor: not-allowed; }
 
-/* 中间操作台：默认自适应（手机端） */
+/* 中间操作台：占 42% 宽，上下布局 */
 #counter {
-    flex: 0 0 50%;
-    max-width: 50%;
-    display: flex;
-    ...
-    flex-direction: column;
+    flex: 0 0 42%;
+    max-width: 42%;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     background: #f0e6d8; border-radius: 10px;
     border: 2px dashed #b89a72;
-    padding: 6px; min-width: 0; overflow: hidden;
+    padding: 10px; min-width: 0; overflow: hidden;
+    gap: 6px;
 }
 #stage {
-    position: relative; width: 90px; height: 90px;
+    position: relative;
+    width: 100px; height: 100px;
     display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
 }
-#stageHerbImg { max-width: 82px; max-height: 82px; object-fit: contain; transition: all 0.3s; z-index: 2; }
-#stageEmoji { font-size: 50px; z-index: 2; }
+#stageHerbImg {
+    max-width: 90px; max-height: 90px;
+    object-fit: contain; transition: all 0.3s; z-index: 2;
+}
+#stageEmoji { font-size: 56px; z-index: 2; }
 .stage-anim {
     position: absolute; z-index: 5; pointer-events: none;
-    font-size: 30px; transition: all 0.4s ease-in-out;
+    font-size: 32px; transition: all 0.4s ease-in-out;
 }
 #counterHerb {
-    font-size: 13px; font-weight: bold; color: #5a3e2b;
-    text-align: center; margin-top: 3px;
-    max-width: 100%; overflow: hidden;
-    text-overflow: ellipsis; white-space: nowrap;
+    font-size: 14px; font-weight: bold; color: #5a3e2b;
+    text-align: center; width: 100%;
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
 }
-#counterStatus { font-size: 11px; color: #888; text-align: center; min-height: 14px; }
+#counterStatus {
+    font-size: 12px; color: #888; text-align: center;
+    width: 100%; min-height: 16px;
+}
 #fryBarContainer {
     width: 90%; height: 12px; background: #ddd; border-radius: 6px;
-    margin-top: 4px; overflow: hidden; display: none; position: relative;
+    overflow: hidden; display: none; position: relative;
 }
 #fryBar { height: 100%; width: 0%; background: #ffeb3b; transition: width 0.1s linear; }
-#counterButtons { display: flex; gap: 4px; margin-top: 6px; }
+#counterButtons {
+    display: flex; gap: 8px; justify-content: center; width: 100%;
+}
 #btnFinish, #btnCancel {
-    padding: 4px 10px; font-size: 12px; font-weight: bold;
+    padding: 6px 14px; font-size: 13px; font-weight: bold;
     border-radius: 10px; cursor: pointer;
     border: 2px solid #558b2f;
     background: #aed581; color: #33691e;
@@ -158,78 +172,81 @@ body {
 }
 .shake { animation: herbShake 0.4s; }
 
+/* ===== 弹窗 ===== */
 #modalOverlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.65);
-    display: none; align-items: center; justify-content: center; z-index: 999;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: none; align-items: center; justify-content: center;
+    z-index: 999;
 }
 #modalOverlay.active { display: flex; }
 .modal-box {
     background: #f5f0e8; border-radius: 20px;
     padding: 16px; text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    width: 85%; max-width: 360px;
+    width: 88%; max-width: 420px;
     max-height: 80vh; overflow-y: auto;
     border: 3px solid #558b2f;
 }
 .modal-title { font-size: 18px; font-weight: bold; color: #33691e; margin-bottom: 8px; }
-.modal-text { font-size: 13px; color: #666; margin-bottom: 12px; text-align: left; white-space: pre-wrap; line-height: 1.5; }
+.modal-text {
+    font-size: 13px; color: #666; margin-bottom: 12px;
+    text-align: left; white-space: pre-wrap; line-height: 1.5;
+}
 .modal-btn {
     display: block; width: 100%; font-size: 15px; font-weight: bold;
     padding: 8px; margin: 4px 0; border: 2px solid #558b2f;
-    border-radius: 10px; background: #aed581; color: #33691e; cursor: pointer;
+    border-radius: 10px; background: #aed581; color: #33691e;
+    cursor: pointer;
 }
-#manualContent { text-align: left; font-size: 12px; line-height: 1.6; max-height: 50vh; overflow-y: auto; }
-#manualContent h4 { color: #33691e; margin: 6px 0 4px; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
-
-/* ===== 电脑端适配：屏幕宽度 ≥ 900px 时，中间桌子固定为一半宽 ===== */
-@media (min-width: 900px) {
-    /* 中间操作台固定宽度为屏幕宽度的 50% */
-    #counter {
-        flex: 0 0 50vw;
-        max-width: 50vw;
-    }
-    /* 左右工具和辅料栏放大一些，方便点 */
-    #leftTools, #rightTools {
-        width: 90px;
-    }
-    .tool-btn, .material-btn {
-        width: 84px;
-        min-height: 58px;
-        font-size: 12px;
-    }
-    .tool-btn img, .material-btn img {
-        width: 30px; height: 30px;
-    }
-    /* 药材框放大一点 */
-    .herb-slot {
-        width: 74px; height: 82px;
-        font-size: 11px;
-    }
-    .herb-slot img {
-        width: 42px; height: 42px;
-    }
-    /* 中间台面上的药材和按钮也放大 */
-    #stage { width: 140px; height: 140px; }
-    #stageHerbImg { max-width: 130px; max-height: 130px; }
-    #stageEmoji { font-size: 80px; }
-    .stage-anim { font-size: 44px; }
-    #counterHerb { font-size: 16px; }
-    #counterStatus { font-size: 13px; }
-    #btnFinish, #btnCancel {
-        padding: 8px 20px;
-        font-size: 14px;
-    }
+#manualContent {
+    text-align: left; font-size: 12px; line-height: 1.6;
+    max-height: 55vh; overflow-y: auto;
 }
+#manualContent h4 {
+    color: #33691e; margin: 6px 0 4px;
+    border-bottom: 1px solid #ccc; padding-bottom: 2px;
+}
+/* 商店卡片 */
+#shopGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0;
+}
+.shop-card {
+    background: #f0e6d8;
+    border: 2px solid #aed581;
+    border-radius: 14px;
+    padding: 10px 6px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+}
+.shop-card img {
+    width: 50px; height: 50px; object-fit: contain;
+}
+.shop-card .shop-icon { font-size: 40px; line-height: 1; }
+.shop-card .shop-name { font-size: 14px; font-weight: bold; color: #33691e; }
+.shop-card .shop-price { font-size: 13px; font-weight: bold; color: #c62828; }
+.shop-card .shop-buy {
+    width: 100%; padding: 6px 0;
+    border: 2px solid #558b2f; border-radius: 18px;
+    background: #aed581; color: #33691e;
+    font-weight: bold; font-size: 13px;
+    cursor: pointer;
+}
+.shop-card .shop-stock { font-size: 11px; color: #777; }
 </style>
 </head>
 <body>
 
 <div id="topBar">
-    <div class="left">
+    <div style="display:flex;gap:6px;">
         <a class="top-btn" href="index.html">← 返回</a>
         <button class="top-btn" id="btnManual">📖 说明书</button>
+        <button class="top-btn" id="btnShop">🛒 购买辅料</button>
     </div>
-    <div class="right">
+    <div style="display:flex;gap:6px;align-items:center;">
         <div id="processedCount">已炮制：0 份</div>
         <div id="coinDisplay">💰 0</div>
     </div>
@@ -271,6 +288,13 @@ body {
 </div>
 
 <script>
+/* 图片路径：
+   生药：images/herbs/药材名.png
+   炮制品：images/herbs/processed/炮制品名.png
+   工具：images/tools/工具key.png
+   辅料：images/materials/辅料名.png
+*/
+
 const TOOLS_LEFT = {
     cut:    { name: '切刀', icon: '🔪' },
     scrape: { name: '刮刀', icon: '🪒' },
@@ -395,6 +419,7 @@ const HERB_RULES = {
     '吴茱萸': [{ type: 'material', material: '清水', result: '洗吴茱萸', desc: '清水冲洗' }]
 };
 
+/* ===== 数据 ===== */
 // 从主页面仓库读取生药
 let inventory = JSON.parse(localStorage.getItem('herbInventory') || '{}');
 if (Object.keys(inventory).length === 0) {
@@ -450,8 +475,11 @@ let fryInterval = null;
 let fryProgress = 0;
 let fryRule = null;
 
+/* ===== 渲染药材栏：按名字排序 ===== */
 function renderHerbRows() {
-    const allHerbs = Object.keys(inventory).filter(n => inventory[n] > 0);
+    const allHerbs = Object.keys(inventory)
+        .filter(n => inventory[n] > 0)
+        .sort();
     const mid = Math.ceil(allHerbs.length / 2);
     const top = allHerbs.slice(0, mid);
     const bottom = allHerbs.slice(mid);
@@ -582,7 +610,6 @@ function useTool(key) {
         showModal('提示', `【${currentHerb}】不能用【${toolName}】。`);
         return;
     }
-
     if (key === 'fry') { startFrying(rule); return; }
 
     playToolAnim(key, () => {
@@ -604,7 +631,7 @@ function useMaterial(name) {
 
     if (!rule) { showModal('提示', `【${currentHerb}】不能用【${name}】。`); return; }
     if (!materialInventory[name] || materialInventory[name] <= 0) {
-        showModal('辅料不足', `【${name}】已用完。`);
+        showModal('辅料不足', `【${name}】已用完。\n请点击顶部“🛒 购买辅料”补充。`);
         return;
     }
 
@@ -635,7 +662,6 @@ function playToolAnim(key, callback) {
     requestAnimationFrame(() => {
         toolEl.style.top = '8px'; toolEl.style.opacity = '1';
     });
-
     setTimeout(() => { stageHerbImg.classList.add('shake'); stageEmoji.classList.add('shake'); }, 350);
     setTimeout(() => {
         stageHerbImg.classList.remove('shake'); stageEmoji.classList.remove('shake');
@@ -657,12 +683,12 @@ function playMaterialAnim(name, callback) {
     requestAnimationFrame(() => {
         matEl.style.right = '15px'; matEl.style.top = '30%'; matEl.style.opacity = '1';
     });
-
     setTimeout(() => { matEl.style.opacity = '0'; stageHerbImg.classList.add('shake'); stageEmoji.classList.add('shake'); }, 600);
     setTimeout(() => { stageHerbImg.classList.remove('shake'); stageEmoji.classList.remove('shake'); }, 1000);
     setTimeout(() => { matEl.remove(); if (callback) callback(); }, 1200);
 }
 
+/* ===== 炒制 ===== */
 function startFrying(rule) {
     isFrying = true; fryProgress = 0; fryRule = rule;
     fryBarContainer.style.display = 'block';
@@ -671,6 +697,9 @@ function startFrying(rule) {
     fryBar.style.width = '0%';
     fryBar.style.background = '#ffeb3b';
     stageHerbImg.classList.add('shake');
+    // 炒制期间保持按钮可点
+    btnFinish.disabled = false;
+    btnCancel.disabled = false;
 
     if (fryInterval) clearInterval(fryInterval);
     fryInterval = setInterval(() => {
@@ -723,6 +752,7 @@ function finishFry() {
         currentProcessed = result;
         setStageHerb(result, true);
         btnFinish.disabled = false;
+        btnCancel.disabled = false;
     } else {
         currentProcessed = null;
         setStageHerb(currentHerb, false);
@@ -731,8 +761,8 @@ function finishFry() {
     fryProgress = 0;
 }
 
+/* ===== 收好 / 放弃 ===== */
 btnFinish.addEventListener('click', () => {
-    // 炒制中：先判断火候，再收好
     if (isFrying) {
         if (fryProgress < 30) {
             counterStatus.textContent = '火候不足，继续炒到炒黄再取出～';
@@ -741,7 +771,6 @@ btnFinish.addEventListener('click', () => {
         finishFry();
         if (!currentHerb) return;
     }
-
     if (!currentHerb) return;
 
     const resultName = currentProcessed || currentHerb;
@@ -749,7 +778,6 @@ btnFinish.addEventListener('click', () => {
     saveProcessed();
     updateProcessedCount();
 
-    // 直接重置界面，不弹窗
     currentHerb = null; currentProcessed = null;
     setStageHerb(null);
     counterHerb.textContent = '请选择药材';
@@ -778,6 +806,7 @@ btnCancel.addEventListener('click', () => {
     renderHerbRows();
 });
 
+/* ===== 说明书：只保留药材炮制指南 ===== */
 document.getElementById('btnManual').addEventListener('click', () => {
     let html = '<h4>🌿 药材炮制指南</h4>';
     for (let [herb, rules] of Object.entries(HERB_RULES)) {
@@ -792,6 +821,46 @@ document.getElementById('btnManual').addEventListener('click', () => {
     showModal('炮制说明书', html, true);
 });
 
+/* ===== 购买辅料 ===== */
+document.getElementById('btnShop').addEventListener('click', () => {
+    let html = '<div id="shopGrid">';
+    for (let [name, info] of Object.entries(MATERIALS)) {
+        const count = materialInventory[name] || 0;
+        html += `
+            <div class="shop-card">
+                <img src="images/materials/${name}.png"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                <div class="shop-icon" style="display:none;">${info.icon}</div>
+                <div class="shop-name">${name}</div>
+                <div class="shop-price">💰 ${info.price}</div>
+                <div class="shop-stock">库存：${count}</div>
+                <button class="shop-buy" data-material="${name}" data-price="${info.price}">购买</button>
+            </div>
+        `;
+    }
+    html += '</div>';
+    showModal('🛒 购买辅料', html, true);
+
+    setTimeout(() => {
+        document.querySelectorAll('.shop-buy').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mat = btn.dataset.material;
+                const price = parseInt(btn.dataset.price);
+                if (coins < price) { alert('铜币不足！'); return; }
+                coins -= price;
+                localStorage.setItem('playerCoins', coins);
+                updateCoinDisplay();
+                materialInventory[mat] = (materialInventory[mat] || 0) + 1;
+                saveMaterial();
+                renderTools();
+                const card = btn.parentElement;
+                card.querySelector('.shop-stock').textContent = '库存：' + materialInventory[mat];
+            });
+        });
+    }, 50);
+});
+
+/* ===== 通用弹窗 ===== */
 function showModal(title, text, isManual = false) {
     document.getElementById('modalTitle').textContent = title;
     const mt = document.getElementById('modalText');
@@ -802,6 +871,7 @@ function showModal(title, text, isManual = false) {
 }
 document.getElementById('modalConfirm').addEventListener('click', () => modalOverlay.classList.remove('active'));
 
+/* ===== 初始化 ===== */
 function init() {
     renderHerbRows();
     renderTools();
