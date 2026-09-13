@@ -871,15 +871,11 @@ function showModal(title, text, isManual = false) {
 document.getElementById('modalConfirm').addEventListener('click', () => modalOverlay.classList.remove('active'));
 
 /* ===== 初始化 ===== */
-function updateProcessedCount() {
-    let total = 0;
-    for (let v of Object.values(processedInventory)) total += v;
-    document.getElementById('processedCount').textContent = '已炮制：' + total + ' 份';
-}
+
 function init() {
     renderHerbRows();
     renderTools();
-    updateProcessedCount();
+    
     updateCoinDisplay();
     setStageHerb(null);
 }
