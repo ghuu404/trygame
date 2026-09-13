@@ -329,16 +329,25 @@ body {
 // ===== 常量 =====
 var MAX_STAMINA = 5;
 var STAMINA_RECOVER_MS = 10 * 60 * 1000;
-var MATERIALS = ['黄酒', '大米', '蜂蜜'];
+var MATERIALS = ['黄酒', '蜂蜜', '盐', '姜汁', '醋', '清水', '白矾', '麦麸', '米泔水', '甘草水', '石灰水', '黑豆汁'];
 var SEED_POOL = ['生姜', '栀子', '芍药', '甘草', '白术', '泽泻', '半夏'];
 var MAX_DAYS = 7;
 var UNLOCK_POWER = 100;   // 解锁其他模块所需医力
 
 // ===== 商店商品 =====
 var SHOP_ITEMS = [
-    { category: 'materials', name: '黄酒', display: '黄酒', price: 4, icon: '🍶' },
-    { category: 'materials', name: '蜂蜜', display: '蜂蜜', price: 5, icon: '🍯' },
-    { category: 'materials', name: '盐',   display: '盐',   price: 2, icon: '🧂' },
+    { category: 'materials', name: '黄酒',   display: '黄酒',   price: 4, icon: '🍶' },
+    { category: 'materials', name: '蜂蜜',   display: '蜂蜜',   price: 5, icon: '🍯' },
+    { category: 'materials', name: '盐',     display: '盐',     price: 2, icon: '🧂' },
+    { category: 'materials', name: '姜汁',   display: '姜汁',   price: 4, icon: '🫚' },
+    { category: 'materials', name: '醋',     display: '醋',     price: 3, icon: '🍾' },
+    { category: 'materials', name: '清水',   display: '清水',   price: 1, icon: '💧' },
+    { category: 'materials', name: '白矾',   display: '白矾',   price: 3, icon: '⬜' },
+    { category: 'materials', name: '麦麸',   display: '麦麸',   price: 2, icon: '🌾' },
+    { category: 'materials', name: '米泔水', display: '米泔水', price: 2, icon: '🍚' },
+    { category: 'materials', name: '甘草水', display: '甘草水', price: 5, icon: '🍵' },
+    { category: 'materials', name: '石灰水', display: '石灰水', price: 2, icon: '🥛' },
+    { category: 'materials', name: '黑豆汁', display: '黑豆汁', price: 6, icon: '🫘' },
     { category: 'seeds', name: '芍药', display: '芍药种子', price: 3, icon: '🌸' },
     { category: 'seeds', name: '甘草', display: '甘草种子', price: 2, icon: '🌿' },
     { category: 'seeds', name: '生姜', display: '生姜种子', price: 1, icon: '🫚' },
@@ -571,16 +580,20 @@ function doSign() {
 function openWarehouse() {
     var w = getWarehouse();
     var html = '<div class="modal-title">📦 仓库</div>';
-    var sections = [
-        { key: 'herbs', title: '🌿 药材', empty: '暂无药材，去采药吧' },
-        { key: 'seeds', title: '🌱 种子', empty: '暂无种子，签到或购买获得' },
-        { key: 'materials', title: '🍯 辅料', empty: '暂无辅料，签到或购买获得' },
-        { key: 'processed', title: '⚗️ 饮片', empty: '暂无饮片，去炮制药材吧' }
-    ];
+    var matInv = {};
+try { matInv = JSON.parse(localStorage.getItem('materialInventory') || '{}'); } catch(e) {}
+    var procInv = {};
+try { procInv = JSON.parse(localStorage.getItem('processedInventory') || '{}'); } catch(e) {}
+var sections = [
+    { key: 'herbs', title: '🌿 药材', empty: '暂无药材，去采药吧' },
+    { key: 'seeds', title: '🌱 种子', empty: '暂无种子，签到或购买获得' },
+    { key: 'materials', title: '🍯 辅料', empty: '暂无辅料，签到或购买获得', override: matInv },
+    { key: 'processed', title: '⚗️ 饮片', empty: '暂无饮片，去抓药吧', override: procInv }
+];
     for (var s = 0; s < sections.length; s++) {
         var sec = sections[s];
         html += '<div class="warehouse-section">' + sec.title + '</div>';
-        var items = w[sec.key] || {};
+        var items = sec.override || w[sec.key] || {};
         var keys = Object.keys(items).filter(function(k) { return items[k] > 0; });
         if (keys.length === 0) {
             html += '<div class="wh-empty">' + sec.empty + '</div>';
@@ -625,6 +638,13 @@ function buyItem(idx) {
     if (getCoins() < item.price) { alert('铜币不足！'); return; }
     if (!spendCoins(item.price)) { alert('铜币不足！'); return; }
     addItem(item.category, item.name, 1);
+    // 辅料同步进 materialInventory，与炮制页共用
+    if (item.category === 'materials') {
+        var matInv = {};
+        try { matInv = JSON.parse(localStorage.getItem('materialInventory') || '{}'); } catch(e) {}
+        matInv[item.name] = (matInv[item.name] || 0) + 1;
+        localStorage.setItem('materialInventory', JSON.stringify(matInv));
+    }
     renderTop();
     openShop();
 }
