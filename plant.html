@@ -10,7 +10,7 @@ html, body { height: 100%; overflow: hidden; }
 body {
     font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif;
     user-select: none;
-    background: #f5ead3;
+    background: #f0ede4;
     display: flex;
     flex-direction: column;
 }
@@ -38,135 +38,184 @@ body {
     padding: 4px 12px; border-radius: 14px;
     color: #8b5e3c;
 }
-/* ===== 主区域（农场背景）===== */
+/* ===== 主区域：水墨背景 ===== */
 #main {
     flex: 1;
     position: relative;
     overflow-y: auto;
-    padding: 10px;
-    /* QQ农场风格天空 + 草地渐变背景 */
-    background: linear-gradient(180deg, #87CEEB 0%, #a8d8ea 30%, #d4edda 50%, #b8e6b8 70%, #90c695 100%);
+    padding: 4px 10px 10px;
+    background:
+        /* 远山 - 水墨晕染 */
+        radial-gradient(ellipse 120% 18% at 20% 15%, rgba(80,95,90,0.42) 0%, rgba(80,95,90,0.15) 40%, transparent 70%),
+        radial-gradient(ellipse 140% 22% at 75% 20%, rgba(70,85,80,0.38) 0%, rgba(70,85,80,0.12) 45%, transparent 72%),
+        radial-gradient(ellipse 100% 14% at 45% 25%, rgba(90,105,95,0.3) 0%, transparent 65%),
+        /* 近处水墨草坡 */
+        radial-gradient(ellipse 80% 12% at 15% 45%, rgba(120,140,110,0.4) 0%, transparent 65%),
+        radial-gradient(ellipse 90% 14% at 85% 42%, rgba(110,130,105,0.35) 0%, transparent 65%),
+        /* 宣纸底色 */
+        linear-gradient(180deg, #f5f2e8 0%, #eef0e4 30%, #e6ebdc 60%, #dce3d0 100%);
 }
-/* 背景装饰元素（云朵、树木、木栅栏等） */
-.bg-decor {
+/* 远山轮廓线（水墨勾线感） */
+#main::before {
+    content: '';
+    position: absolute;
+    top: 12%; left: 0; right: 0; height: 60px;
+    background:
+        radial-gradient(ellipse 30% 60% at 20% 100%, rgba(60,80,70,0.4) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 80% at 50% 100%, rgba(50,70,60,0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 35% 70% at 80% 100%, rgba(70,90,80,0.4) 0%, transparent 70%);
+    filter: blur(2px);
+    pointer-events: none;
+    opacity: 0.7;
+}
+/* ===== 农场场景（树木、茅草屋、池塘装饰）===== */
+.scene-decor {
     position: absolute;
     pointer-events: none;
-    opacity: 0.85;
-    z-index: 0;
-}
-.decor-cloud1 { top: 5%; left: 10%; font-size: 40px; }
-.decor-cloud2 { top: 12%; right: 15%; font-size: 32px; }
-.decor-sun    { top: 3%; right: 8%; font-size: 44px; }
-.decor-tree1  { top: 22%; left: 5%; font-size: 36px; }
-.decor-tree2  { top: 28%; right: 5%; font-size: 42px; }
-.decor-fence  { top: 40%; left: 0; right: 0; height: 8px; background: repeating-linear-gradient(90deg, #8b5e3c 0px, #8b5e3c 8px, transparent 8px, transparent 16px); }
-.decor-house  { top: 18%; right: 20%; font-size: 40px; }
-/* ===== 田地卡片 ===== */
-.plot {
-    background: rgba(255, 250, 240, 0.92);
-    border: 4px solid #8b5e3c;
-    border-radius: 16px;
-    padding: 10px;
-    margin-bottom: 14px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    position: relative;
     z-index: 1;
-    /* 草地纹理 */
-    background-image: radial-gradient(circle, rgba(139,94,60,0.05) 1px, transparent 1px);
-    background-size: 10px 10px;
+    opacity: 0.85;
+    font-size: 38px;
+    filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.15));
 }
-.plot.locked {
-    background: rgba(200, 200, 200, 0.7);
-    border-style: dashed;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 130px;
-    cursor: pointer;
-    transition: all 0.15s;
-}
-.plot.locked:active { transform: scale(0.98); }
-.plot-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 15px;
-    font-weight: bold;
-    color: #3a2a1a;
-    margin-bottom: 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px dashed #d4c4a8;
-}
-.plot-title .hint {
-    font-size: 12px;
-    color: #b85c00;
-    font-weight: normal;
-}
-/* ===== 16 格田地 ===== */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-}
-.cell {
-    aspect-ratio: 1 / 1;
-    /* 泥土颜色 */
-    background: #c9b58f;
-    background-image: radial-gradient(circle, #b8a47c 1px, transparent 1px);
-    background-size: 8px 8px;
-    border: 2px solid #8b5e3c;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    overflow: visible;
-    transition: all 0.15s;
-    font-size: 10px;
-    color: #3a2a1a;
-    text-align: center;
-}
-.cell:active { transform: scale(0.94); }
-.cell.growing {
-    /* 生长中的绿色土壤 */
-    background: #a9d18e;
-    background-image: radial-gradient(circle, #8cb86e 1px, transparent 1px);
-    background-size: 8px 8px;
-    cursor: default;
-}
-.cell .plant-emoji { font-size: 22px; line-height: 1; }
-.cell .cell-timer {
-    font-size: 10px; color: #c62828;
-    position: absolute; bottom: 2px;
-    font-weight: bold;
-    background: rgba(255,255,255,0.7);
-    border-radius: 4px; padding: 0 3px;
-}
-.cell .plus { font-size: 22px; color: #8b5e3c; }
+.decor-tree1 { top: 16%; left: 4%; font-size: 42px; }
+.decor-tree2 { top: 20%; left: 14%; font-size: 34px; }
+.decor-tree3 { top: 14%; right: 6%; font-size: 44px; }
+.decor-house { top: 22%; right: 14%; font-size: 46px; }
+.decor-pond  { top: 26%; left: 3%; font-size: 34px; }
+.decor-shed  { top: 26%; left: 50%; font-size: 30px; }
 
-/* ===== 成熟后的大气泡框 ===== */
+/* ===== 田地区域（透视等距）===== */
+.field-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 90px 10px 40px;
+    position: relative;
+    z-index: 2;
+    min-height: 460px;
+    /* 让内容不被 3D 变换裁掉 */
+    perspective: 900px;
+    perspective-origin: 50% 30%;
+}
+.plot-3d {
+    transform: rotateX(48deg);
+    transform-style: preserve-3d;
+    transform-origin: center center;
+    position: relative;
+}
+.grid-3d {
+    display: grid;
+    grid-template-columns: repeat(4, 66px);
+    grid-template-rows: repeat(4, 66px);
+    gap: 7px;
+    transform-style: preserve-3d;
+}
+
+/* 单个格子 */
+.cell-3d {
+    width: 66px;
+    height: 66px;
+    background: #cfc5a8;
+    border: 2px solid #6d4a2a;
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    box-shadow:
+        inset 2px 2px 3px rgba(255,255,255,0.5),
+        inset -2px -2px 3px rgba(0,0,0,0.15),
+        0 3px 6px rgba(0,0,0,0.25);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cell-3d.empty {
+    background: #cfc5a8;
+    background-image:
+        radial-gradient(circle, #b8ad8a 1px, transparent 1px);
+    background-size: 9px 9px;
+}
+.cell-3d.growing {
+    background: #a9c98d;
+    background-image:
+        radial-gradient(circle, #90b478 1px, transparent 1px);
+    background-size: 9px 9px;
+}
+.cell-3d:active { transform: scale(0.95); }
+
+/* 格子内容反向旋转，保持正立 */
+.cell-inner {
+    transform: rotateX(-48deg);
+    transform-origin: center center;
+    transform-style: preserve-3d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+.cell-inner .plant-emoji { font-size: 26px; line-height: 1; }
+.cell-inner .plus { font-size: 24px; color: #7a5a3a; font-weight: bold; }
+.cell-inner .cell-timer {
+    font-size: 10px;
+    color: #c62828;
+    font-weight: bold;
+    background: rgba(255,255,255,0.8);
+    border-radius: 4px;
+    padding: 0 4px;
+    margin-top: 2px;
+}
+.cell-inner .mature-label {
+    font-size: 11px;
+    color: #2e7d32;
+    font-weight: bold;
+    background: rgba(255,255,255,0.9);
+    border-radius: 4px;
+    padding: 1px 6px;
+    border: 1px solid #2e7d32;
+}
+
+/* 田地的木栅栏底座 */
+.plot-base {
+    position: absolute;
+    inset: -14px;
+    background: #b28a5c;
+    border-radius: 10px;
+    box-shadow:
+        0 10px 18px rgba(0,0,0,0.28),
+        inset 0 0 0 4px #8b6b47;
+    z-index: -1;
+    border: 3px solid #5a3e2b;
+    background-image:
+        repeating-linear-gradient(90deg, transparent 0, transparent 14px, rgba(90,62,43,0.35) 14px, rgba(90,62,43,0.35) 16px);
+}
+
+/* ===== 成熟浮框图层 ===== */
+#bubbleLayer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+}
 .harvest-bubble {
     position: absolute;
-    left: 50%;
-    top: -80px; /* 向上偏移，浮在格子上方 */
-    transform: translateX(-50%);
+    width: 74px;
+    height: 74px;
     background: #fffbe6;
-    border: 3px solid #ff9800;
+    border: 3px solid #d4872c;
     border-radius: 14px;
     padding: 4px;
     box-shadow: 0 6px 14px rgba(0,0,0,0.3);
     cursor: pointer;
-    z-index: 20;
-    /* 加大尺寸，占格子的大半 */
-    width: 76px;
-    height: 76px;
-    display: flex; align-items: center; justify-content: center;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     animation: bubblePop 0.35s ease-out, bubbleFloat 1.2s ease-in-out infinite alternate;
 }
-/* 气泡框下方的小三角 */
 .harvest-bubble::after {
     content: '';
     position: absolute;
@@ -174,26 +223,53 @@ body {
     transform: translateX(-50%);
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-top: 10px solid #ff9800;
+    border-top: 10px solid #d4872c;
 }
-/* 里面的药材图片 */
 .harvest-bubble img {
     width: 100%; height: 100%;
     object-fit: contain;
     border-radius: 10px;
     pointer-events: none;
 }
-.harvest-bubble .fallback {
-    font-size: 36px;
-}
+.harvest-bubble .fallback { font-size: 36px; }
 @keyframes bubblePop {
-    0% { transform: translateX(-50%) scale(0.3); opacity: 0; }
-    100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 @keyframes bubbleFloat {
-    from { top: -80px; }
-    to   { top: -86px; }
+    from { margin-top: 0; }
+    to { margin-top: -6px; }
 }
+
+/* ===== 田地标题 ===== */
+.plot-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #3a2a1a;
+    margin-bottom: 8px;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.9);
+    position: relative;
+    z-index: 3;
+}
+
+/* ===== 锁定的田地 ===== */
+.plot-locked {
+    background: rgba(255,250,240,0.85);
+    border: 3px dashed #8b5e3c;
+    border-radius: 14px;
+    padding: 30px 20px;
+    text-align: center;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    z-index: 2;
+}
+.plot-locked:active { transform: scale(0.98); }
+.plot-locked .lock-icon { font-size: 36px; }
+.plot-locked .lock-text { font-size: 14px; font-weight: bold; color: #666; margin-top: 6px; }
+.plot-locked .lock-cost { font-size: 13px; color: #b85c00; margin-top: 4px; }
 
 /* ===== 底部按钮 ===== */
 #bottomBar {
@@ -218,18 +294,14 @@ body {
     transition: all 0.15s;
 }
 .bottom-btn:active { transform: scale(0.96); }
-.bottom-btn.secondary {
-    background: #e0e0e0;
-    border-color: #999;
-    color: #555;
-}
+.bottom-btn.secondary { background: #e0e0e0; border-color: #999; color: #555; }
+
 /* ===== 弹窗 ===== */
 #modalOverlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.6);
     display: none;
-    align-items: center;
-    justify-content: center;
+    align-items: center; justify-content: center;
     z-index: 999;
 }
 #modalOverlay.active { display: flex; }
@@ -258,7 +330,7 @@ body {
 }
 .modal-btn:active { transform: scale(0.97); }
 .modal-btn.secondary { background: #e0e0e0; border-color: #999; color: #555; }
-/* 种子商店 */
+
 .seed-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
     gap: 8px; margin: 10px 0;
@@ -280,6 +352,7 @@ body {
     cursor: pointer; font-family: inherit;
 }
 .seed-card .seed-buy:disabled { background: #ccc; border-color: #999; cursor: not-allowed; }
+
 /* ===== 底部收获提示条 ===== */
 #harvestToast {
     position: fixed;
@@ -301,20 +374,6 @@ body {
 </head>
 <body>
 
-<!-- 背景装饰（纯 CSS 农场氛围） -->
-<div id="main">
-    <!-- 云朵、太阳、树、房子 -->
-    <div class="bg-decor decor-cloud1">☁️</div>
-    <div class="bg-decor decor-cloud2">☁️</div>
-    <div class="bg-decor decor-sun">☀️</div>
-    <div class="bg-decor decor-tree1">🌳</div>
-    <div class="bg-decor decor-tree2">🌲</div>
-    <div class="bg-decor decor-house">🏡</div>
-    <div class="bg-decor decor-fence"></div>
-
-    <div id="plotsContainer"></div>
-</div>
-
 <div id="topBar">
     <div style="display:flex;gap:6px;">
         <a class="top-btn" href="index.html">← 返回</a>
@@ -326,49 +385,54 @@ body {
     </div>
 </div>
 
+<div id="main">
+    <!-- 场景装饰 -->
+    <div class="scene-decor decor-tree1">🌲</div>
+    <div class="scene-decor decor-tree2">🌳</div>
+    <div class="scene-decor decor-tree3">🌲</div>
+    <div class="scene-decor decor-house">🏡</div>
+    <div class="scene-decor decor-pond">🪷</div>
+    <div class="scene-decor decor-shed">🏚</div>
+
+    <div id="plotsContainer"></div>
+</div>
+
 <div id="bottomBar">
     <button class="bottom-btn" id="btnUnlock">🔓 解锁新田地</button>
     <button class="bottom-btn secondary" id="btnHarvestAll">🌾 一键收获</button>
 </div>
 
-<div id="modalOverlay">
-    <div class="modal-box" id="modalContent"></div>
-</div>
-
+<div id="bubbleLayer"></div>
+<div id="modalOverlay"><div class="modal-box" id="modalContent"></div></div>
 <div id="harvestToast"></div>
 
 <script>
 /* ============================================================
-   种植板块（独立金币 / 独立种子 / 独立仓库）
+   种植板块（透视田地 + 水墨风背景）
    ============================================================ */
 
-const GROW_TIME = 15;   // 生长时间：15 秒
+const GROW_TIME = 15;
 
-// ===== 独立存储 key =====
 const PLANT_COINS_KEY = 'plantCoins';
 const PLANT_SEEDS_KEY = 'plantSeeds';
 const PLANT_HERBS_KEY = 'plantHerbs';
 const PLANT_PLOTS_KEY = 'plantPlots';
 
-// ===== 种子数据 =====
 const SEEDS = [
-    { name: '生姜', icon: '🫚', price: 2,  yield: 2 },
-    { name: '大枣', icon: '🍇', price: 2,  yield: 2 },
-    { name: '粳米', icon: '🌾', price: 2,  yield: 2 },
-    { name: '甘草', icon: '🌿', price: 3,  yield: 2 },
-    { name: '芍药', icon: '🌸', price: 3,  yield: 2 },
-    { name: '半夏', icon: '🌱', price: 4,  yield: 2 },
-    { name: '泽泻', icon: '💧', price: 4,  yield: 2 },
-    { name: '栀子', icon: '🌼', price: 3,  yield: 2 }
+    { name: '生姜', icon: '🫚', price: 2, yield: 2 },
+    { name: '大枣', icon: '🍇', price: 2, yield: 2 },
+    { name: '粳米', icon: '🌾', price: 2, yield: 2 },
+    { name: '甘草', icon: '🌿', price: 3, yield: 2 },
+    { name: '芍药', icon: '🌸', price: 3, yield: 2 },
+    { name: '半夏', icon: '🌱', price: 4, yield: 2 },
+    { name: '泽泻', icon: '💧', price: 4, yield: 2 },
+    { name: '栀子', icon: '🌼', price: 3, yield: 2 }
 ];
 
-// ===== 独立金币 =====
+/* ===== 独立金币 ===== */
 function getCoins() {
     let v = parseInt(localStorage.getItem(PLANT_COINS_KEY));
-    if (isNaN(v)) {
-        v = 100;  // 初始给 100 铜币
-        localStorage.setItem(PLANT_COINS_KEY, v);
-    }
+    if (isNaN(v)) { v = 100; localStorage.setItem(PLANT_COINS_KEY, v); }
     return v;
 }
 function setCoins(n) {
@@ -381,51 +445,36 @@ function spendCoins(n) {
     setCoins(cur - n);
     return true;
 }
-function addCoins(n) {
-    setCoins(getCoins() + n);
-}
-
-// ===== 独立种子仓库 =====
+/* ===== 独立种子 / 仓库 ===== */
 function getSeedBag() {
-    try {
-        return JSON.parse(localStorage.getItem(PLANT_SEEDS_KEY)) || {};
-    } catch(e) { return {}; }
+    try { return JSON.parse(localStorage.getItem(PLANT_SEEDS_KEY)) || {}; }
+    catch(e) { return {}; }
 }
-function saveSeedBag(bag) {
-    localStorage.setItem(PLANT_SEEDS_KEY, JSON.stringify(bag));
-}
+function saveSeedBag(bag) { localStorage.setItem(PLANT_SEEDS_KEY, JSON.stringify(bag)); }
 function addSeed(name, count) {
     const bag = getSeedBag();
     bag[name] = (bag[name] || 0) + count;
     saveSeedBag(bag);
 }
-
-// ===== 独立收获仓库 =====
 function getHerbBag() {
-    try {
-        return JSON.parse(localStorage.getItem(PLANT_HERBS_KEY)) || {};
-    } catch(e) { return {}; }
+    try { return JSON.parse(localStorage.getItem(PLANT_HERBS_KEY)) || {}; }
+    catch(e) { return {}; }
 }
-function saveHerbBag(bag) {
-    localStorage.setItem(PLANT_HERBS_KEY, JSON.stringify(bag));
-}
+function saveHerbBag(bag) { localStorage.setItem(PLANT_HERBS_KEY, JSON.stringify(bag)); }
 function addHerb(name, count) {
     const bag = getHerbBag();
     bag[name] = (bag[name] || 0) + count;
     saveHerbBag(bag);
 }
 
-// ===== 田地数据 =====
+/* ===== 田地数据 ===== */
 const GRID_SIZE = 16;
 const UNLOCK_COSTS = [500, 1500, 3000, 6000];
 
 function createPlot(unlocked) {
     return {
         unlocked: unlocked,
-        cells: Array(GRID_SIZE).fill(null).map(() => ({
-            seed: null,
-            plantedAt: 0
-        }))
+        cells: Array(GRID_SIZE).fill(null).map(() => ({ seed: null, plantedAt: 0 }))
     };
 }
 function getPlots() {
@@ -435,13 +484,11 @@ function getPlots() {
     } catch(e) {}
     return [createPlot(true)];
 }
-function savePlots(p) {
-    localStorage.setItem(PLANT_PLOTS_KEY, JSON.stringify(p));
-}
+function savePlots(p) { localStorage.setItem(PLANT_PLOTS_KEY, JSON.stringify(p)); }
 
 let plots = getPlots();
 
-// ===== 渲染 =====
+/* ===== 渲染 ===== */
 const plotsContainer = document.getElementById('plotsContainer');
 
 function render() {
@@ -450,79 +497,79 @@ function render() {
         if (!plot.unlocked) {
             const cost = UNLOCK_COSTS[plotIndex - 1] || 9999;
             const div = document.createElement('div');
-            div.className = 'plot locked';
+            div.className = 'plot-locked';
             div.innerHTML = `
-                <div style="font-size:36px;">🔒</div>
-                <div style="font-size:14px;font-weight:bold;color:#666;margin-top:6px;">田地 ${plotIndex + 1}（未解锁）</div>
-                <div style="font-size:13px;color:#b85c00;margin-top:4px;">点击解锁：💰 ${cost}</div>
+                <div class="lock-icon">🔒</div>
+                <div class="lock-text">田地 ${plotIndex + 1}（未解锁）</div>
+                <div class="lock-cost">点击解锁：💰 ${cost}</div>
             `;
             div.addEventListener('click', () => tryUnlock(plotIndex));
             plotsContainer.appendChild(div);
         } else {
-            const div = document.createElement('div');
-            div.className = 'plot';
+            const block = document.createElement('div');
+
+            const plotTitle = document.createElement('div');
+            plotTitle.className = 'plot-title';
+            const readyCount = plot.cells.filter(c => c.seed && isReady(c)).length;
+            plotTitle.textContent = `🌾 田地 ${plotIndex + 1}` + (readyCount > 0 ? `（${readyCount} 格成熟）` : '');
+            block.appendChild(plotTitle);
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'field-wrapper';
+
+            const plot3d = document.createElement('div');
+            plot3d.className = 'plot-3d';
+
+            const base = document.createElement('div');
+            base.className = 'plot-base';
+            plot3d.appendChild(base);
+
             const grid = document.createElement('div');
-            grid.className = 'grid';
-            let readyCount = 0;
+            grid.className = 'grid-3d';
 
             plot.cells.forEach((cell, cellIndex) => {
-                const cellDiv = renderCell(cell, plotIndex, cellIndex);
-                if (cell.seed && isReady(cell)) readyCount++;
-                grid.appendChild(cellDiv);
+                grid.appendChild(renderCell(cell, plotIndex, cellIndex));
             });
 
-            div.innerHTML = `
-                <div class="plot-title">
-                    <span>🌾 田地 ${plotIndex + 1}</span>
-                    <span class="hint">${readyCount > 0 ? '✅ ' + readyCount + ' 格可收获' : ''}</span>
-                </div>
-            `;
-            div.appendChild(grid);
-            plotsContainer.appendChild(div);
+            plot3d.appendChild(grid);
+            wrapper.appendChild(plot3d);
+            block.appendChild(wrapper);
+            plotsContainer.appendChild(block);
         }
     });
+
+    renderBubbles();
 }
 
 function renderCell(cell, plotIndex, cellIndex) {
     const cellDiv = document.createElement('div');
-    cellDiv.className = 'cell';
+    cellDiv.className = 'cell-3d';
+    cellDiv.dataset.plot = plotIndex;
+    cellDiv.dataset.cell = cellIndex;
+
+    const inner = document.createElement('div');
+    inner.className = 'cell-inner';
 
     if (!cell.seed) {
-        // 空地
-        cellDiv.innerHTML = '<span class="plus">＋</span>';
+        cellDiv.classList.add('empty');
+        inner.innerHTML = '<span class="plus">＋</span>';
         cellDiv.addEventListener('click', () => openSeedPicker(plotIndex, cellIndex));
     } else {
         const seedInfo = SEEDS.find(s => s.name === cell.seed);
         if (!seedInfo) return cellDiv;
+        cellDiv.classList.add('growing');
 
         if (isReady(cell)) {
-            // 已成熟
-            cellDiv.classList.add('growing');
-            cellDiv.innerHTML = `<div class="cell-timer" style="color:#2e7d32;">成熟</div>`;
-
-            // 大浮框
-            const bubble = document.createElement('div');
-            bubble.className = 'harvest-bubble';
-            const imgPath = `images/herbs/${cell.seed}.png`;
-            bubble.innerHTML = `
-                <img src="${imgPath}" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-                <span class="fallback" style="display:none;">${seedInfo.icon}</span>
-            `;
-            bubble.addEventListener('click', (e) => {
-                e.stopPropagation();
-                harvest(plotIndex, cellIndex);
-            });
-            cellDiv.appendChild(bubble);
+            inner.innerHTML = `<span class="mature-label">成熟</span>`;
         } else {
-            // 生长中
-            cellDiv.classList.add('growing');
             const remain = getRemainSeconds(cell);
-            cellDiv.innerHTML = `
+            inner.innerHTML = `
                 <div class="plant-emoji">${seedInfo.icon}</div>
                 <div class="cell-timer">${remain}s</div>
             `;
         }
     }
+    cellDiv.appendChild(inner);
     return cellDiv;
 }
 
@@ -536,7 +583,69 @@ function getRemainSeconds(cell) {
     return Math.max(0, Math.ceil(GROW_TIME - elapsed));
 }
 
-// ===== 选择种子种植 =====
+/* ===== 浮框图层 ===== */
+const bubbleLayer = document.getElementById('bubbleLayer');
+let bubbleMap = new Map();
+
+function renderBubbles() {
+    const readyKeys = new Set();
+    plots.forEach((plot, plotIndex) => {
+        if (!plot.unlocked) return;
+        plot.cells.forEach((cell, cellIndex) => {
+            if (cell.seed && isReady(cell)) {
+                readyKeys.add(plotIndex + '-' + cellIndex);
+            }
+        });
+    });
+
+    for (const [key, bubble] of bubbleMap.entries()) {
+        if (!readyKeys.has(key)) {
+            bubble.el.remove();
+            bubbleMap.delete(key);
+        }
+    }
+
+    readyKeys.forEach(key => {
+        if (bubbleMap.has(key)) {
+            positionBubble(key, bubbleMap.get(key));
+            return;
+        }
+        const [pi, ci] = key.split('-').map(Number);
+        const seedName = plots[pi].cells[ci].seed;
+        const seedInfo = SEEDS.find(s => s.name === seedName);
+        if (!seedInfo) return;
+
+        const bubble = document.createElement('div');
+        bubble.className = 'harvest-bubble';
+        const imgPath = `images/herbs/${seedName}.png`;
+        bubble.innerHTML = `
+            <img src="${imgPath}" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <span class="fallback" style="display:none;">${seedInfo.icon}</span>
+        `;
+        bubble.addEventListener('click', (e) => {
+            e.stopPropagation();
+            harvest(pi, ci);
+        });
+        bubbleLayer.appendChild(bubble);
+        const obj = { el: bubble, seed: seedName };
+        bubbleMap.set(key, obj);
+        positionBubble(key, obj);
+    });
+}
+
+function positionBubble(key, bubble) {
+    const [pi, ci] = key.split('-').map(Number);
+    const cellEl = document.querySelector(`.cell-3d[data-plot="${pi}"][data-cell="${ci}"]`);
+    if (!cellEl) return;
+    const rect = cellEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    bubble.el.style.left = cx + 'px';
+    bubble.el.style.top = (cy - 58) + 'px';
+    bubble.el.style.transform = 'translate(-50%, -50%)';
+}
+
+/* ===== 选择种子 / 种植 ===== */
 function openSeedPicker(plotIndex, cellIndex) {
     const bag = getSeedBag();
     const owned = Object.keys(bag).filter(k => bag[k] > 0);
@@ -562,45 +671,31 @@ function openSeedPicker(plotIndex, cellIndex) {
             </div>
         `;
     });
-    html += '</div>';
-    html += '<button class="modal-btn secondary" onclick="closeModal()">取消</button>';
+    html += '</div><button class="modal-btn secondary" onclick="closeModal()">取消</button>';
     showModal(html);
 }
 
 function plantSeed(plotIndex, cellIndex, seedName) {
     const bag = getSeedBag();
-    if (!bag[seedName] || bag[seedName] <= 0) {
-        alert('种子不足！');
-        return;
-    }
+    if (!bag[seedName] || bag[seedName] <= 0) { alert('种子不足！'); return; }
     bag[seedName] -= 1;
     saveSeedBag(bag);
-
-    plots[plotIndex].cells[cellIndex] = {
-        seed: seedName,
-        plantedAt: Date.now()
-    };
+    plots[plotIndex].cells[cellIndex] = { seed: seedName, plantedAt: Date.now() };
     savePlots(plots);
     closeModal();
     render();
 }
 
-// ===== 收获 =====
+/* ===== 收获 ===== */
 function harvest(plotIndex, cellIndex) {
     const cell = plots[plotIndex].cells[cellIndex];
     if (!cell.seed || !isReady(cell)) return;
-    const seedInfo = SEEDS.find(s => s.name === cell.seed);
-    if (!seedInfo) return;
-
-    addHerb(cell.seed, seedInfo.yield);
-
-    plots[plotIndex].cells[cellIndex] = {
-        seed: null, plantedAt: 0
-    };
+    const info = SEEDS.find(s => s.name === cell.seed);
+    if (!info) return;
+    addHerb(cell.seed, info.yield);
+    plots[plotIndex].cells[cellIndex] = { seed: null, plantedAt: 0 };
     savePlots(plots);
-
-    showHarvestToast(`🌿 收获了一份${cell.seed} x${seedInfo.yield}`);
-
+    showHarvestToast(`🌿 收获了一份${cell.seed} x${info.yield}`);
     render();
 }
 
@@ -609,41 +704,28 @@ function showHarvestToast(text) {
     toast.textContent = text;
     toast.classList.add('show');
     clearTimeout(toast._timer);
-    toast._timer = setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2000);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
-// 一键收获
 document.getElementById('btnHarvestAll').addEventListener('click', () => {
-    let totalCount = 0;
-    let harvestedNames = [];
-
-    plots.forEach((plot) => {
+    let total = 0, names = [];
+    plots.forEach(plot => {
         if (!plot.unlocked) return;
         plot.cells.forEach((cell, ci) => {
             if (cell.seed && isReady(cell)) {
                 const info = SEEDS.find(s => s.name === cell.seed);
-                if (info) {
-                    addHerb(cell.seed, info.yield);
-                    totalCount += info.yield;
-                    harvestedNames.push(cell.seed);
-                }
+                if (info) { addHerb(cell.seed, info.yield); total += info.yield; names.push(cell.seed); }
                 plot.cells[ci] = { seed: null, plantedAt: 0 };
             }
         });
     });
     savePlots(plots);
-
-    if (totalCount > 0) {
-        showHarvestToast(`🌿 一键收获 ${harvestedNames.length} 种，共 ${totalCount} 份`);
-    } else {
-        alert('暂无成熟的药材可以收获～');
-    }
+    if (total > 0) showHarvestToast(`🌿 一键收获 ${names.length} 种，共 ${total} 份`);
+    else alert('暂无成熟的药材可以收获～');
     render();
 });
 
-// ===== 解锁新田地 =====
+/* ===== 解锁 ===== */
 function tryUnlock(plotIndex) {
     const cost = UNLOCK_COSTS[plotIndex - 1] || 9999;
     if (getCoins() < cost) {
@@ -661,7 +743,6 @@ function tryUnlock(plotIndex) {
         <button class="modal-btn secondary" onclick="closeModal()">取消</button>
     `);
 }
-
 function doUnlock(plotIndex) {
     const cost = UNLOCK_COSTS[plotIndex - 1] || 9999;
     if (!spendCoins(cost)) { alert('铜币不足！'); return; }
@@ -670,7 +751,6 @@ function doUnlock(plotIndex) {
     closeModal();
     render();
 }
-
 document.getElementById('btnUnlock').addEventListener('click', () => {
     const idx = plots.findIndex(p => !p.unlocked);
     if (idx === -1) {
@@ -684,7 +764,7 @@ document.getElementById('btnUnlock').addEventListener('click', () => {
     tryUnlock(idx);
 });
 
-// ===== 种子商店 =====
+/* ===== 种子商店 ===== */
 function openSeedShop() {
     let html = '<div class="modal-title">🌱 种子商店</div>';
     html += `<div style="text-align:right;font-size:13px;color:#b85c00;font-weight:bold;margin-bottom:8px;">💰 当前铜币：${getCoins()}</div>`;
@@ -703,11 +783,9 @@ function openSeedShop() {
             </div>
         `;
     });
-    html += '</div>';
-    html += '<button class="modal-btn secondary" onclick="closeModal()">关闭</button>';
+    html += '</div><button class="modal-btn secondary" onclick="closeModal()">关闭</button>';
     showModal(html);
 }
-
 function buySeed(name) {
     const info = SEEDS.find(s => s.name === name);
     if (!info) return;
@@ -716,10 +794,9 @@ function buySeed(name) {
     addSeed(name, 1);
     openSeedShop();
 }
-
 document.getElementById('btnSeedShop').addEventListener('click', openSeedShop);
 
-// ===== 弹窗 =====
+/* ===== 弹窗 ===== */
 function showModal(html) {
     document.getElementById('modalContent').innerHTML = html;
     document.getElementById('modalOverlay').classList.add('active');
@@ -728,19 +805,17 @@ function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
 }
 
-// ===== 每秒刷新一次 =====
+/* ===== 定时刷新 ===== */
 setInterval(() => {
-    let needRefresh = false;
-    plots.forEach(p => {
-        if (!p.unlocked) return;
-        p.cells.forEach(c => {
-            if (c.seed) needRefresh = true;
-        });
-    });
-    if (needRefresh) render();
+    const hasGrowing = plots.some(p => p.unlocked && p.cells.some(c => c.seed && !isReady(c)));
+    const hasReady = plots.some(p => p.unlocked && p.cells.some(c => c.seed && isReady(c)));
+    if (hasGrowing || hasReady) render();
 }, 1000);
 
-// ===== 初始化 =====
+window.addEventListener('resize', () => {
+    bubbleMap.forEach((bubble, key) => positionBubble(key, bubble));
+});
+
 setCoins(getCoins());
 render();
 </script>
