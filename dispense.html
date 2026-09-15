@@ -3,33 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>配药 - 重生之我是赤脚医生</title>
+<title>抓药 - 重生之我是赤脚医生</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
 body {
-    font-family: sans-serif;
+    font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif;
     user-select: none;
-    overflow: hidden;
-    height: 100vh;
+    background: #f5f0e8;
     display: flex;
     flex-direction: column;
-    background: #f5f0e8;
 }
+/* ===== 顶部栏 ===== */
 #topBar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 10px; background: #33691e; color: #fff;
-    font-size: 13px; font-weight: bold; flex-shrink: 0; gap: 6px;
+    padding: 6px 10px;
+    background: #33691e;
+    color: #fff;
+    font-size: 13px; font-weight: bold;
+    flex-shrink: 0; gap: 6px;
 }
 .top-btn {
     background: #aed581; border: 2px solid #fff;
-    border-radius: 14px; padding: 3px 10px;
+    border-radius: 14px; padding: 4px 10px;
     font-size: 12px; font-weight: bold;
     color: #33691e; cursor: pointer; text-decoration: none;
     white-space: nowrap;
 }
 .top-btn:active { transform: scale(0.95); }
+#coinDisplay {
+    display: flex; align-items: center; gap: 3px;
+    background: rgba(255,255,255,0.9);
+    padding: 4px 12px; border-radius: 14px;
+    color: #33691e; font-weight: bold;
+}
+/* ===== 主体 ===== */
 #main {
-    flex: 1; display: flex; padding: 6px; gap: 6px; overflow: hidden;
+    flex: 1; display: flex;
+    padding: 6px; gap: 6px;
+    overflow: hidden;
 }
 /* 左侧处方单 */
 #orderPanel {
@@ -53,6 +65,7 @@ body {
     background: #fff3d6;
     color: #5a3e2b;
     cursor: pointer;
+    font-family: inherit;
 }
 #orderNav button:active { transform: scale(0.95); }
 #orderTitle {
@@ -70,7 +83,7 @@ body {
 }
 .order-item.done { color: #2e7d32; font-weight: bold; }
 .order-item .cnt { color: #c62828; }
-/* 中间餐盘 */
+/* 中间药盘 */
 #platePanel {
     flex: 1;
     background: #f0e6d8;
@@ -82,7 +95,7 @@ body {
 }
 #plateTitle {
     font-size: 14px; font-weight: bold; color: #5a3e2b;
-    margin-bottom: 6px;
+    margin-bottom: 6px; text-align: center;
 }
 #plateGrid {
     flex: 1; width: 100%;
@@ -102,14 +115,15 @@ body {
     cursor: pointer; font-size: 9px;
     font-weight: bold; color: #3a2a1a;
     position: relative;
-    transition: transform 0.15s;
     padding: 2px;
+    transition: transform 0.15s;
 }
 .plate-herb:active { transform: scale(0.92); }
 .plate-herb img {
     width: 34px; height: 34px;
     object-fit: contain;
 }
+.plate-herb .pemoji { font-size: 22px; }
 .plate-herb .pcount {
     position: absolute; top: 2px; right: 4px;
     font-size: 10px; color: #c62828;
@@ -131,6 +145,7 @@ body {
     background: #aed581; border: 2px solid #33691e;
     border-radius: 20px; color: #33691e;
     cursor: pointer;
+    font-family: inherit;
 }
 #btnPack:active { transform: scale(0.95); }
 #btnPack:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -163,6 +178,7 @@ body {
     width: 32px; height: 32px;
     object-fit: contain;
 }
+.stock-item .semoji { font-size: 22px; }
 .stock-item .sinfo { flex: 1; min-width: 0; }
 .stock-item .sname {
     font-size: 11px; font-weight: bold; color: #3a2a1a;
@@ -171,7 +187,7 @@ body {
 .stock-item .scount { font-size: 10px; color: #777; }
 .stock-item.out { opacity: 0.4; cursor: not-allowed; }
 
-/* 药包弹窗 */
+/* ===== 药包弹窗 ===== */
 #bagModal {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.7);
@@ -194,7 +210,7 @@ body {
     display: block; width: 100%; font-size: 16px; font-weight: bold;
     padding: 10px; margin: 6px 0; border: 2px solid #558b2f;
     border-radius: 12px; background: #aed581; color: #33691e;
-    cursor: pointer;
+    cursor: pointer; font-family: inherit;
 }
 </style>
 </head>
@@ -205,11 +221,11 @@ body {
         <a class="top-btn" href="index.html">← 返回</a>
         <a class="top-btn" href="process.html">⚗️ 去炮制</a>
     </div>
-    <div style="font-size:14px;">📋 配药台</div>
-    <div class="top-btn" id="coinDisplay"><div id="coinDisplay" style="display:flex;align-items:center;gap:3px;">
-    <img src="images/icon-coin.webp" style="width:16px;height:16px;" onerror="this.style.display='none'">
-    <span id="coinText">0</span>
-</div> 0</div>
+    <div style="font-size:14px;">📋 抓药台</div>
+    <div id="coinDisplay">
+        <img src="images/icon-coin.webp" style="width:16px;height:16px;" onerror="this.style.display='none'">
+        <span id="coinText">0</span>
+    </div>
 </div>
 
 <div id="main">
@@ -223,7 +239,7 @@ body {
         <div id="orderList"></div>
     </div>
 
-    <!-- 中：餐盘 -->
+    <!-- 中：药盘 -->
     <div id="platePanel">
         <div id="plateTitle">🫙 药盘（点击可移除）</div>
         <div id="plateGrid"></div>
@@ -250,6 +266,11 @@ body {
 </div>
 
 <script>
+/* ============================================================
+   抓药模块
+   ============================================================ */
+
+// 处方数据（每味药 + 剂量）
 const PRESCRIPTIONS = [
     { name: '麻黄汤', herbs: [
         { name: '麻黄(去节)', amount: 3 },
@@ -395,57 +416,48 @@ const PRESCRIPTIONS = [
     ]}
 ];
 
-let processedInventory = JSON.parse(localStorage.getItem('processedInventory') || '{}');
-let coins = parseInt(localStorage.getItem('playerCoins')) || 0;
-document.getElementById('coinDisplay').textContent = 'document.getElementById('coinText').textContent = coins;">0</span>
-</div> ' + coins;
+/* ===== 读取炮制仓库（与 process.html 共用 warehouse.processed）===== */
+function getProcessedInventory() {
+    try {
+        const w = JSON.parse(localStorage.getItem('warehouse') || '{}');
+        return w.processed || {};
+    } catch(e) { return {}; }
+}
+function saveProcessedInventory(inv) {
+    let w = {};
+    try { w = JSON.parse(localStorage.getItem('warehouse') || '{}'); } catch(e) {}
+    if (!w.processed) w.processed = {};
+    w.processed = inv;
+    localStorage.setItem('warehouse', JSON.stringify(w));
+}
 
-// 用 localStorage 记住当前处方索引
+/* ===== 铜币（与主页面一致，读 coins）===== */
+function getCoins() { return parseInt(localStorage.getItem('coins') || 0); }
+function addCoins(n) {
+    const t = getCoins() + n;
+    localStorage.setItem('coins', String(t));
+    document.getElementById('coinText').textContent = t;
+    return t;
+}
+
+/* ===== 状态 ===== */
+let processedInventory = getProcessedInventory();
+let plate = {};
 let currentOrderIndex = parseInt(localStorage.getItem('currentPrescriptionIndex'));
 if (isNaN(currentOrderIndex) || currentOrderIndex < 0 || currentOrderIndex >= PRESCRIPTIONS.length) {
     currentOrderIndex = 0;
-    localStorage.setItem('currentPrescriptionIndex', 0);
 }
-
 let currentOrder = null;
-let plate = {};
 
-function saveProcessed() { localStorage.setItem('processedInventory', JSON.stringify(processedInventory)); }
-function saveCoins() { localStorage.setItem('playerCoins', coins); document.getElementById('coinDisplay').textContent = 'document.getElementById('coinText').textContent = coins;">0</span>
-</div> ' + coins; }
-function saveOrderIndex() { localStorage.setItem('currentPrescriptionIndex', currentOrderIndex); }
-
-function loadOrder(index) {
-    currentOrderIndex = index;
-    saveOrderIndex();
-    currentOrder = JSON.parse(JSON.stringify(PRESCRIPTIONS[index]));
-    plate = {};   // 切换处方时清空药盘
-    renderAll();
-}
-
-function prevOrder() {
-    let idx = currentOrderIndex - 1;
-    if (idx < 0) idx = PRESCRIPTIONS.length - 1;
-    loadOrder(idx);
-}
-
-function nextOrder() {
-    let idx = currentOrderIndex + 1;
-    if (idx >= PRESCRIPTIONS.length) idx = 0;
-    loadOrder(idx);
-}
-
-document.getElementById('btnPrevOrder').addEventListener('click', prevOrder);
-document.getElementById('btnNextOrder').addEventListener('click', nextOrder);
-
+/* ===== 渲染 ===== */
 function renderAll() {
     renderOrder();
     renderPlate();
     renderStock();
     checkReady();
 }
-
 function renderOrder() {
+    currentOrder = JSON.parse(JSON.stringify(PRESCRIPTIONS[currentOrderIndex]));
     document.getElementById('orderTitle').textContent = '📜 ' + currentOrder.name;
     const list = document.getElementById('orderList');
     list.innerHTML = '';
@@ -457,31 +469,35 @@ function renderOrder() {
         list.appendChild(div);
     });
 }
-
 function renderPlate() {
     const grid = document.getElementById('plateGrid');
     grid.innerHTML = '';
+    let has = false;
     for (let [name, count] of Object.entries(plate)) {
         if (count <= 0) continue;
+        has = true;
         const div = document.createElement('div');
         div.className = 'plate-herb';
         div.innerHTML = `
-            <img src="images/herbs/processed/${name}.png" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-            <span style="display:none;font-size:20px;">🌿</span>
+            <img src="images/herbs/processed/${name}.png"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <span class="pemoji" style="display:none;">🌿</span>
             <span class="pname">${name}</span>
             <span class="pcount">×${count}</span>
         `;
         div.addEventListener('click', () => removeFromPlate(name));
         grid.appendChild(div);
     }
+    if (!has) {
+        grid.innerHTML = '<div style="width:100%;text-align:center;color:#b89a72;font-size:12px;padding:20px;">点击右侧库存加药</div>';
+    }
 }
-
 function renderStock() {
     const list = document.getElementById('stockList');
     list.innerHTML = '';
     const keys = Object.keys(processedInventory).filter(k => processedInventory[k] > 0);
     if (keys.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">库存为空，去炮制药材吧</div>';
+        list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;font-size:12px;">库存为空<br>去炮制药材吧</div>';
         return;
     }
     keys.sort();
@@ -490,8 +506,9 @@ function renderStock() {
         const div = document.createElement('div');
         div.className = 'stock-item';
         div.innerHTML = `
-            <img src="images/herbs/processed/${name}.png" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-            <span style="display:none;font-size:20px;">🌿</span>
+            <img src="images/herbs/processed/${name}.png"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <span class="semoji" style="display:none;">🌿</span>
             <div class="sinfo">
                 <div class="sname">${name}</div>
                 <div class="scount">剩余 ${count} 份</div>
@@ -501,29 +518,26 @@ function renderStock() {
         list.appendChild(div);
     });
 }
-
 function addToPlate(name) {
     if (!currentOrder) return;
     const need = currentOrder.herbs.find(h => h.name === name);
-    if (!need) return;
+    if (!need) { return; } // 不是处方里的药，忽略
     const current = plate[name] || 0;
-    if (current >= need.amount) return;
-    if ((processedInventory[name] || 0) <= 0) return;
+    if (current >= need.amount) { return; } // 已够量
+    if ((processedInventory[name] || 0) <= 0) { return; }
     processedInventory[name] -= 1;
     plate[name] = current + 1;
-    saveProcessed();
+    saveProcessedInventory(processedInventory);
     renderAll();
 }
-
 function removeFromPlate(name) {
     if ((plate[name] || 0) <= 0) return;
     plate[name] -= 1;
     processedInventory[name] = (processedInventory[name] || 0) + 1;
     if (plate[name] === 0) delete plate[name];
-    saveProcessed();
+    saveProcessedInventory(processedInventory);
     renderAll();
 }
-
 function checkReady() {
     if (!currentOrder) return;
     let ok = true;
@@ -532,6 +546,20 @@ function checkReady() {
     }
     document.getElementById('btnPack').disabled = !ok;
 }
+
+/* ===== 按钮事件 ===== */
+document.getElementById('btnPrevOrder').addEventListener('click', () => {
+    currentOrderIndex = (currentOrderIndex - 1 + PRESCRIPTIONS.length) % PRESCRIPTIONS.length;
+    localStorage.setItem('currentPrescriptionIndex', currentOrderIndex);
+    plate = {};
+    renderAll();
+});
+document.getElementById('btnNextOrder').addEventListener('click', () => {
+    currentOrderIndex = (currentOrderIndex + 1) % PRESCRIPTIONS.length;
+    localStorage.setItem('currentPrescriptionIndex', currentOrderIndex);
+    plate = {};
+    renderAll();
+});
 
 document.getElementById('btnPack').addEventListener('click', () => {
     if (!currentOrder) return;
@@ -548,26 +576,22 @@ document.getElementById('btnPack').addEventListener('click', () => {
     bags.push(bag);
     localStorage.setItem('medicineBags', JSON.stringify(bags));
 
-    coins += 50;
-    saveCoins();
-    showBag(bag);
-});
+    addCoins(50);
 
-function showBag(bag) {
     document.getElementById('bagName').textContent = bag.name;
-    document.getElementById('bagHerbs').innerHTML = bag.herbs.join('<br>') + '<br><br>document.getElementById('coinText').textContent = coins;">0</span>
-</div> +50';
+    document.getElementById('bagHerbs').innerHTML = bag.herbs.join('<br>') + '<br><br>💰 +50';
     document.getElementById('bagModal').classList.add('active');
-}
+});
 
 document.getElementById('bagConfirm').addEventListener('click', () => {
     document.getElementById('bagModal').classList.remove('active');
-    plate = {};   // 清空药盘，但处方索引不变
+    plate = {};
     renderAll();
 });
 
-// 初始化
-loadOrder(currentOrderIndex);
+/* ===== 初始化 ===== */
+document.getElementById('coinText').textContent = getCoins();
+renderAll();
 </script>
 </body>
 </html>
