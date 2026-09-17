@@ -351,6 +351,17 @@ const MATERIALS = {
 };
 
 const HERB_RULES = {
+// 多步炮制：必须按顺序完成所有步骤
+const MULTI_STEP_HERBS = {
+    '半夏': {
+        steps: [
+            { type: 'material', material: '清水', desc: '清水洗去滑' },
+            { type: 'material', material: '白矾', desc: '白矾水浸泡' },
+            { type: 'material', material: '姜汁', desc: '姜汁制' }
+        ],
+        finalResult: '姜半夏'
+    }
+};
     '桂枝': [
         { type: 'tool', tool: 'scrape', result: '桂枝(去皮)', desc: '刮去粗皮' },
         { type: 'tool', tool: 'cut',    result: '桂枝(切片)', desc: '切片' }
@@ -404,11 +415,7 @@ const HERB_RULES = {
     ],
     '干姜': [{ type: 'tool', tool: 'cut', result: '干姜(切片)', desc: '切片' }],
     '大枣': [{ type: 'tool', tool: 'break', result: '大枣(擘)', desc: '掰开' }],
-    '半夏': [
-        { type: 'material', material: '清水', result: '汤洗半夏', desc: '热水冲洗' },
-        { type: 'material', material: '白矾', result: '矾制半夏', desc: '白矾水浸泡' },
-        { type: 'material', material: '姜汁', result: '姜半夏', desc: '姜汁制' }
-    ],
+   
     '茵陈': [{ type: 'none', result: '茵陈', desc: '无需炮制' }],
     '泽泻': [
         { type: 'material', material: '盐', result: '盐炙泽泻', desc: '盐水喷洒后炒' },
@@ -467,6 +474,7 @@ let isFrying = false;
 let fryInterval = null;
 let fryProgress = 0;
 let fryRule = null;
+let multiStepIndex = 0;   // 多步炮制当前进度
 
 /* ===== 渲染药材栏 ===== */
 function renderHerbRows() {
@@ -583,9 +591,21 @@ function selectHerb(name) {
     saveInventory();
     currentHerb = name;
     currentProcessed = null;
+    multiStepIndex = 0;
     setStageHerb(name, false);
     counterHerb.textContent = `生药：${name}`;
 
+    // 多步药材
+    if (MULTI_STEP_HERBS[name]) {
+        const config = MULTI_STEP_HERBS[name];
+        counterStatus.textContent = `第1步：${config.steps[0].desc}`;
+        btnFinish.disabled = true;
+        btnCancel.disabled = false;
+        renderHerbRows();
+        return;
+    }
+
+    // 单步或无炮制
     const rules = HERB_RULES[name] || [];
     const noneRule = rules.find(r => r.type === 'none');
     if (noneRule) {
@@ -603,14 +623,15 @@ function selectHerb(name) {
 function useTool(key) {
     if (isFrying) { showModal('提示', '正在炒制中！'); return; }
     if (!currentHerb) { showModal('提示', '请先选择药材。'); return; }
-    if (currentProcessed) { showModal('提示', '已经炮制过了，点"收好"。'); return; }
+    if (currentProcessed) { showModal('提示', '已经炮制完成了，点"收好"。'); return; }
 
-    const rules = HERB_RULES[currentHerb] || [];
-    const rule = rules.find(r => r.type === 'tool' && r.tool === key);
-
-    if (!rule) {
-        const toolName = TOOLS_LEFT[key]?.name || TOOLS_RIGHT[key]?.name || key;
-        showModal('提示', `【${currentHerb}】不能用【${toolName}】。`);
+    // 多步药材：中途不能改工具
+    if (MULTI_STEP_HERBS[currentHerb]) {
+        const config = MULTI_STEP_HERBS[currentHerb];
+        const step = config.steps[multiStepIndex];
+        if (step && step.type !== 'tool') {
+            showModal('提示', `当前第${multiStepIndex + 1}步需要辅料：${step.desc}`);
+        }
         return;
     }
     if (key === 'fry') { startFrying(rule); return; }
@@ -627,8 +648,44 @@ function useTool(key) {
 function useMaterial(name) {
     if (isFrying) { showModal('提示', '正在炒制中！'); return; }
     if (!currentHerb) { showModal('提示', '请先选择药材。'); return; }
-    if (currentProcessed) { showModal('提示', '已经炮制过了，点"收好"。'); return; }
+    if (currentProcessed) { showModal('提示', '已经炮制完成了，点"收好"。'); return; }
 
+    // ===== 多步药材处理 =====
+    if (MULTI_STEP_HERBS[currentHerb]) {
+        const config = MULTI_STEP_HERBS[currentHerb];
+        const step = config.steps[multiStepIndex];
+        if (!step) { showModal('提示', '所有步骤已完成。'); return; }
+        if (step.type !== 'material' || step.material !== name) {
+            showModal('提示', `当前第${multiStepIndex + 1}步需要：${step.desc}`);
+            return;
+        }
+        if (!materialInventory[name] || materialInventory[name] <= 0) {
+            showModal('辅料不足', `【${name}】已用完。\n请点击顶部"🛒 购买辅料"补充。`);
+            return;
+        }
+
+        materialInventory[name] -= 1;
+        saveMaterial();
+        renderTools();
+
+        playMaterialAnim(name, () => {
+            multiStepIndex++;
+            if (multiStepIndex >= config.steps.length) {
+                currentProcessed = config.finalResult;
+                setStageHerb(config.finalResult, true);
+                counterHerb.textContent = `炮制品：${config.finalResult}`;
+                counterStatus.textContent = '炮制完成 ✅';
+                btnFinish.disabled = false;
+            } else {
+                const next = config.steps[multiStepIndex];
+                counterStatus.textContent = `第${multiStepIndex + 1}步：${next.desc}`;
+                setStageHerb(currentHerb, false);
+            }
+        });
+        return;
+    }
+
+    // ===== 单步药材处理（原逻辑）=====
     const rules = HERB_RULES[currentHerb] || [];
     const rule = rules.find(r => r.type === 'material' && r.material === name);
 
@@ -778,7 +835,7 @@ btnFinish.addEventListener('click', () => {
     const resultName = currentProcessed || currentHerb;
     processedInventory[resultName] = (processedInventory[resultName] || 0) + 10;
     saveProcessed();
-
+    multiStepIndex = 0;
     currentHerb = null; currentProcessed = null;
     setStageHerb(null);
     counterHerb.textContent = '请选择药材';
@@ -798,6 +855,7 @@ btnCancel.addEventListener('click', () => {
         inventory[currentHerb] = (inventory[currentHerb] || 0) + 1;
         saveInventory();
     }
+    multiStepIndex = 0;
     currentHerb = null; currentProcessed = null;
     setStageHerb(null);
     counterHerb.textContent = '请选择药材';
@@ -818,7 +876,17 @@ document.getElementById('btnManual').addEventListener('click', () => {
             return r.result;
         });
         html += `<div><b>${herb}</b>：${parts.join('；')}</div>`;
+        
     }
+    // 多步药材
+for (let [herb, config] of Object.entries(MULTI_STEP_HERBS)) {
+    let steps = config.steps.map((s, i) => {
+        if (s.type === 'material') return `${i+1}. ${MATERIALS[s.material].icon}${s.material}（${s.desc}）`;
+        if (s.type === 'tool') { const t = TOOLS_LEFT[s.tool] || TOOLS_RIGHT[s.tool]; return `${i+1}. ${t.icon}${t.name}（${s.desc}）`; }
+        return `${i+1}. ${s.desc}`;
+    });
+    html += `<div><b>${herb}</b>：依次 ${steps.join(' → ')} → ${config.finalResult}</div>`;
+}
     showModal('炮制说明书', html, true);
 });
 
