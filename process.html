@@ -8,12 +8,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box;
     font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
 html, body { width: 100%; height: 100%; overflow: hidden; }
-body {
-    user-select: none;
-    background: #f5f0e8;
-    display: flex;
-    flex-direction: column;
-}
+body { user-select: none; background: #f5f0e8; display: flex; flex-direction: column; }
 #topBar {
     display: flex; align-items: center; justify-content: space-between;
     padding: 6px 10px; background: #33691e; color: #fff;
@@ -39,7 +34,6 @@ body {
     display: flex; gap: 6px;
     padding: 4px 16px;
     flex-shrink: 0;
-    justify-content: flex-start;
     overflow-x: auto;
     height: 100px;
 }
@@ -94,6 +88,7 @@ body {
     width: 28px; height: 28px; object-fit: contain;
     pointer-events: none;
 }
+.tool-btn .ticon, .material-btn .ticon { font-size: 22px; line-height: 1; }
 .material-btn .mcount {
     position: absolute; top: 2px; right: 4px; font-size: 10px; color: #c62828;
     background: rgba(255,255,255,0.85); border-radius: 6px; padding: 0 4px;
@@ -130,10 +125,6 @@ body {
     text-align: center; width: 100%;
     overflow: hidden; text-overflow: ellipsis;
     white-space: nowrap;
-}
-#counterStatus {
-    font-size: 12px; color: #888; text-align: center;
-    width: 100%; min-height: 16px;
 }
 #stepList {
     font-size: 11px; color: #5a3e2b;
@@ -227,7 +218,6 @@ body {
             </div>
             <div id="counterHerb">请选择药材</div>
             <div id="stepList"></div>
-            <div id="counterStatus"></div>
             <div id="counterButtons">
                 <button id="btnFinish" disabled>收好（×10）</button>
                 <button id="btnCancel" disabled>放弃</button>
@@ -258,9 +248,7 @@ function getWarehouse() {
         return { herbs: {}, seeds: {}, materials: {}, processed: {} };
     }
 }
-function saveWarehouse(w) {
-    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
-}
+function saveWarehouse(w) { localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w)); }
 var warehouse = getWarehouse();
 var inventory = warehouse.herbs;
 var materialInventory = warehouse.materials;
@@ -276,7 +264,6 @@ function updateCoinDisplay() {
     if (el) el.textContent = getCoins();
 }
 
-/* 首次进入：给测试药材 */
 if (Object.keys(inventory).length === 0) {
     var testHerbs = {
         '桂枝': 3, '麻黄': 3, '山杏': 3, '甘草': 3, '芍药': 3,
@@ -321,40 +308,128 @@ var MATERIALS = {
     '黑豆汁':  { icon: '🫘', price: 6 }
 };
 
-/* ===== 每味药唯一一条炮制路径 ===== */
+/* ===== 每味药的唯一炮制路径 =====
+   每步的 img 表示该步完成后的显示图：
+   - 如果 img 与生药名相同 → 显示生药图
+   - 否则优先显示 images/herbs/processed/img.webp
+*/
 var HERB_PROCESSES = {
-    // 水洗 + 处理
-    '桂枝': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '桂枝(切片)' },
-    '麻黄': { steps: [ {tool:'wash'}, {tool:'remove'} ], result: '麻黄(去节)' },
-    '山杏': { steps: [ {tool:'wash'}, {tool:'peel'} ], result: '山杏(去皮尖)' },
-    '甘草': { steps: [ {tool:'wash'}, {tool:'cut'}, {material:'蜂蜜'} ], result: '甘草(蜜炙)' },
-    '芍药': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '芍药(切片)' },
-    '生姜': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '生姜(切片)' },
-    '干姜': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '干姜(切片)' },
-    '大枣': { steps: [ {tool:'wash'}, {tool:'break'} ], result: '大枣(擘)' },
-    '葛根': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '葛根(切片)' },
-    '细辛': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '细辛(切段)' },
-    '柴胡': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '柴胡(切片)' },
-    '黄芩': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '黄芩(切片)' },
-    '知母': { steps: [ {tool:'wash'}, {tool:'scrape'} ], result: '知母(去毛)' },
-    '附子': { steps: [ {tool:'wash'}, {tool:'fire'}, {tool:'peel'} ], result: '炮附子' },
-    '白术': { steps: [ {tool:'wash'}, {tool:'cut'}, {tool:'fry'} ], result: '炒白术' },
-    '大黄': { steps: [ {tool:'wash'}, {material:'黄酒'} ], result: '酒洗大黄' },
-    '厚朴': { steps: [ {tool:'wash'}, {tool:'scrape'}, {material:'姜汁'} ], result: '姜炙厚朴' },
-    '枳实': { steps: [ {tool:'wash'}, {tool:'cut'}, {tool:'fry'} ], result: '炒枳实' },
-    '猪苓': { steps: [ {tool:'wash'}, {tool:'scrape'} ], result: '猪苓(去皮)' },
-    '当归': { steps: [ {tool:'wash'}, {material:'黄酒'} ], result: '酒洗当归' },
-    '泽泻': { steps: [ {tool:'wash'}, {tool:'cut'}, {material:'盐'} ], result: '盐炙泽泻' },
-    '栀子': { steps: [ {tool:'wash'}, {tool:'break'} ], result: '栀子(擘)' },
-    '半夏': { steps: [ {material:'清水'}, {material:'白矾'}, {material:'姜汁'} ], result: '姜半夏' },
-    '茯苓': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '茯苓(切块)' },
-    '五味子': { steps: [ {tool:'wash'}, {tool:'dry'} ], result: '五味子(晒干)' },
-    '茵陈': { steps: [ {tool:'wash'}, {tool:'cut'} ], result: '茵陈(切片)' },
-    '人参': { steps: [ {tool:'wash'} ], result: '人参' },
-    '黄连': { steps: [ {tool:'wash'} ], result: '黄连' },
-    '通草': { steps: [ {tool:'wash'} ], result: '通草' },
+    '桂枝': { steps: [
+        {tool:'wash', img:'桂枝'},
+        {tool:'cut',  img:'桂枝(切片)'}
+    ], result: '桂枝(切片)' },
+    '麻黄': { steps: [
+        {tool:'wash', img:'麻黄'},
+        {tool:'remove', img:'麻黄(去节)'}
+    ], result: '麻黄(去节)' },
+    '山杏': { steps: [
+        {tool:'wash', img:'山杏'},
+        {tool:'peel', img:'山杏(去皮尖)'}
+    ], result: '山杏(去皮尖)' },
+    '甘草': { steps: [
+        {tool:'wash', img:'甘草'},
+        {tool:'cut',  img:'甘草1'},
+        {material:'蜂蜜', img:'炙甘草'}
+    ], result: '炙甘草' },
+    '芍药': { steps: [
+        {tool:'wash', img:'芍药'},
+        {tool:'cut',  img:'芍药(切片)'}
+    ], result: '芍药(切片)' },
+    '生姜': { steps: [
+        {tool:'wash', img:'生姜'},
+        {tool:'cut',  img:'生姜(切片)'}
+    ], result: '生姜(切片)' },
+    '干姜': { steps: [
+        {tool:'wash', img:'干姜'},
+        {tool:'cut',  img:'干姜(切片)'}
+    ], result: '干姜(切片)' },
+    '大枣': { steps: [
+        {tool:'wash', img:'大枣'},
+        {tool:'break', img:'大枣(擘)'}
+    ], result: '大枣(擘)' },
+    '葛根': { steps: [
+        {tool:'wash', img:'葛根'},
+        {tool:'cut',  img:'葛根(切片)'}
+    ], result: '葛根(切片)' },
+    '细辛': { steps: [
+        {tool:'wash', img:'细辛'},
+        {tool:'cut',  img:'细辛(切段)'}
+    ], result: '细辛(切段)' },
+    '柴胡': { steps: [
+        {tool:'wash', img:'柴胡'},
+        {tool:'cut',  img:'柴胡(切片)'}
+    ], result: '柴胡(切片)' },
+    '黄芩': { steps: [
+        {tool:'wash', img:'黄芩'},
+        {tool:'cut',  img:'黄芩(切片)'}
+    ], result: '黄芩(切片)' },
+    '知母': { steps: [
+        {tool:'wash', img:'知母'},
+        {tool:'scrape', img:'知母(去毛)'}
+    ], result: '知母(去毛)' },
+    '附子': { steps: [
+        {tool:'wash', img:'附子'},
+        {tool:'fire', img:'附子1'},
+        {tool:'peel', img:'炮附子'}
+    ], result: '炮附子' },
+    '白术': { steps: [
+        {tool:'wash', img:'白术'},
+        {tool:'cut',  img:'白术1'},
+        {tool:'fry',  img:'炒白术'}
+    ], result: '炒白术' },
+    '大黄': { steps: [
+        {tool:'wash', img:'大黄'},
+        {material:'黄酒', img:'酒洗大黄'}
+    ], result: '酒洗大黄' },
+    '厚朴': { steps: [
+        {tool:'wash', img:'厚朴'},
+        {tool:'scrape', img:'厚朴1'},
+        {material:'姜汁', img:'姜炙厚朴'}
+    ], result: '姜炙厚朴' },
+    '枳实': { steps: [
+        {tool:'wash', img:'枳实'},
+        {tool:'cut',  img:'枳实1'},
+        {tool:'fry',  img:'炒枳实'}
+    ], result: '炒枳实' },
+    '猪苓': { steps: [
+        {tool:'wash', img:'猪苓'},
+        {tool:'scrape', img:'猪苓(去皮)'}
+    ], result: '猪苓(去皮)' },
+    '当归': { steps: [
+        {tool:'wash', img:'当归'},
+        {material:'黄酒', img:'酒洗当归'}
+    ], result: '酒洗当归' },
+    '泽泻': { steps: [
+        {tool:'wash', img:'泽泻'},
+        {tool:'cut',  img:'泽泻1'},
+        {material:'盐', img:'盐炙泽泻'}
+    ], result: '盐炙泽泻' },
+    '栀子': { steps: [
+        {tool:'wash', img:'栀子'},
+        {tool:'break', img:'栀子(擘)'}
+    ], result: '栀子(擘)' },
+    '半夏': { steps: [
+        {material:'清水', img:'半夏1'},
+        {material:'白矾', img:'半夏2'},
+        {material:'姜汁', img:'姜半夏'}
+    ], result: '姜半夏' },
+    '茯苓': { steps: [
+        {tool:'wash', img:'茯苓'},
+        {tool:'cut',  img:'茯苓(切块)'}
+    ], result: '茯苓(切块)' },
+    '五味子': { steps: [
+        {tool:'wash', img:'五味子'},
+        {tool:'dry',  img:'五味子(晒干)'}
+    ], result: '五味子(晒干)' },
+    '茵陈': { steps: [
+        {tool:'wash', img:'茵陈'},
+        {tool:'cut',  img:'茵陈(切片)'}
+    ], result: '茵陈(切片)' },
+    '人参': { steps: [ {tool:'wash', img:'人参'} ], result: '人参' },
+    '黄连': { steps: [ {tool:'wash', img:'黄连'} ], result: '黄连' },
+    '通草': { steps: [ {tool:'wash', img:'通草'} ], result: '通草' },
     // 不水洗
-    '石膏': { steps: [ {tool:'smash'} ], result: '碎石膏' },
+    '石膏': { steps: [ {tool:'smash', img:'碎石膏'} ], result: '碎石膏' },
     '芒硝': { steps: [], result: '芒硝' },
     '淡豆豉': { steps: [], result: '淡豆豉' },
     '饴糖': { steps: [], result: '饴糖' },
@@ -370,7 +445,6 @@ var stageHerbImg = document.getElementById('stageHerbImg');
 var stageEmoji = document.getElementById('stageEmoji');
 var stage = document.getElementById('stage');
 var counterHerb = document.getElementById('counterHerb');
-var counterStatus = document.getElementById('counterStatus');
 var stepList = document.getElementById('stepList');
 var btnFinish = document.getElementById('btnFinish');
 var btnCancel = document.getElementById('btnCancel');
@@ -412,7 +486,7 @@ function renderRow(rowEl, herbs) {
     });
 }
 
-/* ===== 渲染工具/辅料 ===== */
+/* ===== 渲染工具/辅料（emoji 兜底）===== */
 function renderTools() {
     leftTools.innerHTML = '';
     Object.keys(TOOLS_LEFT).forEach(function(key) {
@@ -420,7 +494,8 @@ function renderTools() {
         var btn = document.createElement('div');
         btn.className = 'tool-btn';
         btn.innerHTML =
-            '<img src="images/tools/' + key + '.webp" onerror="this.style.display=\'none\';">' +
+            '<img src="images/tools/' + key + '.webp" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+            '<span class="ticon" style="display:none;">' + tool.icon + '</span>' +
             '<span>' + tool.name + '</span>';
         btn.addEventListener('click', function() { useTool(key); });
         leftTools.appendChild(btn);
@@ -431,7 +506,8 @@ function renderTools() {
         var btn = document.createElement('div');
         btn.className = 'tool-btn';
         btn.innerHTML =
-            '<img src="images/tools/' + key + '.webp" onerror="this.style.display=\'none\';">' +
+            '<img src="images/tools/' + key + '.webp" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+            '<span class="ticon" style="display:none;">' + tool.icon + '</span>' +
             '<span>' + tool.name + '</span>';
         btn.addEventListener('click', function() { useTool(key); });
         rightTools.appendChild(btn);
@@ -442,7 +518,8 @@ function renderTools() {
         var btn = document.createElement('div');
         btn.className = 'material-btn' + (count <= 0 ? ' out' : '');
         btn.innerHTML =
-            '<img src="images/materials/' + name + '.webp" onerror="this.style.display=\'none\';">' +
+            '<img src="images/materials/' + name + '.webp" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+            '<span class="ticon" style="display:none;">' + info.icon + '</span>' +
             '<span>' + name + '</span>' +
             '<span class="mcount">x' + count + '</span>';
         btn.addEventListener('click', function() { useMaterial(name); });
@@ -450,29 +527,53 @@ function renderTools() {
     });
 }
 
-/* ===== 舞台显示 ===== */
-function setStageHerb(name, isProcessed) {
+/* ===== 显示某一步对应的图 =====
+   优先 processed/img.webp，找不到就用 herbs/img.webp，
+   都找不到就用 herbs/生药名.webp，最后用 emoji
+*/
+function setStageImg(imgName, herbName) {
     stageHerbImg.style.display = 'none';
     stageEmoji.style.display = 'none';
     stageHerbImg.src = '';
-    if (!name) return;
-    var p = isProcessed
-        ? 'images/herbs/processed/' + name + '.webp'
-        : 'images/herbs/' + name + '.webp';
-    stageHerbImg.src = p;
-    stageHerbImg.style.display = 'block';
+
+    // 构建候选路径
+    var candidates = [];
+    if (imgName) {
+        // 如果 imgName 和生药名不同，先试 processed
+        if (imgName !== herbName) {
+            candidates.push('images/herbs/processed/' + imgName + '.webp');
+        }
+        candidates.push('images/herbs/' + imgName + '.webp');
+    }
+    if (herbName) {
+        candidates.push('images/herbs/' + herbName + '.webp');
+    }
+
+    var idx = 0;
+    var tried = false;
     stageHerbImg.onerror = function() {
-        this.style.display = 'none';
-        stageEmoji.style.display = 'block';
-        stageEmoji.textContent = '🌿';
+        idx++;
+        if (idx < candidates.length) {
+            this.src = candidates[idx];
+        } else {
+            this.style.display = 'none';
+            stageEmoji.style.display = 'block';
+            stageEmoji.textContent = '🌿';
+        }
     };
     stageHerbImg.onload = function() {
         this.style.display = 'block';
         stageEmoji.style.display = 'none';
     };
+    if (candidates.length > 0) {
+        stageHerbImg.src = candidates[0];
+    } else {
+        stageEmoji.style.display = 'block';
+        stageEmoji.textContent = '🌿';
+    }
 }
 
-/* ===== 步骤列表显示 ===== */
+/* ===== 步骤列表 ===== */
 function renderStepList() {
     stepList.innerHTML = '';
     if (!currentHerb) return;
@@ -508,16 +609,13 @@ function selectHerb(name) {
     currentProcessed = null;
     stepIndex = 0;
 
-    setStageHerb(name, false);
+    setStageImg(name, name);
     counterHerb.textContent = '生药：' + name;
 
     if (proc.steps.length === 0) {
-        // 无需炮制
-        counterStatus.textContent = '无需炮制，直接收好';
         btnFinish.disabled = false;
         btnCancel.disabled = false;
     } else {
-        counterStatus.textContent = '请按顺序操作';
         btnFinish.disabled = true;
         btnCancel.disabled = false;
     }
@@ -587,14 +685,14 @@ function advanceStep() {
     if (stepIndex >= proc.steps.length) {
         // 全部完成
         currentProcessed = proc.result;
-        setStageHerb(proc.result, true);
+        var lastStep = proc.steps[proc.steps.length - 1];
+        setStageImg(lastStep.img, currentHerb);
         counterHerb.textContent = '炮制品：' + proc.result;
-        counterStatus.textContent = '炮制完成 ✅';
         btnFinish.disabled = false;
     } else {
-        // 还有下一步
-        counterStatus.textContent = '请继续下一步';
-        setStageHerb(currentHerb, false);
+        // 显示中间形态
+        var doneStep = proc.steps[stepIndex - 1];
+        setStageImg(doneStep.img, currentHerb);
     }
     renderStepList();
 }
@@ -604,7 +702,10 @@ function playToolAnim(key, callback) {
     var tool = TOOLS_LEFT[key] || TOOLS_RIGHT[key];
     var toolEl = document.createElement('div');
     toolEl.className = 'stage-anim';
-    toolEl.innerHTML = '<img src="images/tools/' + key + '.webp" style="width:60px;height:60px;object-fit:contain;" onerror="this.style.display=\'none\';">';
+    toolEl.innerHTML =
+        '<img src="images/tools/' + key + '.webp" style="width:60px;height:60px;object-fit:contain;" ' +
+        'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+        '<span style="display:none;font-size:40px;">' + tool.icon + '</span>';
     toolEl.style.top = '-60px';
     toolEl.style.left = '50%';
     toolEl.style.transform = 'translateX(-50%)';
@@ -622,9 +723,13 @@ function playToolAnim(key, callback) {
 }
 
 function playMaterialAnim(name, callback) {
+    var info = MATERIALS[name];
     var matEl = document.createElement('div');
     matEl.className = 'stage-anim';
-    matEl.innerHTML = '<img src="images/materials/' + name + '.webp" style="width:60px;height:60px;object-fit:contain;" onerror="this.style.display=\'none\';">';
+    matEl.innerHTML =
+        '<img src="images/materials/' + name + '.webp" style="width:60px;height:60px;object-fit:contain;" ' +
+        'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+        '<span style="display:none;font-size:40px;">' + info.icon + '</span>';
     matEl.style.right = '-60px';
     matEl.style.top = '50%';
     matEl.style.opacity = '0';
@@ -645,9 +750,9 @@ btnFinish.addEventListener('click', function() {
     saveProcessed();
 
     currentHerb = null; currentProcessed = null; stepIndex = 0;
-    setStageHerb(null);
+    stageHerbImg.style.display = 'none';
+    stageEmoji.style.display = 'none';
     counterHerb.textContent = '请选择药材';
-    counterStatus.textContent = '';
     stepList.innerHTML = '';
     btnFinish.disabled = true;
     btnCancel.disabled = true;
@@ -661,9 +766,9 @@ btnCancel.addEventListener('click', function() {
         saveInventory();
     }
     currentHerb = null; currentProcessed = null; stepIndex = 0;
-    setStageHerb(null);
+    stageHerbImg.style.display = 'none';
+    stageEmoji.style.display = 'none';
     counterHerb.textContent = '请选择药材';
-    counterStatus.textContent = '';
     stepList.innerHTML = '';
     btnFinish.disabled = true;
     btnCancel.disabled = true;
@@ -699,10 +804,10 @@ document.getElementById('btnShop').addEventListener('click', function() {
         var count = materialInventory[name] || 0;
         html +=
             '<div style="background:#f0e6d8;border:2px solid #aed581;border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;">' +
-                '<img src="images/materials/' + name + '.webp" style="width:50px;height:50px;object-fit:contain;" onerror="this.style.display=\'none\'">' +
+                '<img src="images/materials/' + name + '.webp" style="width:50px;height:50px;object-fit:contain;" onerror="this.style.display=\'none\';">' +
                 '<div style="font-size:14px;font-weight:bold;color:#33691e;">' + name + '</div>' +
                 '<div style="font-size:13px;font-weight:bold;color:#c62828;">💰 ' + info.price + '</div>' +
-                '<div style="font-size:11px;color:#777;">库存：' + count + '</div>' +
+                '<div class="shop-stock" style="font-size:11px;color:#777;">库存：' + count + '</div>' +
                 '<button class="shop-buy" data-material="' + name + '" data-price="' + info.price + '" style="width:100%;padding:6px 0;border:2px solid #558b2f;border-radius:18px;background:#aed581;color:#33691e;font-weight:bold;font-size:13px;cursor:pointer;font-family:inherit;">购买</button>' +
             '</div>';
     });
@@ -722,7 +827,7 @@ document.getElementById('btnShop').addEventListener('click', function() {
                 saveMaterial();
                 renderTools();
                 var card = btn.parentElement;
-                card.querySelector('div:nth-child(5)').textContent = '库存：' + materialInventory[mat];
+                card.querySelector('.shop-stock').textContent = '库存：' + materialInventory[mat];
             });
         });
     }, 50);
@@ -753,7 +858,8 @@ function init() {
     renderHerbRows();
     renderTools();
     updateCoinDisplay();
-    setStageHerb(null);
+    stageHerbImg.style.display = 'none';
+    stageEmoji.style.display = 'none';
 }
 init();
 </script>
