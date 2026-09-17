@@ -624,14 +624,24 @@ function openShop() {
     SHOP_ITEMS.filter(function(i) { return i.category === 'materials'; }).forEach(function(item) {
         var idx = SHOP_ITEMS.indexOf(item);
         var canBuy = getCoins() >= item.price;
-        html += '<div class="shop-item"><span class="item-icon">' + item.icon + '</span><span class="item-name">' + item.display + '</span><span class="item-price">💰 ' + item.price + '</span><button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
+        html += '<div class="shop-item">' +
+    '<img src="images/materials/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+    '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
+    '<span class="item-name">' + item.display + '</span>' +
+    '<span class="item-price">💰 ' + item.price + '</span>' +
+    '<button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';
     html += '<div class="shop-section">🌱 种子</div><div class="shop-grid">';
     SHOP_ITEMS.filter(function(i) { return i.category === 'seeds'; }).forEach(function(item) {
         var idx = SHOP_ITEMS.indexOf(item);
         var canBuy = getCoins() >= item.price;
-        html += '<div class="shop-item"><span class="item-icon">' + item.icon + '</span><span class="item-name">' + item.display + '</span><span class="item-price">💰 ' + item.price + '</span><button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
+        html += '<div class="shop-item">' +
+    '<img src="images/seeds/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+    '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
+    '<span class="item-name">' + item.display + '</span>' +
+    '<span class="item-price">💰 ' + item.price + '</span>' +
+    '<button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';
     html += '<button class="modal-btn secondary" onclick="closeModal()" style="margin-top:14px;">关闭</button>';
