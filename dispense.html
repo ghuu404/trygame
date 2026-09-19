@@ -8,12 +8,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
     font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif;
-    user-select: none;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #f5f0e8;
+    user-select: none; overflow: hidden; height: 100vh;
+    display: flex; flex-direction: column; background: #f5f0e8;
 }
 #topBar {
     display: flex; align-items: center; justify-content: space-between;
@@ -28,31 +24,21 @@ body {
     white-space: nowrap;
 }
 .top-btn:active { transform: scale(0.95); }
-#main {
-    flex: 1; display: flex; padding: 6px; gap: 6px; overflow: hidden;
-}
+#main { flex: 1; display: flex; padding: 6px; gap: 6px; overflow: hidden; }
 #orderPanel {
     flex: 0 0 30%;
     background: #fff9e6;
-    border: 3px solid #b89a72;
-    border-radius: 14px;
-    padding: 8px;
-    display: flex; flex-direction: column;
+    border: 3px solid #b89a72; border-radius: 14px;
+    padding: 8px; display: flex; flex-direction: column;
     overflow: hidden;
 }
-#orderNav {
-    display: flex; gap: 4px; margin-bottom: 8px;
-}
+#orderNav { display: flex; gap: 4px; margin-bottom: 8px; }
 #orderNav button {
-    flex: 1;
-    padding: 5px 0;
+    flex: 1; padding: 5px 0;
     font-size: 12px; font-weight: bold;
-    border: 2px solid #8b5e3c;
-    border-radius: 10px;
-    background: #fff3d6;
-    color: #5a3e2b;
-    cursor: pointer;
-    font-family: inherit;
+    border: 2px solid #8b5e3c; border-radius: 10px;
+    background: #fff3d6; color: #5a3e2b;
+    cursor: pointer; font-family: inherit;
 }
 #orderNav button:active { transform: scale(0.95); }
 #orderTitle {
@@ -69,12 +55,9 @@ body {
 .order-item.done { color: #2e7d32; font-weight: bold; }
 .order-item .cnt { color: #c62828; }
 #platePanel {
-    flex: 1;
-    background: #f0e6d8;
-    border: 3px solid #b89a72;
-    border-radius: 14px;
-    padding: 8px;
-    display: flex; flex-direction: column;
+    flex: 1; background: #f0e6d8;
+    border: 3px solid #b89a72; border-radius: 14px;
+    padding: 8px; display: flex; flex-direction: column;
     align-items: center;
 }
 #plateTitle {
@@ -87,8 +70,7 @@ body {
     align-content: flex-start; gap: 6px;
     overflow-y: auto; padding: 4px;
     background: #e8d5c0;
-    border-radius: 10px;
-    border: 2px dashed #8b5e3c;
+    border-radius: 10px; border: 2px dashed #8b5e3c;
 }
 .plate-herb {
     width: 60px; height: 68px;
@@ -98,15 +80,11 @@ body {
     align-items: center; justify-content: center;
     cursor: pointer; font-size: 9px;
     font-weight: bold; color: #3a2a1a;
-    position: relative;
-    transition: transform 0.15s;
+    position: relative; transition: transform 0.15s;
     padding: 2px;
 }
 .plate-herb:active { transform: scale(0.92); }
-.plate-herb img {
-    width: 34px; height: 34px;
-    object-fit: contain;
-}
+.plate-herb img { width: 34px; height: 34px; object-fit: contain; }
 .plate-herb .pcount {
     position: absolute; top: 2px; right: 4px;
     font-size: 10px; color: #c62828;
@@ -116,29 +94,22 @@ body {
 .plate-herb .pname {
     font-size: 8px; line-height: 1;
     text-align: center;
-    max-width: 54px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    max-width: 54px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
 }
 #btnPack {
-    margin-top: 8px;
-    padding: 8px 24px;
+    margin-top: 8px; padding: 8px 24px;
     font-size: 14px; font-weight: bold;
     background: #aed581; border: 2px solid #33691e;
     border-radius: 20px; color: #33691e;
-    cursor: pointer;
-    font-family: inherit;
+    cursor: pointer; font-family: inherit;
 }
 #btnPack:active { transform: scale(0.95); }
 #btnPack:disabled { opacity: 0.5; cursor: not-allowed; }
 #stockPanel {
-    flex: 0 0 30%;
-    background: #fff;
-    border: 3px solid #b89a72;
-    border-radius: 14px;
-    padding: 8px;
-    display: flex; flex-direction: column;
+    flex: 0 0 30%; background: #fff;
+    border: 3px solid #b89a72; border-radius: 14px;
+    padding: 8px; display: flex; flex-direction: column;
     overflow: hidden;
 }
 #stockTitle {
@@ -154,10 +125,7 @@ body {
     transition: background 0.15s;
 }
 .stock-item:hover { background: #f1f8e9; }
-.stock-item img {
-    width: 32px; height: 32px;
-    object-fit: contain;
-}
+.stock-item img { width: 32px; height: 32px; object-fit: contain; }
 .stock-item .sinfo { flex: 1; min-width: 0; }
 .stock-item .sname {
     font-size: 11px; font-weight: bold; color: #3a2a1a;
@@ -237,19 +205,110 @@ body {
 </div>
 
 <script>
-/* ===== 统一仓库 ===== */
+/* ===== 仓库（防弹版）===== */
 var WAREHOUSE_KEY = 'warehouse';
 function getWarehouse() {
-    try {
-        return JSON.parse(localStorage.getItem(WAREHOUSE_KEY)) ||
-            { herbs: {}, seeds: {}, materials: {}, processed: {} };
-    } catch(e) {
-        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    var w;
+    try { w = JSON.parse(localStorage.getItem(WAREHOUSE_KEY)); }
+    catch(e) { w = null; }
+    if (!w || typeof w !== 'object') w = {};
+    if (!w.herbs)     w.herbs = {};
+    if (!w.seeds)     w.seeds = {};
+    if (!w.materials) w.materials = {};
+    if (!w.processed) w.processed = {};
+    return w;
+}
+function saveWarehouse(w) { localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w)); }
+
+/* ===== 旧饮片名 → 新版名 =====
+   只要 stock 里出现左边的名字，就归并到右边。
+   左边是你**旧版 process.html** 存进去的 key；右边是 images/processed/ 里
+   实际存在的文件名（不含 .webp）。 */
+var KEY_ALIAS = {
+    /* 带括号的旧名 */
+    '桂枝(切片)':   '桂枝饮片',
+    '麻黄(去节)':   '麻黄饮片',
+    '山杏(去皮尖)': '杏仁饮片',
+    '炒焦山杏':     '杏仁饮片',
+    '甘草(切片)':   '炙甘草',
+    '甘草(蜜炙)':   '炙甘草',
+    '芍药(切片)':   '芍药饮片',
+    '生姜(切片)':   '生姜饮片',
+    '干姜(切片)':   '干姜饮片',
+    '大枣(擘)':     '大枣饮片',
+    '葛根(切片)':   '葛根饮片',
+    '细辛(切段)':   '细辛饮片',
+    '柴胡(切片)':   '柴胡饮片',
+    '黄芩(切片)':   '黄芩饮片',
+    '知母(去毛)':   '知母饮片',
+    '厚朴(去皮)':   '厚朴饮片',
+    '枳实(切片)':   '枳实饮片',
+    '猪苓(去皮)':   '猪苓饮片',
+    '茯苓(切块)':   '茯苓饮片',
+    '泽泻(切片)':   '泽泻饮片',
+    '栀子(擘)':     '栀子饮片',
+    '五味子(晒干)': '五味子饮片',
+    '茵陈(切片)':   '茵陈饮片',
+    /* 无括号的旧名 */
+    '姜半夏':   '半夏饮片',
+    '姜炙厚朴': '厚朴饮片',
+    '盐炙泽泻': '泽泻饮片',
+    '酒洗大黄': '大黄饮片',
+    '酒洗当归': '当归饮片',
+    /* 生药名被当作 result 的老版本 */
+    '柴胡':   '柴胡饮片',
+    '细辛':   '细辛饮片',
+    '黄芩':   '黄芩饮片',
+    '茯苓':   '茯苓饮片',
+    '五味子': '五味子饮片',
+    '黄连':   '黄连饮片',
+    '通草':   '通草饮片',
+    '大黄':   '大黄饮片',
+    '当归':   '当归饮片',
+    /* 其它特殊情况（如旧版把当归/大黄直接当结果）*/
+    '白术':       '炒白术',
+    '附子':       '炮附子',
+    '甘草':       '炙甘草',
+    '山杏':       '杏仁饮片',
+    '桂枝':       '桂枝饮片',
+    '麻黄':       '麻黄饮片',
+    '芍药':       '芍药饮片',
+    '生姜':       '生姜饮片',
+    '干姜':       '干姜饮片',
+    '大枣':       '大枣饮片',
+    '葛根':       '葛根饮片',
+    '知母':       '知母饮片',
+    '厚朴':       '厚朴饮片',
+    '枳实':       '枳实饮片',
+    '猪苓':       '猪苓饮片',
+    '泽泻':       '泽泻饮片',
+    '栀子':       '栀子饮片',
+    '半夏':       '半夏饮片',
+    '茵陈':       '茵陈饮片'
+};
+
+/* 归并：把 processed 里的旧 key 全部规范化并写回。
+   重复的会合并数量。 */
+(function migrateProcessed() {
+    var w = getWarehouse();
+    var before = Object.keys(w.processed);
+    var out = {}, changed = false;
+    before.forEach(function(k) {
+        var nk = KEY_ALIAS[k] || k;
+        if (nk !== k) changed = true;
+        out[nk] = (out[nk] || 0) + w.processed[k];
+    });
+    if (changed) {
+        w.processed = out;
+        saveWarehouse(w);
+        console.log('[抓药] processed 库存已迁移');
+        console.log('  旧 keys:', before);
+        console.log('  新 keys:', Object.keys(out));
+    } else {
+        console.log('[抓药] processed 库存无需迁移，当前 keys:', before);
     }
-}
-function saveWarehouse(w) {
-    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
-}
+})();
+
 var warehouse = getWarehouse();
 var processedInventory = warehouse.processed;
 function saveProcessed() {
@@ -263,12 +322,7 @@ function updateCoinDisplay() {
 }
 updateCoinDisplay();
 
-/* ===== 饮片名 → 处方纯名 =====
-   处方左侧一律显示"纯药材名"（去掉炮炙说明）：
-   炙甘草→甘草，炮附子→附子，炒白术→白术，碎石膏→石膏，
-   厚朴饮片→厚朴，当归饮片→当归，泽泻饮片→泽泻，半夏饮片→半夏，
-   杏仁饮片→杏仁，其它饮片去掉"饮片"后缀。
-*/
+/* ===== 饮片名 → 处方纯名 ===== */
 var PLAIN_MAP = {
     '桂枝饮片':   '桂枝',
     '麻黄饮片':   '麻黄',
@@ -305,15 +359,10 @@ var PLAIN_MAP = {
     '饴糖':       '饴糖',
     '粳米':       '粳米'
 };
-function plainName(key) {
-    return PLAIN_MAP[key] || key.replace(/饮片$/, '');
-}
-/* 饮片图路径（统一从 images/processed/ 取） */
-function processedImg(key) {
-    return 'images/processed/' + encodeURI(key) + '.webp';
-}
+function plainName(key) { return PLAIN_MAP[key] || key.replace(/饮片$/, ''); }
+function processedImg(key) { return 'images/processed/' + encodeURI(key) + '.webp'; }
 
-/* ===== 处方数据（key 严格对齐 process.html 的 result） ===== */
+/* ===== 处方数据 ===== */
 var PRESCRIPTIONS = [
     { name: '麻黄汤', herbs: [
         { name: '麻黄饮片', amount: 3 },
@@ -459,11 +508,10 @@ var PRESCRIPTIONS = [
     ]}
 ];
 
-/* ===== 药盘持久化 =====
-   由于处方 key 结构变更过，用版本号清理旧数据。 */
+/* ===== 药盘持久化 ===== */
 var PLATES_KEY = 'dispensePlates';
 var PLATES_VERSION_KEY = 'dispensePlatesVersion';
-var PLATES_VERSION = 2;
+var PLATES_VERSION = 3;
 (function migratePlatesIfNeeded() {
     var v = parseInt(localStorage.getItem(PLATES_VERSION_KEY) || 0, 10);
     if (v !== PLATES_VERSION) {
@@ -472,15 +520,11 @@ var PLATES_VERSION = 2;
     }
 })();
 function getPlates() {
-    try {
-        return JSON.parse(localStorage.getItem(PLATES_KEY)) || {};
-    } catch(e) { return {}; }
+    try { return JSON.parse(localStorage.getItem(PLATES_KEY)) || {}; }
+    catch(e) { return {}; }
 }
-function savePlates(p) {
-    localStorage.setItem(PLATES_KEY, JSON.stringify(p));
-}
+function savePlates(p) { localStorage.setItem(PLATES_KEY, JSON.stringify(p)); }
 
-/* ===== 当前状态 ===== */
 var currentOrderIndex = parseInt(localStorage.getItem('currentPrescriptionIndex') || 0, 10);
 if (isNaN(currentOrderIndex) || currentOrderIndex < 0 || currentOrderIndex >= PRESCRIPTIONS.length) {
     currentOrderIndex = 0;
@@ -493,7 +537,6 @@ var allPlates = getPlates();
 function loadOrder(index) {
     allPlates[currentOrderIndex] = plate;
     savePlates(allPlates);
-
     currentOrderIndex = index;
     localStorage.setItem('currentPrescriptionIndex', String(currentOrderIndex));
     currentOrder = JSON.parse(JSON.stringify(PRESCRIPTIONS[index]));
@@ -518,8 +561,6 @@ function renderAll() {
     renderStock();
     checkReady();
 }
-
-/* 左侧处方：只显示纯药材名 */
 function renderOrder() {
     document.getElementById('orderTitle').textContent = '📜 ' + currentOrder.name;
     var list = document.getElementById('orderList');
@@ -534,8 +575,6 @@ function renderOrder() {
         list.appendChild(div);
     });
 }
-
-/* 药盘：显示饮片名 + images/processed 图 */
 function renderPlate() {
     var grid = document.getElementById('plateGrid');
     grid.innerHTML = '';
@@ -555,8 +594,6 @@ function renderPlate() {
         grid.appendChild(div);
     });
 }
-
-/* 右栏库存：显示饮片名 + images/processed 图 */
 function renderStock() {
     var list = document.getElementById('stockList');
     list.innerHTML = '';
@@ -592,18 +629,16 @@ function addToPlate(name) {
     for (var i = 0; i < currentOrder.herbs.length; i++) {
         if (currentOrder.herbs[i].name === name) { need = currentOrder.herbs[i]; break; }
     }
-    if (!need) return;                                     // 处方里不需要这味
+    if (!need) return;
     var current = plate[name] || 0;
-    if (current >= need.amount) return;                    // 已经够了
-    if ((processedInventory[name] || 0) <= 0) return;      // 库存不足
-
+    if (current >= need.amount) return;
+    if ((processedInventory[name] || 0) <= 0) return;
     processedInventory[name] -= 1;
     plate[name] = current + 1;
     saveProcessed();
     savePlate();
     renderAll();
 }
-
 function removeFromPlate(name) {
     if ((plate[name] || 0) <= 0) return;
     plate[name] -= 1;
@@ -613,17 +648,13 @@ function removeFromPlate(name) {
     savePlate();
     renderAll();
 }
-
 function savePlate() {
     allPlates[currentOrderIndex] = plate;
     Object.keys(allPlates).forEach(function(k) {
-        if (!allPlates[k] || Object.keys(allPlates[k]).length === 0) {
-            delete allPlates[k];
-        }
+        if (!allPlates[k] || Object.keys(allPlates[k]).length === 0) delete allPlates[k];
     });
     savePlates(allPlates);
 }
-
 function checkReady() {
     if (!currentOrder) return;
     var ok = true;
@@ -652,20 +683,16 @@ document.getElementById('btnPack').addEventListener('click', function() {
     var bags = JSON.parse(localStorage.getItem('medicineBags') || '[]');
     bags.push(bag);
     localStorage.setItem('medicineBags', JSON.stringify(bags));
-
     setCoins(getCoins() + 50);
     updateCoinDisplay();
-
     showBag(bag);
 });
-
 function showBag(bag) {
     document.getElementById('bagName').textContent = bag.name;
     document.getElementById('bagHerbs').innerHTML =
         bag.herbs.join('<br>') + '<br><br>💰 +50';
     document.getElementById('bagModal').classList.add('active');
 }
-
 document.getElementById('bagConfirm').addEventListener('click', function() {
     document.getElementById('bagModal').classList.remove('active');
     plate = {};
@@ -676,7 +703,6 @@ document.getElementById('bagConfirm').addEventListener('click', function() {
 /* ===== 初始化 ===== */
 document.getElementById('btnPrevOrder').addEventListener('click', prevOrder);
 document.getElementById('btnNextOrder').addEventListener('click', nextOrder);
-
 currentOrder = JSON.parse(JSON.stringify(PRESCRIPTIONS[currentOrderIndex]));
 plate = allPlates[currentOrderIndex] || {};
 renderAll();
