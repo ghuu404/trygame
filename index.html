@@ -122,7 +122,7 @@ body {
 /* 按图片布局的位置 */
 #spot-collect  { left: 10%;  top: 20%; }        /* 采药：左上 */
 #spot-plant    { right: 8%; top: 18%; }        /* 种植：右上 */
-#spot-process  { left: 20%; top: 42%; }        /* 炮制：中偏左 */
+#spot-process  { left: 20%; top: 42%; }        /* 炮炙：中偏左 */
 #spot-dispense { left: 12%;  bottom: 18%; }     /* 抓药：左下 */
 #spot-diagnose { right: 8%; bottom: 18%; }     /* 行医：右下 */
 
@@ -308,8 +308,8 @@ body {
     <div class="label">种植</div>
 </a>
 <a class="spot" id="spot-process" href="process.html" data-module="process">
-    <img src="images/spot-process.webp" alt="炮制" onerror="this.style.display='none'">
-    <div class="label">炮制</div>
+    <img src="images/spot-process.webp" alt="炮炙" onerror="this.style.display='none'">
+    <div class="label">炮炙</div>
 </a>
 <a class="spot" id="spot-dispense" href="dispense.html" data-module="dispense">
     <img src="images/spot-dispense.webp" alt="抓药" onerror="this.style.display='none'">
@@ -571,7 +571,7 @@ function openWarehouse() {
         { key: 'herbs', title: '🌿 药材', empty: '暂无药材，去采药吧' },
         { key: 'seeds', title: '🌱 种子', empty: '暂无种子，签到或购买获得' },
         { key: 'materials', title: '🍯 辅料', empty: '暂无辅料，签到或购买获得' },
-        { key: 'processed', title: '⚗️ 饮片', empty: '暂无饮片，去炮制药材吧' }
+        { key: 'processed', title: '⚗️ 饮片', empty: '暂无饮片，去炮炙药材吧' }
     ];
     for (var s = 0; s < sections.length; s++) {
         var sec = sections[s];
@@ -668,8 +668,8 @@ function openHerbBook() {
     document.getElementById('modalContent').innerHTML =
         '<div class="modal-title">📕 药书</div>' +
         '<div style="font-size:13px;color:#555;text-align:left;line-height:1.7;">' +
-        '<p>药书记录你炮制过的药材和使用的炮制方法。</p>' +
-        '<p style="margin-top:8px;color:#999;">目前还没有记录，去炮制模块加工药材吧。</p>' +
+        '<p>药书记录你炮炙过的药材和使用的炮炙方法。</p>' +
+        '<p style="margin-top:8px;color:#999;">目前还没有记录，去炮炙模块加工药材吧。</p>' +
         '</div><button class="modal-btn secondary" onclick="closeModal()">关闭</button>';
     document.getElementById('modalOverlay').classList.add('active');
 }

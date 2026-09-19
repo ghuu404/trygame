@@ -197,7 +197,7 @@ body {
 <div id="topBar">
     <div style="display:flex;gap:6px;">
         <a class="top-btn" href="index.html">← 返回</a>
-        <a class="top-btn" href="process.html">⚗️ 去炮制</a>
+        <a class="top-btn" href="process.html">⚗️ 去炮炙</a>
     </div>
     <div style="font-size:14px;">📋 抓药台</div>
     <div class="top-btn" id="coinDisplay">💰 0</div>
@@ -264,7 +264,7 @@ function updateCoinDisplay() {
 updateCoinDisplay();
 
 /* ===== 饮片名 → 处方纯名 =====
-   处方左侧一律显示"纯药材名"（去掉炮制说明）：
+   处方左侧一律显示"纯药材名"（去掉炮炙说明）：
    炙甘草→甘草，炮附子→附子，炒白术→白术，碎石膏→石膏，
    厚朴饮片→厚朴，当归饮片→当归，泽泻饮片→泽泻，半夏饮片→半夏，
    杏仁饮片→杏仁，其它饮片去掉"饮片"后缀。
@@ -564,7 +564,7 @@ function renderStock() {
         return processedInventory[k] > 0;
     });
     if (keys.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">库存为空，去炮制药材吧</div>';
+        list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">库存为空，去炮炙药材吧</div>';
         return;
     }
     keys.sort();
