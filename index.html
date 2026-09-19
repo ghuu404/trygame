@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>重生之我是赤脚医生</title>
+<title>百草奇遇记</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box;
     font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
@@ -44,7 +44,7 @@ body {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     width: 46px; height: 46px;
     background: transparent;
-    border: none; 
+    border: none;
     border-radius: 10px;
     cursor: pointer; transition: all 0.15s;
     overflow: hidden; position: relative;
@@ -269,7 +269,7 @@ body {
         <div id="playerRow">
             <div id="avatar"><img src="images/avatar.webp" alt="头像" onerror="this.style.display='none'"></div>
             <div id="playerDetails">
-                <div id="playerName">赤脚医生</div>
+                <div id="playerName">小药童</div>
                 <div id="playerPower">医力 <span id="powerText">1</span></div>
             </div>
         </div>
@@ -326,6 +326,7 @@ body {
     <div class="modal-box" id="modalContent"></div>
 </div>
 
+<script src="shop-data.js"></script>
 <script>
 // ===== 常量 =====
 var MAX_STAMINA = 5;
@@ -336,30 +337,6 @@ var MAX_DAYS = 7;
 var UNLOCK_POWER = 100;   // 解锁其他模块所需医力
 
 // ===== 商店商品 =====
-var SHOP_ITEMS = [
-    // 辅料
-    { category: 'materials', name: '黄酒',   display: '黄酒',   price: 4, icon: '🍶' },
-    { category: 'materials', name: '蜂蜜',   display: '蜂蜜',   price: 5, icon: '🍯' },
-    { category: 'materials', name: '盐',     display: '盐',     price: 2, icon: '🧂' },
-    { category: 'materials', name: '姜汁',   display: '姜汁',   price: 4, icon: '🫚' },
-    { category: 'materials', name: '醋',     display: '醋',     price: 3, icon: '🍾' },
-    { category: 'materials', name: '清水',   display: '清水',   price: 1, icon: '💧' },
-    { category: 'materials', name: '白矾',   display: '白矾',   price: 3, icon: '⬜' },
-    { category: 'materials', name: '麦麸',   display: '麦麸',   price: 2, icon: '🌾' },
-    { category: 'materials', name: '米泔水', display: '米泔水', price: 2, icon: '🍚' },
-    { category: 'materials', name: '甘草水', display: '甘草水', price: 5, icon: '🍵' },
-    { category: 'materials', name: '石灰水', display: '石灰水', price: 2, icon: '🥛' },
-    { category: 'materials', name: '黑豆汁', display: '黑豆汁', price: 6, icon: '🫘' },
-    // 种子
-    { category: 'seeds', name: '芍药', display: '芍药种子', price: 3, icon: '🌸' },
-    { category: 'seeds', name: '甘草', display: '甘草种子', price: 2, icon: '🌿' },
-    { category: 'seeds', name: '生姜', display: '生姜种子', price: 1, icon: '🫚' },
-    { category: 'seeds', name: '大枣', display: '大枣种子', price: 1, icon: '🍇' },
-    { category: 'seeds', name: '粳米', display: '粳米种子', price: 1, icon: '🌾' },
-    { category: 'seeds', name: '半夏', display: '半夏种子', price: 3, icon: '🌱' },
-    { category: 'seeds', name: '泽泻', display: '泽泻种子', price: 4, icon: '💧' },
-    { category: 'seeds', name: '栀子', display: '栀子种子', price: 2, icon: '🌼' }
-];
 
 // ===== 仓库系统 =====
 var WAREHOUSE_KEY = 'warehouse';
@@ -620,6 +597,22 @@ function openWarehouse() {
 function openShop() {
     var html = '<div class="modal-title">🛒 商店</div>';
     html += '<div class="shop-coins">💰 当前铜币：<span id="shopCoinText">' + getCoins() + '</span></div>';
+
+    // 🌿 药材
+    html += '<div class="shop-section">🌿 药材</div><div class="shop-grid">';
+    SHOP_ITEMS.filter(function(i) { return i.category === 'herbs'; }).forEach(function(item) {
+        var idx = SHOP_ITEMS.indexOf(item);
+        var canBuy = getCoins() >= item.price;
+        html += '<div class="shop-item">' +
+    '<img src="images/herbs/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+    '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
+    '<span class="item-name">' + item.display + '</span>' +
+    '<span class="item-price">💰 ' + item.price + '</span>' +
+    '<button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
+    });
+    html += '</div>';
+
+    // 🍯 辅料
     html += '<div class="shop-section">🍯 辅料</div><div class="shop-grid">';
     SHOP_ITEMS.filter(function(i) { return i.category === 'materials'; }).forEach(function(item) {
         var idx = SHOP_ITEMS.indexOf(item);
@@ -632,6 +625,8 @@ function openShop() {
     '<button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';
+
+    // 🌱 种子
     html += '<div class="shop-section">🌱 种子</div><div class="shop-grid">';
     SHOP_ITEMS.filter(function(i) { return i.category === 'seeds'; }).forEach(function(item) {
         var idx = SHOP_ITEMS.indexOf(item);
@@ -644,6 +639,7 @@ function openShop() {
     '<button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';
+
     html += '<button class="modal-btn secondary" onclick="closeModal()" style="margin-top:14px;">关闭</button>';
     document.getElementById('modalContent').innerHTML = html;
     document.getElementById('modalOverlay').classList.add('active');

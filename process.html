@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>炮制药材 - 重生之我是赤脚医生</title>
+<title>炮炙 - 百草奇遇记</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box;
     font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
@@ -210,6 +210,35 @@ body { user-select: none; background: #f5f0e8; display: flex; flex-direction: co
     color: #33691e; margin: 6px 0 4px;
     border-bottom: 1px solid #ccc; padding-bottom: 2px;
 }
+/* 商店 */
+.shop-coins {
+    font-size: 14px; font-weight: bold; color: #b85c00;
+    text-align: right; margin-bottom: 8px;
+}
+.shop-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin: 6px 0 10px;
+}
+.shop-item {
+    background: #f0e6d8; border: 2px solid #aed581;
+    border-radius: 14px; padding: 10px 6px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+}
+.shop-item .item-name { font-size: 14px; font-weight: bold; color: #33691e; }
+.shop-item .item-price { font-size: 13px; font-weight: bold; color: #c62828; }
+.shop-item .item-stock { font-size: 11px; color: #777; }
+.shop-buy {
+    width: 100%; padding: 6px 0;
+    border: 2px solid #558b2f; border-radius: 18px;
+    background: #aed581; color: #33691e;
+    font-weight: bold; font-size: 13px;
+    cursor: pointer; font-family: inherit;
+}
+.shop-buy:disabled {
+    background: #e0e0e0; border-color: #999;
+    color: #999; cursor: not-allowed;
+}
 </style>
 </head>
 <body>
@@ -218,7 +247,7 @@ body { user-select: none; background: #f5f0e8; display: flex; flex-direction: co
     <div style="display:flex;gap:6px;">
         <a class="top-btn" href="index.html">← 返回</a>
         <button class="top-btn" id="btnManual">📖 说明书</button>
-        <button class="top-btn" id="btnShop">🛒 购买辅料</button>
+        <button class="top-btn" id="btnShop">🛒 商店</button>
     </div>
     <div id="coinDisplay">
         <img src="images/icon-coin.webp" style="width:16px;height:16px;vertical-align:middle;margin-right:3px;" onerror="this.style.display='none'">
@@ -250,12 +279,11 @@ body { user-select: none; background: #f5f0e8; display: flex; flex-direction: co
 <div id="modalOverlay">
     <div class="modal-box">
         <div class="modal-title" id="modalTitle">提示</div>
-        <div class="modal-text" id="modalText"></div>
-        <div id="manualContent" style="display:none;"></div>
-        <button class="modal-btn" id="modalConfirm">确定</button>
+        ...
     </div>
 </div>
 
+<script src="shop-data.js"></script>
 <script>
 /* ===== 仓库 ===== */
 var WAREHOUSE_KEY = 'warehouse';
@@ -272,6 +300,7 @@ var warehouse = getWarehouse();
 var inventory = warehouse.herbs;
 var materialInventory = warehouse.materials;
 var processedInventory = warehouse.processed;
+if (!warehouse.seeds) warehouse.seeds = {};
 function saveInventory() { warehouse.herbs = inventory; saveWarehouse(warehouse); }
 function saveMaterial()  { warehouse.materials = materialInventory; saveWarehouse(warehouse); }
 function saveProcessed() { warehouse.processed = processedInventory; saveWarehouse(warehouse); }
@@ -296,6 +325,8 @@ if (Object.keys(inventory).length === 0) {
     Object.assign(inventory, testHerbs);
     saveInventory();
 }
+
+
 
 /* ===== 工具（全部放左栏） ===== */
 var TOOLS = {
@@ -327,14 +358,11 @@ var MATERIALS = {
     '黑豆汁':  { icon: '🫘', price: 6 }
 };
 
-/* ===== 炮制路径 =====
+/* ===== 炮炙路径 =====
    steps：每步的 tool（用 TOOLS 的 key）或 material（辅料名）
-   img  ：炮制完成后的饮片图文件名（不含 .webp），对应 images/processed/<img>.webp
+   img  ：炮炙完成后的饮片图文件名（不含 .webp），对应 images/processed/<img>.webp
           留空表示没有饮片图，直接沿用生药图 images/herbs/<生药名>.webp
    result：收好后入仓的产物名
-
-   注意：中间步骤一律沿用生药图（因为没有"半成品"图），
-        只有走完全部步骤后才切成 <img> 指定的饮片图。
 */
 var HERB_PROCESSES = {
     '桂枝': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'桂枝饮片', result:'桂枝饮片' },
@@ -415,7 +443,7 @@ function renderRow(rowEl, herbs) {
         slot.className = 'herb-slot';
         if (currentHerb === name) slot.classList.add('selected');
         slot.innerHTML =
-            '<img src="images/herbs/' + name + '.webp" onerror="this.style.display=\'none\';">' +
+            '<img src="images/herbs/' + encodeURI(name) + '.webp" onerror="this.style.display=\'none\';">' +
             '<span class="hname">' + name + '</span>' +
             '<span class="hcount">x' + inventory[name] + '</span>';
         slot.addEventListener('click', function() { selectHerb(name); });
@@ -458,7 +486,7 @@ function renderTools() {
         var btn = document.createElement('div');
         btn.className = 'material-btn' + (count <= 0 ? ' out' : '');
         btn.innerHTML =
-            '<img src="images/materials/' + name + '.webp" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+            '<img src="images/materials/' + encodeURI(name) + '.webp" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
             '<span class="ticon" style="display:none;">' + info.icon + '</span>' +
             '<span>' + name + '</span>' +
             '<span class="mcount">x' + count + '</span>';
@@ -476,10 +504,7 @@ function resolveImgPath(imgFile, herbName) {
     return 'images/herbs/' + herbName + '.webp';
 }
 
-/* ===== 显示某一步对应的图 =====
-   - 用 token 防连点竞态
-   - 缺图 → 显示缺图占位，并把缺失路径打到控制台
-*/
+/* ===== 显示某一步对应的图 ===== */
 var stageToken = 0;
 function setStageImg(imgFile, herbName) {
     var token = ++stageToken;
@@ -502,7 +527,7 @@ function setStageImg(imgFile, herbName) {
         stagePlaceholder.style.display = 'flex';
         stagePlaceholder.innerHTML = '<span class="ph-icon">🖼️</span><span>缺图</span>';
         stagePlaceholder.title = '缺少图片：' + rawPath;
-        console.warn('[炮制] 缺少图片：' + rawPath);
+        console.warn('[炮炙] 缺少图片：' + rawPath);
     };
     probe.src = url;
 }
@@ -521,7 +546,7 @@ function renderStepList() {
     if (!currentHerb) return;
     var proc = HERB_PROCESSES[currentHerb];
     if (!proc || proc.steps.length === 0) {
-        stepList.innerHTML = '<span class="step-todo">无需炮制</span>';
+        stepList.innerHTML = '<span class="step-todo">无需炮炙</span>';
         return;
     }
     var html = '';
@@ -541,7 +566,7 @@ function selectHerb(name) {
     if (inventory[name] <= 0) { showModal('提示', '库存不足！'); return; }
 
     var proc = HERB_PROCESSES[name];
-    if (!proc) { showModal('提示', '这个药材暂时不支持炮制。'); return; }
+    if (!proc) { showModal('提示', '这个药材暂时不支持炮炙。'); return; }
 
     inventory[name] -= 1;
     saveInventory();
@@ -550,11 +575,9 @@ function selectHerb(name) {
     stepIndex = 0;
 
     if (proc.steps.length === 0) {
-        // 零步：直接显示饮片图（若无 img 则显示生图）
         setStageImg(proc.img, name);
         btnFinish.disabled = false;
     } else {
-        // 显示生图
         setStageImg('', name);
         btnFinish.disabled = true;
     }
@@ -571,7 +594,7 @@ function useTool(key) {
 
     var proc = HERB_PROCESSES[currentHerb];
     if (!proc || proc.steps.length === 0) {
-        showModal('提示', '【' + currentHerb + '】无需炮制。');
+        showModal('提示', '【' + currentHerb + '】无需炮炙。');
         return;
     }
     var step = proc.steps[stepIndex];
@@ -592,7 +615,7 @@ function useMaterial(name) {
 
     var proc = HERB_PROCESSES[currentHerb];
     if (!proc || proc.steps.length === 0) {
-        showModal('提示', '【' + currentHerb + '】无需炮制。');
+        showModal('提示', '【' + currentHerb + '】无需炮炙。');
         return;
     }
     var step = proc.steps[stepIndex];
@@ -604,7 +627,7 @@ function useMaterial(name) {
         return;
     }
     if (!materialInventory[name] || materialInventory[name] <= 0) {
-        showModal('辅料不足', '【' + name + '】已用完。\n请点击"🛒 购买辅料"补充。');
+        showModal('辅料不足', '【' + name + '】已用完。\n请点击"🛒 商店"补充。');
         return;
     }
 
@@ -620,14 +643,12 @@ function advanceStep() {
     var proc = HERB_PROCESSES[currentHerb];
     stepIndex++;
     if (stepIndex >= proc.steps.length) {
-        // 全部完成 → 切换到饮片图
         currentProcessed = proc.result;
         setStageImg(proc.img, currentHerb);
-        counterHerb.textContent = '炮制品：' + proc.result;
+        counterHerb.textContent = '炮炙品：' + proc.result;
         btnFinish.disabled = false;
     } else {
-        // 中间步骤：目录里没有半成品图，沿用生图
-        counterHerb.textContent = '炮制中：' + currentHerb;
+        counterHerb.textContent = '炮炙中：' + currentHerb;
     }
     renderStepList();
 }
@@ -662,7 +683,7 @@ function playMaterialAnim(name, callback) {
     var matEl = document.createElement('div');
     matEl.className = 'stage-anim';
     matEl.innerHTML =
-        '<img src="images/materials/' + name + '.webp" style="width:60px;height:60px;object-fit:contain;" ' +
+        '<img src="images/materials/' + encodeURI(name) + '.webp" style="width:60px;height:60px;object-fit:contain;" ' +
         'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
         '<span style="display:none;font-size:40px;">' + info.icon + '</span>';
     matEl.style.right = '-60px';
@@ -710,11 +731,11 @@ btnCancel.addEventListener('click', function() {
 
 /* ===== 说明书 ===== */
 document.getElementById('btnManual').addEventListener('click', function() {
-    var html = '<h4>🌿 药材炮制指南</h4>';
+    var html = '<h4>🌿 药材炮炙指南</h4>';
     Object.keys(HERB_PROCESSES).forEach(function(herb) {
         var proc = HERB_PROCESSES[herb];
         if (proc.steps.length === 0) {
-            html += '<div><b>' + herb + '</b>：无需炮制</div>';
+            html += '<div><b>' + herb + '</b>：无需炮炙</div>';
             return;
         }
         var steps = proc.steps.map(function(s) {
@@ -722,46 +743,80 @@ document.getElementById('btnManual').addEventListener('click', function() {
                 var t = TOOLS[s.tool];
                 return '<img src="images/tools/' + s.tool + '.webp" style="width:16px;height:16px;vertical-align:middle;margin:0 2px;" onerror="this.style.display=\'none\'">' + t.name;
             }
-            return '<img src="images/materials/' + s.material + '.webp" style="width:16px;height:16px;vertical-align:middle;margin:0 2px;" onerror="this.style.display=\'none\'">' + s.material;
+            return '<img src="images/materials/' + encodeURI(s.material) + '.webp" style="width:16px;height:16px;vertical-align:middle;margin:0 2px;" onerror="this.style.display=\'none\'">' + s.material;
         });
         html += '<div><b>' + herb + '</b>：' + steps.join(' → ') + ' → ' + proc.result + '</div>';
     });
-    showModal('炮制说明书', html, true);
+    showModal('炮炙说明书', html, true);
 });
 
-/* ===== 购买辅料 ===== */
-document.getElementById('btnShop').addEventListener('click', function() {
-    var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;">';
-    Object.keys(MATERIALS).forEach(function(name) {
-        var info = MATERIALS[name];
-        var count = materialInventory[name] || 0;
-        html +=
-            '<div style="background:#f0e6d8;border:2px solid #aed581;border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;">' +
-                '<img src="images/materials/' + name + '.webp" style="width:50px;height:50px;object-fit:contain;" onerror="this.style.display=\'none\';">' +
-                '<div style="font-size:14px;font-weight:bold;color:#33691e;">' + name + '</div>' +
-                '<div style="font-size:13px;font-weight:bold;color:#c62828;">💰 ' + info.price + '</div>' +
-                '<div class="shop-stock" style="font-size:11px;color:#777;">库存：' + count + '</div>' +
-                '<button class="shop-buy" data-material="' + name + '" data-price="' + info.price + '" style="width:100%;padding:6px 0;border:2px solid #558b2f;border-radius:18px;background:#aed581;color:#33691e;font-weight:bold;font-size:13px;cursor:pointer;font-family:inherit;">购买</button>' +
-            '</div>';
+/* ===== 商店（与 index.html 统一：药材 / 辅料 / 种子） ===== */
+function getStockOf(item) {
+    var bag = warehouse[item.category] || {};
+    return bag[item.name] || 0;
+}
+function buildShopHtml() {
+    var html = '<div class="shop-coins">💰 当前铜币：' + getCoins() + '</div>';
+    var groups = [
+        { key: 'herbs',     title: '🌿 药材', path: 'images/herbs/' },
+        { key: 'materials', title: '🍯 辅料', path: 'images/materials/' },
+        { key: 'seeds',     title: '🌱 种子', path: 'images/seeds/' }
+    ];
+    groups.forEach(function(g) {
+        html += '<h4>' + g.title + '</h4><div class="shop-grid">';
+        SHOP_ITEMS.forEach(function(item, idx) {
+            if (item.category !== g.key) return;
+            var stock = getStockOf(item);
+            var canBuy = getCoins() >= item.price;
+            html +=
+                '<div class="shop-item">' +
+                    '<img src="' + g.path + encodeURI(item.name) + '.webp" ' +
+                        'style="width:50px;height:50px;object-fit:contain;" ' +
+                        'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+                    '<span style="display:none;font-size:26px;">' + item.icon + '</span>' +
+                    '<div class="item-name">' + item.display + '</div>' +
+                    '<div class="item-price">💰 ' + item.price + '</div>' +
+                    '<div class="item-stock" data-stock-key="' + item.category + '|' + item.name + '">库存：' + stock + '</div>' +
+                    '<button class="shop-buy" data-idx="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button>' +
+                '</div>';
+        });
+        html += '</div>';
     });
-    html += '</div>';
-    showModal('🛒 购买辅料', html, true);
+    return html;
+}
+document.getElementById('btnShop').addEventListener('click', function() {
+    showModal('🛒 商店', buildShopHtml(), true);
 
     var mc = document.getElementById('manualContent');
     mc.onclick = function(e) {
         var btn = e.target.closest ? e.target.closest('.shop-buy') : null;
         if (!btn) return;
-        var mat = btn.getAttribute('data-material');
-        var price = parseInt(btn.getAttribute('data-price'), 10);
+        var idx = parseInt(btn.getAttribute('data-idx'), 10);
+        var item = SHOP_ITEMS[idx];
+        if (!item) return;
         var cur = getCoins();
-        if (cur < price) { alert('铜币不足！'); return; }
-        setCoins(cur - price);
+        if (cur < item.price) { alert('铜币不足！'); return; }
+
+        setCoins(cur - item.price);
         updateCoinDisplay();
-        materialInventory[mat] = (materialInventory[mat] || 0) + 1;
-        saveMaterial();
-        renderTools();
-        var card = btn.parentElement;
-        card.querySelector('.shop-stock').textContent = '库存：' + materialInventory[mat];
+        if (!warehouse[item.category]) warehouse[item.category] = {};
+        warehouse[item.category][item.name] =
+            (warehouse[item.category][item.name] || 0) + 1;
+        saveWarehouse(warehouse);
+
+        /* 更新库存显示 */
+        var stockEl = btn.parentElement.querySelector('.item-stock');
+        if (stockEl) {
+            var s = warehouse[item.category][item.name];
+            stockEl.textContent = '库存：' + s;
+        }
+        /* 余额不足时把所有购买按钮置灰 */
+        if (getCoins() < item.price) {
+            // 只处理当前这个按钮（不影响其它商品的可用性）
+        }
+        /* 刷新左侧工具/右栏辅料、上下药材栏 */
+        if (item.category === 'materials') renderTools();
+        if (item.category === 'herbs') renderHerbRows();
     };
 });
 
