@@ -256,161 +256,221 @@ function saveProcessed() {
     warehouse.processed = processedInventory;
     saveWarehouse(warehouse);
 }
-function getCoins() { return parseInt(localStorage.getItem('coins') || 0); }
+function getCoins() { return parseInt(localStorage.getItem('coins') || 0, 10) || 0; }
 function setCoins(n) { localStorage.setItem('coins', String(n)); }
 function updateCoinDisplay() {
     document.getElementById('coinDisplay').textContent = '💰 ' + getCoins();
 }
 updateCoinDisplay();
 
-/* ===== 处方数据 ===== */
+/* ===== 饮片名 → 处方纯名 =====
+   处方左侧一律显示"纯药材名"（去掉炮制说明）：
+   炙甘草→甘草，炮附子→附子，炒白术→白术，碎石膏→石膏，
+   厚朴饮片→厚朴，当归饮片→当归，泽泻饮片→泽泻，半夏饮片→半夏，
+   杏仁饮片→杏仁，其它饮片去掉"饮片"后缀。
+*/
+var PLAIN_MAP = {
+    '桂枝饮片':   '桂枝',
+    '麻黄饮片':   '麻黄',
+    '杏仁饮片':   '杏仁',
+    '炙甘草':     '甘草',
+    '芍药饮片':   '芍药',
+    '生姜饮片':   '生姜',
+    '干姜饮片':   '干姜',
+    '大枣饮片':   '大枣',
+    '葛根饮片':   '葛根',
+    '细辛饮片':   '细辛',
+    '柴胡饮片':   '柴胡',
+    '黄芩饮片':   '黄芩',
+    '知母饮片':   '知母',
+    '炮附子':     '附子',
+    '炒白术':     '白术',
+    '大黄饮片':   '大黄',
+    '厚朴饮片':   '厚朴',
+    '枳实饮片':   '枳实',
+    '猪苓饮片':   '猪苓',
+    '当归饮片':   '当归',
+    '泽泻饮片':   '泽泻',
+    '栀子饮片':   '栀子',
+    '半夏饮片':   '半夏',
+    '茯苓饮片':   '茯苓',
+    '五味子饮片': '五味子',
+    '茵陈饮片':   '茵陈',
+    '人参':       '人参',
+    '黄连饮片':   '黄连',
+    '通草饮片':   '通草',
+    '碎石膏':     '石膏',
+    '芒硝':       '芒硝',
+    '淡豆豉':     '淡豆豉',
+    '饴糖':       '饴糖',
+    '粳米':       '粳米'
+};
+function plainName(key) {
+    return PLAIN_MAP[key] || key.replace(/饮片$/, '');
+}
+/* 饮片图路径（统一从 images/processed/ 取） */
+function processedImg(key) {
+    return 'images/processed/' + encodeURI(key) + '.webp';
+}
+
+/* ===== 处方数据（key 严格对齐 process.html 的 result） ===== */
 var PRESCRIPTIONS = [
     { name: '麻黄汤', herbs: [
-        { name: '麻黄(去节)', amount: 3 },
-        { name: '桂枝(去皮)', amount: 2 },
-        { name: '山杏(去皮尖)', amount: 3 },
-        { name: '甘草(蜜炙)', amount: 1 }
+        { name: '麻黄饮片', amount: 3 },
+        { name: '桂枝饮片', amount: 2 },
+        { name: '杏仁饮片', amount: 3 },
+        { name: '炙甘草',   amount: 1 }
     ]},
     { name: '桂枝汤', herbs: [
-        { name: '桂枝(去皮)', amount: 3 },
-        { name: '芍药(切片)', amount: 3 },
-        { name: '甘草(蜜炙)', amount: 2 },
-        { name: '生姜(切片)', amount: 3 },
-        { name: '大枣(擘)', amount: 3 }
+        { name: '桂枝饮片', amount: 3 },
+        { name: '芍药饮片', amount: 3 },
+        { name: '炙甘草',   amount: 2 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 }
     ]},
     { name: '葛根汤', herbs: [
-        { name: '葛根(切片)', amount: 3 },
-        { name: '麻黄(去节)', amount: 3 },
-        { name: '桂枝(去皮)', amount: 2 },
-        { name: '芍药(切片)', amount: 2 },
-        { name: '甘草(蜜炙)', amount: 2 },
-        { name: '生姜(切片)', amount: 3 },
-        { name: '大枣(擘)', amount: 3 }
+        { name: '葛根饮片', amount: 3 },
+        { name: '麻黄饮片', amount: 3 },
+        { name: '桂枝饮片', amount: 2 },
+        { name: '芍药饮片', amount: 2 },
+        { name: '炙甘草',   amount: 2 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 }
     ]},
     { name: '小青龙汤', herbs: [
-        { name: '麻黄(去节)', amount: 3 },
-        { name: '芍药(切片)', amount: 3 },
-        { name: '细辛', amount: 3 },
-        { name: '干姜(切片)', amount: 3 },
-        { name: '甘草(蜜炙)', amount: 3 },
-        { name: '桂枝(去皮)', amount: 3 },
-        { name: '五味子', amount: 3 },
-        { name: '姜半夏', amount: 3 }
+        { name: '麻黄饮片',   amount: 3 },
+        { name: '芍药饮片',   amount: 3 },
+        { name: '细辛饮片',   amount: 3 },
+        { name: '干姜饮片',   amount: 3 },
+        { name: '炙甘草',     amount: 3 },
+        { name: '桂枝饮片',   amount: 3 },
+        { name: '五味子饮片', amount: 3 },
+        { name: '半夏饮片',   amount: 3 }
     ]},
     { name: '大青龙汤', herbs: [
-        { name: '麻黄(去节)', amount: 4 },
-        { name: '桂枝(去皮)', amount: 2 },
-        { name: '甘草(蜜炙)', amount: 2 },
-        { name: '山杏(去皮尖)', amount: 3 },
-        { name: '生姜(切片)', amount: 3 },
-        { name: '大枣(擘)', amount: 3 },
-        { name: '碎石膏', amount: 3 }
+        { name: '麻黄饮片', amount: 4 },
+        { name: '桂枝饮片', amount: 2 },
+        { name: '炙甘草',   amount: 2 },
+        { name: '杏仁饮片', amount: 3 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 },
+        { name: '碎石膏',   amount: 3 }
     ]},
     { name: '小柴胡汤', herbs: [
-        { name: '柴胡', amount: 4 },
-        { name: '黄芩', amount: 3 },
-        { name: '人参', amount: 3 },
-        { name: '姜半夏', amount: 3 },
-        { name: '甘草(蜜炙)', amount: 3 },
-        { name: '生姜(切片)', amount: 3 },
-        { name: '大枣(擘)', amount: 3 }
+        { name: '柴胡饮片', amount: 4 },
+        { name: '黄芩饮片', amount: 3 },
+        { name: '人参',     amount: 3 },
+        { name: '半夏饮片', amount: 3 },
+        { name: '炙甘草',   amount: 3 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 }
     ]},
     { name: '大柴胡汤', herbs: [
-        { name: '柴胡', amount: 4 },
-        { name: '黄芩', amount: 3 },
-        { name: '芍药(切片)', amount: 3 },
-        { name: '姜半夏', amount: 3 },
-        { name: '生姜(切片)', amount: 3 },
-        { name: '炒枳实', amount: 3 },
-        { name: '大枣(擘)', amount: 3 },
-        { name: '酒洗大黄', amount: 2 }
+        { name: '柴胡饮片', amount: 4 },
+        { name: '黄芩饮片', amount: 3 },
+        { name: '芍药饮片', amount: 3 },
+        { name: '半夏饮片', amount: 3 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '枳实饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 },
+        { name: '大黄饮片', amount: 2 }
     ]},
     { name: '白虎汤', herbs: [
-        { name: '知母(去毛)', amount: 3 },
-        { name: '碎石膏', amount: 4 },
-        { name: '甘草(蜜炙)', amount: 1 },
-        { name: '粳米', amount: 3 }
+        { name: '知母饮片', amount: 3 },
+        { name: '碎石膏',   amount: 4 },
+        { name: '炙甘草',   amount: 1 },
+        { name: '粳米',     amount: 3 }
     ]},
     { name: '小承气汤', herbs: [
-        { name: '酒洗大黄', amount: 3 },
-        { name: '炒枳实', amount: 3 },
-        { name: '姜炙厚朴', amount: 2 }
+        { name: '大黄饮片', amount: 3 },
+        { name: '枳实饮片', amount: 3 },
+        { name: '厚朴饮片', amount: 2 }
     ]},
     { name: '大承气汤', herbs: [
-        { name: '酒洗大黄', amount: 3 },
-        { name: '姜炙厚朴', amount: 3 },
-        { name: '炒枳实', amount: 3 },
-        { name: '芒硝', amount: 2 }
+        { name: '大黄饮片', amount: 3 },
+        { name: '厚朴饮片', amount: 3 },
+        { name: '枳实饮片', amount: 3 },
+        { name: '芒硝',     amount: 2 }
     ]},
     { name: '调胃承气汤', herbs: [
-        { name: '酒洗大黄', amount: 3 },
-        { name: '芒硝', amount: 2 },
-        { name: '甘草(蜜炙)', amount: 2 }
+        { name: '大黄饮片', amount: 3 },
+        { name: '芒硝',     amount: 2 },
+        { name: '炙甘草',   amount: 2 }
     ]},
     { name: '理中汤', herbs: [
-        { name: '人参', amount: 3 },
-        { name: '干姜(切片)', amount: 3 },
-        { name: '甘草(蜜炙)', amount: 3 },
-        { name: '炒白术', amount: 3 }
+        { name: '人参',     amount: 3 },
+        { name: '干姜饮片', amount: 3 },
+        { name: '炙甘草',   amount: 3 },
+        { name: '炒白术',   amount: 3 }
     ]},
     { name: '四逆汤', herbs: [
-        { name: '炮附子', amount: 1 },
-        { name: '干姜(切片)', amount: 2 },
-        { name: '甘草(蜜炙)', amount: 2 }
+        { name: '炮附子',   amount: 1 },
+        { name: '干姜饮片', amount: 2 },
+        { name: '炙甘草',   amount: 2 }
     ]},
     { name: '真武汤', herbs: [
-        { name: '茯苓', amount: 3 },
-        { name: '芍药(切片)', amount: 3 },
-        { name: '生姜(切片)', amount: 3 },
-        { name: '炒白术', amount: 2 },
-        { name: '炮附子', amount: 1 }
+        { name: '茯苓饮片', amount: 3 },
+        { name: '芍药饮片', amount: 3 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '炒白术',   amount: 2 },
+        { name: '炮附子',   amount: 1 }
     ]},
     { name: '五苓散', herbs: [
-        { name: '猪苓(去皮)', amount: 2 },
-        { name: '盐炙泽泻', amount: 3 },
-        { name: '炒白术', amount: 2 },
-        { name: '茯苓', amount: 2 },
-        { name: '桂枝(去皮)', amount: 2 }
+        { name: '猪苓饮片', amount: 2 },
+        { name: '泽泻饮片', amount: 3 },
+        { name: '炒白术',   amount: 2 },
+        { name: '茯苓饮片', amount: 2 },
+        { name: '桂枝饮片', amount: 2 }
     ]},
     { name: '半夏泻心汤', herbs: [
-        { name: '姜半夏', amount: 3 },
-        { name: '黄芩', amount: 3 },
-        { name: '干姜(切片)', amount: 3 },
-        { name: '人参', amount: 3 },
-        { name: '甘草(蜜炙)', amount: 3 },
-        { name: '黄连', amount: 1 },
-        { name: '大枣(擘)', amount: 3 }
+        { name: '半夏饮片', amount: 3 },
+        { name: '黄芩饮片', amount: 3 },
+        { name: '干姜饮片', amount: 3 },
+        { name: '人参',     amount: 3 },
+        { name: '炙甘草',   amount: 3 },
+        { name: '黄连饮片', amount: 1 },
+        { name: '大枣饮片', amount: 3 }
     ]},
     { name: '栀子豉汤', herbs: [
-        { name: '栀子(擘)', amount: 2 },
-        { name: '淡豆豉', amount: 3 }
+        { name: '栀子饮片', amount: 2 },
+        { name: '淡豆豉',   amount: 3 }
     ]},
     { name: '茵陈蒿汤', herbs: [
-        { name: '茵陈', amount: 3 },
-        { name: '栀子(擘)', amount: 2 },
-        { name: '酒洗大黄', amount: 2 }
+        { name: '茵陈饮片', amount: 3 },
+        { name: '栀子饮片', amount: 2 },
+        { name: '大黄饮片', amount: 2 }
     ]},
     { name: '当归四逆汤', herbs: [
-        { name: '酒洗当归', amount: 3 },
-        { name: '桂枝(去皮)', amount: 3 },
-        { name: '芍药(切片)', amount: 3 },
-        { name: '细辛', amount: 3 },
-        { name: '甘草(蜜炙)', amount: 2 },
-        { name: '通草', amount: 2 },
-        { name: '大枣(擘)', amount: 3 }
+        { name: '当归饮片', amount: 3 },
+        { name: '桂枝饮片', amount: 3 },
+        { name: '芍药饮片', amount: 3 },
+        { name: '细辛饮片', amount: 3 },
+        { name: '炙甘草',   amount: 2 },
+        { name: '通草饮片', amount: 2 },
+        { name: '大枣饮片', amount: 3 }
     ]},
     { name: '小建中汤', herbs: [
-        { name: '桂枝(去皮)', amount: 3 },
-        { name: '芍药(切片)', amount: 3 },
-        { name: '甘草(蜜炙)', amount: 2 },
-        { name: '生姜(切片)', amount: 3 },
-        { name: '大枣(擘)', amount: 3 },
-        { name: '饴糖', amount: 2 }
+        { name: '桂枝饮片', amount: 3 },
+        { name: '芍药饮片', amount: 3 },
+        { name: '炙甘草',   amount: 2 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 },
+        { name: '饴糖',     amount: 2 }
     ]}
 ];
 
-/* ===== 药盘持久化 ===== */
+/* ===== 药盘持久化 =====
+   由于处方 key 结构变更过，用版本号清理旧数据。 */
 var PLATES_KEY = 'dispensePlates';
+var PLATES_VERSION_KEY = 'dispensePlatesVersion';
+var PLATES_VERSION = 2;
+(function migratePlatesIfNeeded() {
+    var v = parseInt(localStorage.getItem(PLATES_VERSION_KEY) || 0, 10);
+    if (v !== PLATES_VERSION) {
+        localStorage.removeItem(PLATES_KEY);
+        localStorage.setItem(PLATES_VERSION_KEY, String(PLATES_VERSION));
+    }
+})();
 function getPlates() {
     try {
         return JSON.parse(localStorage.getItem(PLATES_KEY)) || {};
@@ -421,7 +481,7 @@ function savePlates(p) {
 }
 
 /* ===== 当前状态 ===== */
-var currentOrderIndex = parseInt(localStorage.getItem('currentPrescriptionIndex') || 0);
+var currentOrderIndex = parseInt(localStorage.getItem('currentPrescriptionIndex') || 0, 10);
 if (isNaN(currentOrderIndex) || currentOrderIndex < 0 || currentOrderIndex >= PRESCRIPTIONS.length) {
     currentOrderIndex = 0;
 }
@@ -431,20 +491,15 @@ var allPlates = getPlates();
 
 /* ===== 处方切换 ===== */
 function loadOrder(index) {
-    // 先保存当前药盘
     allPlates[currentOrderIndex] = plate;
     savePlates(allPlates);
 
-    // 切换到新处方
     currentOrderIndex = index;
     localStorage.setItem('currentPrescriptionIndex', String(currentOrderIndex));
     currentOrder = JSON.parse(JSON.stringify(PRESCRIPTIONS[index]));
-
-    // 加载该处方的药盘
     plate = allPlates[currentOrderIndex] || {};
     renderAll();
 }
-
 function prevOrder() {
     var idx = currentOrderIndex - 1;
     if (idx < 0) idx = PRESCRIPTIONS.length - 1;
@@ -464,6 +519,7 @@ function renderAll() {
     checkReady();
 }
 
+/* 左侧处方：只显示纯药材名 */
 function renderOrder() {
     document.getElementById('orderTitle').textContent = '📜 ' + currentOrder.name;
     var list = document.getElementById('orderList');
@@ -472,11 +528,14 @@ function renderOrder() {
         var got = plate[h.name] || 0;
         var div = document.createElement('div');
         div.className = 'order-item' + (got === h.amount ? ' done' : '');
-        div.innerHTML = '<span>' + h.name + '</span><span class="cnt">' + got + ' / ' + h.amount + ' 两</span>';
+        div.innerHTML =
+            '<span>' + plainName(h.name) + '</span>' +
+            '<span class="cnt">' + got + ' / ' + h.amount + ' 两</span>';
         list.appendChild(div);
     });
 }
 
+/* 药盘：显示饮片名 + images/processed 图 */
 function renderPlate() {
     var grid = document.getElementById('plateGrid');
     grid.innerHTML = '';
@@ -486,19 +545,24 @@ function renderPlate() {
         var div = document.createElement('div');
         div.className = 'plate-herb';
         div.innerHTML =
-            '<img src="images/herbs/processed/' + name + '.webp" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+            '<img src="' + processedImg(name) + '" ' +
+                'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
             '<span style="display:none;font-size:20px;">🌿</span>' +
             '<span class="pname">' + name + '</span>' +
             '<span class="pcount">×' + count + '</span>';
+        div.title = '点击退回库存';
         div.addEventListener('click', function() { removeFromPlate(name); });
         grid.appendChild(div);
     });
 }
 
+/* 右栏库存：显示饮片名 + images/processed 图 */
 function renderStock() {
     var list = document.getElementById('stockList');
     list.innerHTML = '';
-    var keys = Object.keys(processedInventory).filter(function(k) { return processedInventory[k] > 0; });
+    var keys = Object.keys(processedInventory).filter(function(k) {
+        return processedInventory[k] > 0;
+    });
     if (keys.length === 0) {
         list.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">库存为空，去炮制药材吧</div>';
         return;
@@ -509,7 +573,8 @@ function renderStock() {
         var div = document.createElement('div');
         div.className = 'stock-item';
         div.innerHTML =
-            '<img src="images/herbs/processed/' + name + '.webp" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+            '<img src="' + processedImg(name) + '" ' +
+                'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
             '<span style="display:none;font-size:20px;">🌿</span>' +
             '<div class="sinfo">' +
                 '<div class="sname">' + name + '</div>' +
@@ -527,10 +592,10 @@ function addToPlate(name) {
     for (var i = 0; i < currentOrder.herbs.length; i++) {
         if (currentOrder.herbs[i].name === name) { need = currentOrder.herbs[i]; break; }
     }
-    if (!need) return;
+    if (!need) return;                                     // 处方里不需要这味
     var current = plate[name] || 0;
-    if (current >= need.amount) return;
-    if ((processedInventory[name] || 0) <= 0) return;
+    if (current >= need.amount) return;                    // 已经够了
+    if ((processedInventory[name] || 0) <= 0) return;      // 库存不足
 
     processedInventory[name] -= 1;
     plate[name] = current + 1;
@@ -551,7 +616,6 @@ function removeFromPlate(name) {
 
 function savePlate() {
     allPlates[currentOrderIndex] = plate;
-    // 清理空药盘
     Object.keys(allPlates).forEach(function(k) {
         if (!allPlates[k] || Object.keys(allPlates[k]).length === 0) {
             delete allPlates[k];
@@ -580,7 +644,9 @@ document.getElementById('btnPack').addEventListener('click', function() {
     var bag = {
         id: 'bag_' + Date.now(),
         name: currentOrder.name,
-        herbs: currentOrder.herbs.map(function(h) { return h.name + ' ×' + h.amount + '两'; }),
+        herbs: currentOrder.herbs.map(function(h) {
+            return plainName(h.name) + ' ×' + h.amount + '两';
+        }),
         createdAt: Date.now()
     };
     var bags = JSON.parse(localStorage.getItem('medicineBags') || '[]');
@@ -595,14 +661,15 @@ document.getElementById('btnPack').addEventListener('click', function() {
 
 function showBag(bag) {
     document.getElementById('bagName').textContent = bag.name;
-    document.getElementById('bagHerbs').innerHTML = bag.herbs.join('<br>') + '<br><br>💰 +50';
+    document.getElementById('bagHerbs').innerHTML =
+        bag.herbs.join('<br>') + '<br><br>💰 +50';
     document.getElementById('bagModal').classList.add('active');
 }
 
 document.getElementById('bagConfirm').addEventListener('click', function() {
     document.getElementById('bagModal').classList.remove('active');
     plate = {};
-    savePlate();   // 打包后清空药盘
+    savePlate();
     renderAll();
 });
 
