@@ -284,11 +284,10 @@ body { user-select: none; background: #f5f0e8; display: flex; flex-direction: co
     </div>
 </div>
 
-<!-- ★ 引用共享商店数据（不在这里重复定义 SHOP_ITEMS） -->
 <script src="shop-data.js"></script>
 
 <script>
-/* ===== 仓库（防弹版：老存档缺字段也不会崩）===== */
+/* ===== 仓库（防弹版）===== */
 var WAREHOUSE_KEY = 'warehouse';
 function getWarehouse() {
     var w;
@@ -364,42 +363,119 @@ var MATERIALS = {
     '黑豆汁':  { icon: '🫘', price: 6 }
 };
 
-/* ===== 炮炙路径 ===== */
+/* ===== 炮炙路径 =====
+   每味药有 routes 数组（可以多条）：
+   - route.name  ：路径名，在选路径弹窗里显示
+   - route.steps ：步骤，tool 用 TOOLS 的 key，或用 material 名
+   - route.img   ：完成后的饮片图文件名（不含 .webp），对应 images/processed/
+                   留空则沿用生药图 images/herbs/<生药名>.webp
+   - route.result：入仓的产物名
+*/
 var HERB_PROCESSES = {
-    '桂枝': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'桂枝饮片', result:'桂枝饮片' },
-    '麻黄': { steps: [ {tool:'wash'}, {tool:'remove'} ], img:'麻黄饮片', result:'麻黄饮片' },
-    '山杏': { steps: [ {tool:'wash'}, {tool:'peel'} ], img:'杏仁饮片', result:'杏仁饮片' },
-    '甘草': { steps: [ {tool:'wash'}, {tool:'cut'}, {material:'蜂蜜'} ], img:'炙甘草', result:'炙甘草' },
-    '芍药': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'芍药饮片', result:'芍药饮片' },
-    '生姜': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'生姜饮片', result:'生姜饮片' },
-    '干姜': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'干姜饮片', result:'干姜饮片' },
-    '大枣': { steps: [ {tool:'wash'}, {tool:'break'} ], img:'大枣饮片', result:'大枣饮片' },
-    '葛根': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'葛根饮片', result:'葛根饮片' },
-    '细辛': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'细辛饮片', result:'细辛饮片' },
-    '柴胡': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'柴胡饮片', result:'柴胡饮片' },
-    '黄芩': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'黄芩饮片', result:'黄芩饮片' },
-    '知母': { steps: [ {tool:'wash'}, {tool:'scrape'} ], img:'知母饮片', result:'知母饮片' },
-    '附子': { steps: [ {tool:'wash'}, {tool:'fire'}, {tool:'peel'} ], img:'炮附子', result:'炮附子' },
-    '白术': { steps: [ {tool:'wash'}, {tool:'cut'}, {tool:'fry'} ], img:'炒白术', result:'炒白术' },
-    '大黄': { steps: [ {tool:'wash'}, {material:'黄酒'} ], img:'大黄饮片', result:'大黄饮片' },
-    '厚朴': { steps: [ {tool:'wash'}, {tool:'scrape'}, {material:'姜汁'} ], img:'厚朴饮片', result:'厚朴饮片' },
-    '枳实': { steps: [ {tool:'wash'}, {tool:'cut'}, {tool:'fry'} ], img:'枳实饮片', result:'枳实饮片' },
-    '猪苓': { steps: [ {tool:'wash'}, {tool:'scrape'} ], img:'猪苓饮片', result:'猪苓饮片' },
-    '当归': { steps: [ {tool:'wash'}, {material:'黄酒'} ], img:'当归饮片', result:'当归饮片' },
-    '泽泻': { steps: [ {tool:'wash'}, {tool:'cut'}, {material:'盐'} ], img:'泽泻饮片', result:'泽泻饮片' },
-    '栀子': { steps: [ {tool:'wash'}, {tool:'break'} ], img:'栀子饮片', result:'栀子饮片' },
-    '半夏': { steps: [ {material:'清水'}, {material:'白矾'}, {material:'姜汁'} ], img:'半夏饮片', result:'半夏饮片' },
-    '茯苓': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'茯苓饮片', result:'茯苓饮片' },
-    '五味子': { steps: [ {tool:'wash'}, {tool:'dry'} ], img:'五味子饮片', result:'五味子饮片' },
-    '茵陈': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'茵陈饮片', result:'茵陈饮片' },
-    '人参': { steps: [ {tool:'wash'} ], img:'', result:'人参' },
-    '黄连': { steps: [ {tool:'wash'} ], img:'黄连饮片', result:'黄连饮片' },
-    '通草': { steps: [ {tool:'wash'} ], img:'通草饮片', result:'通草饮片' },
-    '石膏': { steps: [ {tool:'smash'} ], img:'碎石膏', result:'碎石膏' },
-    '芒硝': { steps: [], img:'芒硝', result:'芒硝' },
-    '淡豆豉': { steps: [], img:'淡豆豉', result:'淡豆豉' },
-    '饴糖': { steps: [], img:'饴糖', result:'饴糖' },
-    '粳米': { steps: [], img:'', result:'粳米' }
+    '桂枝': { routes: [
+        { name: '切片', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'桂枝饮片', result:'桂枝饮片' }
+    ]},
+    '麻黄': { routes: [
+        { name: '去节', steps: [ {tool:'wash'}, {tool:'remove'} ], img:'麻黄饮片', result:'麻黄饮片' }
+    ]},
+    '山杏': { routes: [
+        { name: '去皮尖', steps: [ {tool:'wash'}, {tool:'peel'} ], img:'杏仁饮片', result:'杏仁饮片' }
+    ]},
+    '甘草': { routes: [
+        { name: '蜜炙', steps: [ {tool:'wash'}, {tool:'cut'}, {material:'蜂蜜'} ], img:'炙甘草', result:'炙甘草' }
+    ]},
+    '芍药': { routes: [
+        { name: '切片', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'芍药饮片', result:'芍药饮片' }
+    ]},
+    /* ★ 生姜：两条炮炙途径 ★ */
+    '生姜': { routes: [
+        { name: '切片 → 生姜饮片', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'生姜饮片', result:'生姜饮片' },
+        { name: '晒干 → 干姜饮片', steps: [ {tool:'wash'}, {tool:'dry'} ], img:'干姜饮片', result:'干姜饮片' }
+    ]},
+    '干姜': { routes: [
+        { name: '切片', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'干姜饮片', result:'干姜饮片' }
+    ]},
+    '大枣': { routes: [
+        { name: '擘开', steps: [ {tool:'wash'}, {tool:'break'} ], img:'大枣饮片', result:'大枣饮片' }
+    ]},
+    '葛根': { routes: [
+        { name: '切片', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'葛根饮片', result:'葛根饮片' }
+    ]},
+    '细辛': { routes: [
+        { name: '切段', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'细辛饮片', result:'细辛饮片' }
+    ]},
+    '柴胡': { routes: [
+        { name: '切片', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'柴胡饮片', result:'柴胡饮片' }
+    ]},
+    '黄芩': { routes: [
+        { name: '切片', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'黄芩饮片', result:'黄芩饮片' }
+    ]},
+    '知母': { routes: [
+        { name: '去毛', steps: [ {tool:'wash'}, {tool:'scrape'} ], img:'知母饮片', result:'知母饮片' }
+    ]},
+    '附子': { routes: [
+        { name: '炮制', steps: [ {tool:'wash'}, {tool:'fire'}, {tool:'peel'} ], img:'炮附子', result:'炮附子' }
+    ]},
+    '白术': { routes: [
+        { name: '炒制', steps: [ {tool:'wash'}, {tool:'cut'}, {tool:'fry'} ], img:'炒白术', result:'炒白术' }
+    ]},
+    '大黄': { routes: [
+        { name: '酒洗', steps: [ {tool:'wash'}, {material:'黄酒'} ], img:'大黄饮片', result:'大黄饮片' }
+    ]},
+    '厚朴': { routes: [
+        { name: '姜炙', steps: [ {tool:'wash'}, {tool:'scrape'}, {material:'姜汁'} ], img:'厚朴饮片', result:'厚朴饮片' }
+    ]},
+    '枳实': { routes: [
+        { name: '炒制', steps: [ {tool:'wash'}, {tool:'cut'}, {tool:'fry'} ], img:'枳实饮片', result:'枳实饮片' }
+    ]},
+    '猪苓': { routes: [
+        { name: '去皮', steps: [ {tool:'wash'}, {tool:'scrape'} ], img:'猪苓饮片', result:'猪苓饮片' }
+    ]},
+    '当归': { routes: [
+        { name: '酒洗', steps: [ {tool:'wash'}, {material:'黄酒'} ], img:'当归饮片', result:'当归饮片' }
+    ]},
+    '泽泻': { routes: [
+        { name: '盐炙', steps: [ {tool:'wash'}, {tool:'cut'}, {material:'盐'} ], img:'泽泻饮片', result:'泽泻饮片' }
+    ]},
+    '栀子': { routes: [
+        { name: '擘开', steps: [ {tool:'wash'}, {tool:'break'} ], img:'栀子饮片', result:'栀子饮片' }
+    ]},
+    '半夏': { routes: [
+        { name: '姜制', steps: [ {material:'清水'}, {material:'白矾'}, {material:'姜汁'} ], img:'半夏饮片', result:'半夏饮片' }
+    ]},
+    '茯苓': { routes: [
+        { name: '切块', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'茯苓饮片', result:'茯苓饮片' }
+    ]},
+    '五味子': { routes: [
+        { name: '晒干', steps: [ {tool:'wash'}, {tool:'dry'} ], img:'五味子饮片', result:'五味子饮片' }
+    ]},
+    '茵陈': { routes: [
+        { name: '切片', steps: [ {tool:'wash'}, {tool:'cut'} ], img:'茵陈饮片', result:'茵陈饮片' }
+    ]},
+    '人参': { routes: [
+        { name: '水洗', steps: [ {tool:'wash'} ], img:'', result:'人参' }
+    ]},
+    '黄连': { routes: [
+        { name: '水洗', steps: [ {tool:'wash'} ], img:'黄连饮片', result:'黄连饮片' }
+    ]},
+    '通草': { routes: [
+        { name: '水洗', steps: [ {tool:'wash'} ], img:'通草饮片', result:'通草饮片' }
+    ]},
+    '石膏': { routes: [
+        { name: '碎', steps: [ {tool:'smash'} ], img:'碎石膏', result:'碎石膏' }
+    ]},
+    '芒硝': { routes: [
+        { name: '（无需炮炙）', steps: [], img:'芒硝', result:'芒硝' }
+    ]},
+    '淡豆豉': { routes: [
+        { name: '（无需炮炙）', steps: [], img:'淡豆豉', result:'淡豆豉' }
+    ]},
+    '饴糖': { routes: [
+        { name: '（无需炮炙）', steps: [], img:'饴糖', result:'饴糖' }
+    ]},
+    '粳米': { routes: [
+        { name: '（无需炮炙）', steps: [], img:'', result:'粳米' }
+    ]}
 };
 
 /* ===== 元素 ===== */
@@ -416,8 +492,9 @@ var btnFinish      = document.getElementById('btnFinish');
 var btnCancel      = document.getElementById('btnCancel');
 var modalOverlay   = document.getElementById('modalOverlay');
 
-var currentHerb = null;
-var currentProcessed = null;
+var currentHerb = null;      /* 正在炮炙的生药名 */
+var currentRoute = null;     /* 选中的炮炙路径对象 */
+var currentProcessed = null; /* 完成后产物的名字 */
 var stepIndex = 0;
 
 /* ===== 渲染药材栏 ===== */
@@ -534,19 +611,18 @@ function clearStageImg() {
 /* ===== 步骤列表 ===== */
 function renderStepList() {
     stepList.innerHTML = '';
-    if (!currentHerb) return;
-    var proc = HERB_PROCESSES[currentHerb];
-    if (!proc || proc.steps.length === 0) {
+    if (!currentHerb || !currentRoute) return;
+    if (currentRoute.steps.length === 0) {
         stepList.innerHTML = '<span class="step-todo">无需炮炙</span>';
         return;
     }
     var html = '';
-    proc.steps.forEach(function(s, i) {
+    currentRoute.steps.forEach(function(s, i) {
         var label = s.tool ? TOOLS[s.tool].name : s.material;
         var cls = i < stepIndex ? 'step-done' : (i === stepIndex ? 'step-active' : 'step-todo');
         var mark = i < stepIndex ? '✓ ' : (i === stepIndex ? '▶ ' : '· ');
         html += '<span class="' + cls + '">' + mark + label + '</span>';
-        if (i < proc.steps.length - 1) html += ' → ';
+        if (i < currentRoute.steps.length - 1) html += ' → ';
     });
     stepList.innerHTML = html;
 }
@@ -558,20 +634,76 @@ function selectHerb(name) {
     var proc = HERB_PROCESSES[name];
     if (!proc) { showModal('提示', '这个药材暂时不支持炮炙。'); return; }
 
+    if (proc.routes.length === 1) {
+        beginHerb(name, 0);
+    } else {
+        chooseRoute(name, proc);
+    }
+}
+
+/* ===== 多路径时弹出选择框 ===== */
+function chooseRoute(name, proc) {
+    var html = '<div style="margin-bottom:10px;color:#5a3e2b;text-align:center;">【' + name + '】有多种炮炙途径，请选择：</div>';
+    proc.routes.forEach(function(r, i) {
+        var stepDesc;
+        if (r.steps.length === 0) {
+            stepDesc = '无需炮炙';
+        } else {
+            stepDesc = r.steps.map(function(s) {
+                return s.tool ? TOOLS[s.tool].name : s.material;
+            }).join(' → ');
+        }
+        html +=
+            '<button class="modal-btn route-pick" data-idx="' + i + '" ' +
+                'style="text-align:left;padding:10px 14px;line-height:1.3;">' +
+                '<div style="font-size:15px;font-weight:bold;">' + r.name + '</div>' +
+                '<div style="font-size:11px;font-weight:normal;color:#7a5c3a;margin-top:3px;">' +
+                    stepDesc + ' → ' + r.result +
+                '</div>' +
+            '</button>';
+    });
+    html += '<button class="modal-btn" id="routeCancel" ' +
+            'style="background:#e0e0e0;border-color:#999;color:#555;">取消</button>';
+    showModal('选择炮炙途径', html, true);
+
+    var mc = document.getElementById('manualContent');
+    mc.onclick = function(e) {
+        var btn = e.target.closest ? e.target.closest('.route-pick') : null;
+        if (btn) {
+            beginHerb(name, parseInt(btn.getAttribute('data-idx'), 10));
+            return;
+        }
+        if (e.target.closest && e.target.closest('#routeCancel')) {
+            closeModal();
+        }
+    };
+}
+
+/* ===== 正式开始炮炙某个药材 ===== */
+function beginHerb(name, routeIndex) {
+    closeModal();
+    var proc = HERB_PROCESSES[name];
+    if (!proc) return;
+    var route = proc.routes[routeIndex];
+    if (!route) return;
+    if (currentHerb) { showModal('提示', '操作台上已有药材。'); return; }
+    if (inventory[name] <= 0) { showModal('提示', '库存不足！'); return; }
+
     inventory[name] -= 1;
     saveInventory();
     currentHerb = name;
+    currentRoute = route;
     currentProcessed = null;
     stepIndex = 0;
 
-    if (proc.steps.length === 0) {
-        setStageImg(proc.img, name);
+    if (route.steps.length === 0) {
+        setStageImg(route.img, name);
         btnFinish.disabled = false;
     } else {
         setStageImg('', name);
         btnFinish.disabled = true;
     }
-    counterHerb.textContent = '生药：' + name;
+    counterHerb.textContent = '生药：' + name + ' · ' + route.name;
     btnCancel.disabled = false;
     renderStepList();
     renderHerbRows();
@@ -581,9 +713,11 @@ function selectHerb(name) {
 function useTool(key) {
     if (!currentHerb) { showModal('提示', '请先选择药材。'); return; }
     if (currentProcessed) { showModal('提示', '已完成，点"收好"。'); return; }
-    var proc = HERB_PROCESSES[currentHerb];
-    if (!proc || proc.steps.length === 0) { showModal('提示', '【' + currentHerb + '】无需炮炙。'); return; }
-    var step = proc.steps[stepIndex];
+    if (!currentRoute || currentRoute.steps.length === 0) {
+        showModal('提示', '【' + currentHerb + '】无需炮炙。');
+        return;
+    }
+    var step = currentRoute.steps[stepIndex];
     if (!step) return;
     if (!step.tool || step.tool !== key) {
         var wantDesc = step.tool ? TOOLS[step.tool].name : step.material;
@@ -597,9 +731,11 @@ function useTool(key) {
 function useMaterial(name) {
     if (!currentHerb) { showModal('提示', '请先选择药材。'); return; }
     if (currentProcessed) { showModal('提示', '已完成，点"收好"。'); return; }
-    var proc = HERB_PROCESSES[currentHerb];
-    if (!proc || proc.steps.length === 0) { showModal('提示', '【' + currentHerb + '】无需炮炙。'); return; }
-    var step = proc.steps[stepIndex];
+    if (!currentRoute || currentRoute.steps.length === 0) {
+        showModal('提示', '【' + currentHerb + '】无需炮炙。');
+        return;
+    }
+    var step = currentRoute.steps[stepIndex];
     if (!step) return;
     if (!step.material || step.material !== name) {
         var wantDesc = step.tool ? TOOLS[step.tool].name : step.material;
@@ -618,15 +754,15 @@ function useMaterial(name) {
 
 /* ===== 推进 ===== */
 function advanceStep() {
-    var proc = HERB_PROCESSES[currentHerb];
+    if (!currentRoute) return;
     stepIndex++;
-    if (stepIndex >= proc.steps.length) {
-        currentProcessed = proc.result;
-        setStageImg(proc.img, currentHerb);
-        counterHerb.textContent = '炮炙品：' + proc.result;
+    if (stepIndex >= currentRoute.steps.length) {
+        currentProcessed = currentRoute.result;
+        setStageImg(currentRoute.img, currentHerb);
+        counterHerb.textContent = '炮炙品：' + currentRoute.result;
         btnFinish.disabled = false;
     } else {
-        counterHerb.textContent = '炮炙中：' + currentHerb;
+        counterHerb.textContent = '炮炙中：' + currentHerb + ' · ' + currentRoute.name;
     }
     renderStepList();
 }
@@ -677,17 +813,11 @@ function playMaterialAnim(name, callback) {
 
 /* ===== 收好 ===== */
 btnFinish.addEventListener('click', function() {
-    if (!currentHerb) return;
-    var resultName = currentProcessed || HERB_PROCESSES[currentHerb].result;
+    if (!currentHerb || !currentRoute) return;
+    var resultName = currentRoute.result;
     processedInventory[resultName] = (processedInventory[resultName] || 0) + 10;
     saveProcessed();
-    currentHerb = null; currentProcessed = null; stepIndex = 0;
-    clearStageImg();
-    counterHerb.textContent = '请选择药材';
-    stepList.innerHTML = '';
-    btnFinish.disabled = true;
-    btnCancel.disabled = true;
-    renderHerbRows();
+    resetStage();
 });
 
 /* ===== 放弃 ===== */
@@ -696,32 +826,45 @@ btnCancel.addEventListener('click', function() {
         inventory[currentHerb] = (inventory[currentHerb] || 0) + 1;
         saveInventory();
     }
-    currentHerb = null; currentProcessed = null; stepIndex = 0;
+    resetStage();
+});
+
+/* 重置操作台 */
+function resetStage() {
+    currentHerb = null;
+    currentRoute = null;
+    currentProcessed = null;
+    stepIndex = 0;
     clearStageImg();
     counterHerb.textContent = '请选择药材';
     stepList.innerHTML = '';
     btnFinish.disabled = true;
     btnCancel.disabled = true;
     renderHerbRows();
-});
+}
 
 /* ===== 说明书 ===== */
 document.getElementById('btnManual').addEventListener('click', function() {
     var html = '<h4>🌿 药材炮炙指南</h4>';
     Object.keys(HERB_PROCESSES).forEach(function(herb) {
         var proc = HERB_PROCESSES[herb];
-        if (proc.steps.length === 0) {
-            html += '<div><b>' + herb + '</b>：无需炮炙</div>';
-            return;
-        }
-        var steps = proc.steps.map(function(s) {
-            if (s.tool) {
-                var t = TOOLS[s.tool];
-                return '<img src="images/tools/' + s.tool + '.webp" style="width:16px;height:16px;vertical-align:middle;margin:0 2px;" onerror="this.style.display=\'none\'">' + t.name;
+        proc.routes.forEach(function(route) {
+            if (route.steps.length === 0) {
+                html += '<div><b>' + herb + '</b>：无需炮炙 → ' + route.result + '</div>';
+                return;
             }
-            return '<img src="images/materials/' + encodeURI(s.material) + '.webp" style="width:16px;height:16px;vertical-align:middle;margin:0 2px;" onerror="this.style.display=\'none\'">' + s.material;
+            var steps = route.steps.map(function(s) {
+                if (s.tool) {
+                    var t = TOOLS[s.tool];
+                    return '<img src="images/tools/' + s.tool + '.webp" style="width:16px;height:16px;vertical-align:middle;margin:0 2px;" onerror="this.style.display=\'none\'">' + t.name;
+                }
+                return '<img src="images/materials/' + encodeURI(s.material) + '.webp" style="width:16px;height:16px;vertical-align:middle;margin:0 2px;" onerror="this.style.display=\'none\'">' + s.material;
+            });
+            var prefix = proc.routes.length > 1
+                ? '<b>' + herb + '</b>（' + route.name + '）：'
+                : '<b>' + herb + '</b>：';
+            html += '<div>' + prefix + steps.join(' → ') + ' → ' + route.result + '</div>';
         });
-        html += '<div><b>' + herb + '</b>：' + steps.join(' → ') + ' → ' + proc.result + '</div>';
     });
     showModal('炮炙说明书', html, true);
 });
@@ -733,7 +876,6 @@ function getStockOf(item) {
 }
 function buildShopHtml() {
     var html = '<div class="shop-coins">💰 当前铜币：' + getCoins() + '</div>';
-    /* SHOP_CATEGORIES / SHOP_ITEMS 来自 shop-data.js */
     SHOP_CATEGORIES.forEach(function(g) {
         html += '<h4>' + g.title + '</h4><div class="shop-grid">';
         SHOP_ITEMS.forEach(function(item, idx) {
@@ -758,7 +900,7 @@ function buildShopHtml() {
 }
 document.getElementById('btnShop').addEventListener('click', function() {
     if (typeof SHOP_ITEMS === 'undefined' || typeof SHOP_CATEGORIES === 'undefined') {
-        showModal('提示', '商店数据未加载。\n请确认 shop-data.js 与本页在同一目录，且文件名拼写正确。');
+        showModal('提示', '商店数据未加载。\n请确认 shop-data.js 与本页在同一目录。');
         return;
     }
     showModal('🛒 商店', buildShopHtml(), true);
@@ -781,7 +923,6 @@ document.getElementById('btnShop').addEventListener('click', function() {
         var stockEl = btn.parentElement.querySelector('.item-stock');
         if (stockEl) stockEl.textContent = '库存：' + warehouse[item.category][item.name];
 
-        /* 同步本页内存引用 */
         inventory          = warehouse.herbs;
         materialInventory  = warehouse.materials;
         processedInventory = warehouse.processed;
@@ -807,8 +948,11 @@ function showModal(title, text, isManual) {
     }
     modalOverlay.classList.add('active');
 }
-document.getElementById('modalConfirm').addEventListener('click', function() {
+function closeModal() {
     modalOverlay.classList.remove('active');
+}
+document.getElementById('modalConfirm').addEventListener('click', function() {
+    closeModal();
 });
 
 /* ===== 初始化 ===== */
