@@ -210,7 +210,6 @@ body { user-select: none; background: #f5f0e8; display: flex; flex-direction: co
     color: #33691e; margin: 6px 0 4px;
     border-bottom: 1px solid #ccc; padding-bottom: 2px;
 }
-/* 商店 */
 .shop-coins {
     font-size: 14px; font-weight: bold; color: #b85c00;
     text-align: right; margin-bottom: 8px;
@@ -279,28 +278,36 @@ body { user-select: none; background: #f5f0e8; display: flex; flex-direction: co
 <div id="modalOverlay">
     <div class="modal-box">
         <div class="modal-title" id="modalTitle">提示</div>
-        ...
+        <div class="modal-text" id="modalText"></div>
+        <div id="manualContent" style="display:none;"></div>
+        <button class="modal-btn" id="modalConfirm">确定</button>
     </div>
 </div>
 
+<!-- ★ 引用共享商店数据（不在这里重复定义 SHOP_ITEMS） -->
 <script src="shop-data.js"></script>
+
 <script>
-/* ===== 仓库 ===== */
+/* ===== 仓库（防弹版：老存档缺字段也不会崩）===== */
 var WAREHOUSE_KEY = 'warehouse';
 function getWarehouse() {
-    try {
-        return JSON.parse(localStorage.getItem(WAREHOUSE_KEY)) ||
-            { herbs: {}, seeds: {}, materials: {}, processed: {} };
-    } catch(e) {
-        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
-    }
+    var w;
+    try { w = JSON.parse(localStorage.getItem(WAREHOUSE_KEY)); }
+    catch(e) { w = null; }
+    if (!w || typeof w !== 'object') w = {};
+    if (!w.herbs)     w.herbs = {};
+    if (!w.seeds)     w.seeds = {};
+    if (!w.materials) w.materials = {};
+    if (!w.processed) w.processed = {};
+    return w;
 }
 function saveWarehouse(w) { localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w)); }
-var warehouse = getWarehouse();
-var inventory = warehouse.herbs;
-var materialInventory = warehouse.materials;
+
+var warehouse          = getWarehouse();
+var inventory          = warehouse.herbs;
+var materialInventory  = warehouse.materials;
 var processedInventory = warehouse.processed;
-if (!warehouse.seeds) warehouse.seeds = {};
+
 function saveInventory() { warehouse.herbs = inventory; saveWarehouse(warehouse); }
 function saveMaterial()  { warehouse.materials = materialInventory; saveWarehouse(warehouse); }
 function saveProcessed() { warehouse.processed = processedInventory; saveWarehouse(warehouse); }
@@ -312,6 +319,7 @@ function updateCoinDisplay() {
     if (el) el.textContent = getCoins();
 }
 
+/* ===== 首次进入补一批测试药材 ===== */
 if (Object.keys(inventory).length === 0) {
     var testHerbs = {
         '桂枝': 3, '麻黄': 3, '山杏': 3, '甘草': 3, '芍药': 3,
@@ -326,9 +334,7 @@ if (Object.keys(inventory).length === 0) {
     saveInventory();
 }
 
-
-
-/* ===== 工具（全部放左栏） ===== */
+/* ===== 工具（左栏） ===== */
 var TOOLS = {
     cut:    { name: '切刀', icon: '🔪' },
     scrape: { name: '刮刀', icon: '🪒' },
@@ -342,7 +348,7 @@ var TOOLS = {
     dry:    { name: '晒干', icon: '☀️' }
 };
 
-/* ===== 辅料（全部放右栏） ===== */
+/* ===== 辅料（右栏） ===== */
 var MATERIALS = {
     '黄酒':    { icon: '🍶', price: 4 },
     '蜂蜜':    { icon: '🍯', price: 5 },
@@ -358,12 +364,7 @@ var MATERIALS = {
     '黑豆汁':  { icon: '🫘', price: 6 }
 };
 
-/* ===== 炮炙路径 =====
-   steps：每步的 tool（用 TOOLS 的 key）或 material（辅料名）
-   img  ：炮炙完成后的饮片图文件名（不含 .webp），对应 images/processed/<img>.webp
-          留空表示没有饮片图，直接沿用生药图 images/herbs/<生药名>.webp
-   result：收好后入仓的产物名
-*/
+/* ===== 炮炙路径 ===== */
 var HERB_PROCESSES = {
     '桂枝': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'桂枝饮片', result:'桂枝饮片' },
     '麻黄': { steps: [ {tool:'wash'}, {tool:'remove'} ], img:'麻黄饮片', result:'麻黄饮片' },
@@ -391,29 +392,29 @@ var HERB_PROCESSES = {
     '茯苓': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'茯苓饮片', result:'茯苓饮片' },
     '五味子': { steps: [ {tool:'wash'}, {tool:'dry'} ], img:'五味子饮片', result:'五味子饮片' },
     '茵陈': { steps: [ {tool:'wash'}, {tool:'cut'} ], img:'茵陈饮片', result:'茵陈饮片' },
-    '人参': { steps: [ {tool:'wash'} ], img:'', result:'人参' },               // 无饮片图，显示生图
+    '人参': { steps: [ {tool:'wash'} ], img:'', result:'人参' },
     '黄连': { steps: [ {tool:'wash'} ], img:'黄连饮片', result:'黄连饮片' },
     '通草': { steps: [ {tool:'wash'} ], img:'通草饮片', result:'通草饮片' },
     '石膏': { steps: [ {tool:'smash'} ], img:'碎石膏', result:'碎石膏' },
     '芒硝': { steps: [], img:'芒硝', result:'芒硝' },
     '淡豆豉': { steps: [], img:'淡豆豉', result:'淡豆豉' },
     '饴糖': { steps: [], img:'饴糖', result:'饴糖' },
-    '粳米': { steps: [], img:'', result:'粳米' }                                // 无饮片图，显示生图
+    '粳米': { steps: [], img:'', result:'粳米' }
 };
 
 /* ===== 元素 ===== */
-var herbRowTop = document.getElementById('herbRowTop');
-var herbRowBottom = document.getElementById('herbRowBottom');
-var leftTools = document.getElementById('leftTools');
-var rightTools = document.getElementById('rightTools');
-var stage = document.getElementById('stage');
-var stageHerbImg = document.getElementById('stageHerbImg');
+var herbRowTop     = document.getElementById('herbRowTop');
+var herbRowBottom  = document.getElementById('herbRowBottom');
+var leftTools      = document.getElementById('leftTools');
+var rightTools     = document.getElementById('rightTools');
+var stage          = document.getElementById('stage');
+var stageHerbImg   = document.getElementById('stageHerbImg');
 var stagePlaceholder = document.getElementById('stagePlaceholder');
-var counterHerb = document.getElementById('counterHerb');
-var stepList = document.getElementById('stepList');
-var btnFinish = document.getElementById('btnFinish');
-var btnCancel = document.getElementById('btnCancel');
-var modalOverlay = document.getElementById('modalOverlay');
+var counterHerb    = document.getElementById('counterHerb');
+var stepList       = document.getElementById('stepList');
+var btnFinish      = document.getElementById('btnFinish');
+var btnCancel      = document.getElementById('btnCancel');
+var modalOverlay   = document.getElementById('modalOverlay');
 
 var currentHerb = null;
 var currentProcessed = null;
@@ -451,7 +452,7 @@ function renderRow(rowEl, herbs) {
     });
 }
 
-/* ===== 渲染左栏（工具）/右栏（辅料） ===== */
+/* ===== 渲染工具/辅料 ===== */
 function makeToolBtn(key) {
     var tool = TOOLS[key];
     var btn = document.createElement('div');
@@ -464,7 +465,6 @@ function makeToolBtn(key) {
     return btn;
 }
 function renderTools() {
-    /* 左栏：全部工具 */
     leftTools.innerHTML = '';
     var labelL = document.createElement('div');
     labelL.className = 'group-label';
@@ -474,7 +474,6 @@ function renderTools() {
         leftTools.appendChild(makeToolBtn(key));
     });
 
-    /* 右栏：全部辅料 */
     rightTools.innerHTML = '';
     var labelR = document.createElement('div');
     labelR.className = 'group-label';
@@ -495,25 +494,18 @@ function renderTools() {
     });
 }
 
-/* ===== 图片路径规则 =====
-   imgFile 非空 → images/processed/<imgFile>.webp （饮片图）
-   imgFile 为空 → images/herbs/<herbName>.webp   （生药图）
-*/
+/* ===== 图片路径 ===== */
 function resolveImgPath(imgFile, herbName) {
     if (imgFile) return 'images/processed/' + imgFile + '.webp';
     return 'images/herbs/' + herbName + '.webp';
 }
-
-/* ===== 显示某一步对应的图 ===== */
 var stageToken = 0;
 function setStageImg(imgFile, herbName) {
     var token = ++stageToken;
     var rawPath = resolveImgPath(imgFile, herbName);
     var url = encodeURI(rawPath);
-
     stageHerbImg.style.display = 'none';
     stagePlaceholder.style.display = 'none';
-
     var probe = new Image();
     probe.onload = function() {
         if (token !== stageToken) return;
@@ -531,7 +523,6 @@ function setStageImg(imgFile, herbName) {
     };
     probe.src = url;
 }
-
 function clearStageImg() {
     stageToken++;
     stageHerbImg.style.display = 'none';
@@ -560,11 +551,10 @@ function renderStepList() {
     stepList.innerHTML = html;
 }
 
-/* ===== 选择药材 ===== */
+/* ===== 选药材 ===== */
 function selectHerb(name) {
     if (currentHerb) { showModal('提示', '操作台上已有药材。'); return; }
     if (inventory[name] <= 0) { showModal('提示', '库存不足！'); return; }
-
     var proc = HERB_PROCESSES[name];
     if (!proc) { showModal('提示', '这个药材暂时不支持炮炙。'); return; }
 
@@ -587,19 +577,14 @@ function selectHerb(name) {
     renderHerbRows();
 }
 
-/* ===== 使用工具 ===== */
+/* ===== 用工具 ===== */
 function useTool(key) {
     if (!currentHerb) { showModal('提示', '请先选择药材。'); return; }
     if (currentProcessed) { showModal('提示', '已完成，点"收好"。'); return; }
-
     var proc = HERB_PROCESSES[currentHerb];
-    if (!proc || proc.steps.length === 0) {
-        showModal('提示', '【' + currentHerb + '】无需炮炙。');
-        return;
-    }
+    if (!proc || proc.steps.length === 0) { showModal('提示', '【' + currentHerb + '】无需炮炙。'); return; }
     var step = proc.steps[stepIndex];
     if (!step) return;
-
     if (!step.tool || step.tool !== key) {
         var wantDesc = step.tool ? TOOLS[step.tool].name : step.material;
         showModal('提示', '当前步骤需要：' + wantDesc);
@@ -608,19 +593,14 @@ function useTool(key) {
     playToolAnim(key, function() { advanceStep(); });
 }
 
-/* ===== 使用辅料 ===== */
+/* ===== 用辅料 ===== */
 function useMaterial(name) {
     if (!currentHerb) { showModal('提示', '请先选择药材。'); return; }
     if (currentProcessed) { showModal('提示', '已完成，点"收好"。'); return; }
-
     var proc = HERB_PROCESSES[currentHerb];
-    if (!proc || proc.steps.length === 0) {
-        showModal('提示', '【' + currentHerb + '】无需炮炙。');
-        return;
-    }
+    if (!proc || proc.steps.length === 0) { showModal('提示', '【' + currentHerb + '】无需炮炙。'); return; }
     var step = proc.steps[stepIndex];
     if (!step) return;
-
     if (!step.material || step.material !== name) {
         var wantDesc = step.tool ? TOOLS[step.tool].name : step.material;
         showModal('提示', '当前步骤需要：' + wantDesc);
@@ -630,15 +610,13 @@ function useMaterial(name) {
         showModal('辅料不足', '【' + name + '】已用完。\n请点击"🛒 商店"补充。');
         return;
     }
-
     materialInventory[name] -= 1;
     saveMaterial();
     renderTools();
-
     playMaterialAnim(name, function() { advanceStep(); });
 }
 
-/* ===== 推进步骤 ===== */
+/* ===== 推进 ===== */
 function advanceStep() {
     var proc = HERB_PROCESSES[currentHerb];
     stepIndex++;
@@ -677,7 +655,6 @@ function playToolAnim(key, callback) {
     }, 700);
     setTimeout(function() { toolEl.remove(); if (callback) callback(); }, 1100);
 }
-
 function playMaterialAnim(name, callback) {
     var info = MATERIALS[name];
     var matEl = document.createElement('div');
@@ -704,7 +681,6 @@ btnFinish.addEventListener('click', function() {
     var resultName = currentProcessed || HERB_PROCESSES[currentHerb].result;
     processedInventory[resultName] = (processedInventory[resultName] || 0) + 10;
     saveProcessed();
-
     currentHerb = null; currentProcessed = null; stepIndex = 0;
     clearStageImg();
     counterHerb.textContent = '请选择药材';
@@ -750,19 +726,15 @@ document.getElementById('btnManual').addEventListener('click', function() {
     showModal('炮炙说明书', html, true);
 });
 
-/* ===== 商店（与 index.html 统一：药材 / 辅料 / 种子） ===== */
+/* ===== 商店（数据来自 shop-data.js）===== */
 function getStockOf(item) {
     var bag = warehouse[item.category] || {};
     return bag[item.name] || 0;
 }
 function buildShopHtml() {
     var html = '<div class="shop-coins">💰 当前铜币：' + getCoins() + '</div>';
-    var groups = [
-        { key: 'herbs',     title: '🌿 药材', path: 'images/herbs/' },
-        { key: 'materials', title: '🍯 辅料', path: 'images/materials/' },
-        { key: 'seeds',     title: '🌱 种子', path: 'images/seeds/' }
-    ];
-    groups.forEach(function(g) {
+    /* SHOP_CATEGORIES / SHOP_ITEMS 来自 shop-data.js */
+    SHOP_CATEGORIES.forEach(function(g) {
         html += '<h4>' + g.title + '</h4><div class="shop-grid">';
         SHOP_ITEMS.forEach(function(item, idx) {
             if (item.category !== g.key) return;
@@ -776,7 +748,7 @@ function buildShopHtml() {
                     '<span style="display:none;font-size:26px;">' + item.icon + '</span>' +
                     '<div class="item-name">' + item.display + '</div>' +
                     '<div class="item-price">💰 ' + item.price + '</div>' +
-                    '<div class="item-stock" data-stock-key="' + item.category + '|' + item.name + '">库存：' + stock + '</div>' +
+                    '<div class="item-stock">库存：' + stock + '</div>' +
                     '<button class="shop-buy" data-idx="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button>' +
                 '</div>';
         });
@@ -785,8 +757,11 @@ function buildShopHtml() {
     return html;
 }
 document.getElementById('btnShop').addEventListener('click', function() {
+    if (typeof SHOP_ITEMS === 'undefined' || typeof SHOP_CATEGORIES === 'undefined') {
+        showModal('提示', '商店数据未加载。\n请确认 shop-data.js 与本页在同一目录，且文件名拼写正确。');
+        return;
+    }
     showModal('🛒 商店', buildShopHtml(), true);
-
     var mc = document.getElementById('manualContent');
     mc.onclick = function(e) {
         var btn = e.target.closest ? e.target.closest('.shop-buy') : null;
@@ -796,7 +771,6 @@ document.getElementById('btnShop').addEventListener('click', function() {
         if (!item) return;
         var cur = getCoins();
         if (cur < item.price) { alert('铜币不足！'); return; }
-
         setCoins(cur - item.price);
         updateCoinDisplay();
         if (!warehouse[item.category]) warehouse[item.category] = {};
@@ -804,19 +778,16 @@ document.getElementById('btnShop').addEventListener('click', function() {
             (warehouse[item.category][item.name] || 0) + 1;
         saveWarehouse(warehouse);
 
-        /* 更新库存显示 */
         var stockEl = btn.parentElement.querySelector('.item-stock');
-        if (stockEl) {
-            var s = warehouse[item.category][item.name];
-            stockEl.textContent = '库存：' + s;
-        }
-        /* 余额不足时把所有购买按钮置灰 */
-        if (getCoins() < item.price) {
-            // 只处理当前这个按钮（不影响其它商品的可用性）
-        }
-        /* 刷新左侧工具/右栏辅料、上下药材栏 */
+        if (stockEl) stockEl.textContent = '库存：' + warehouse[item.category][item.name];
+
+        /* 同步本页内存引用 */
+        inventory          = warehouse.herbs;
+        materialInventory  = warehouse.materials;
+        processedInventory = warehouse.processed;
+
         if (item.category === 'materials') renderTools();
-        if (item.category === 'herbs') renderHerbRows();
+        if (item.category === 'herbs')     renderHerbRows();
     };
 });
 
