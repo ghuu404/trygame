@@ -1184,3 +1184,41 @@ body {
     font-size: 10px;
     margin-top: 2px;
 }
+/* 签到奖励的图片 */
+.sign-reward-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 2px;
+    flex-wrap: wrap;
+}
+.sign-reward-row img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.sign-reward-row .txt {
+    font-size: 10px;
+    font-weight: bold;
+    color: #3a2a1a;
+}
+
+/* 签到弹窗下方的大图标行 */
+.sign-reward-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #33691e;
+    margin: 4px 0;
+}
+.sign-reward-line img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    vertical-align: middle;
+}

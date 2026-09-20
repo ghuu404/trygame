@@ -257,38 +257,70 @@ function openSignModal() {
     var nextDay = getNextSignDay();
 
     var html = '<div class="modal-title">📅 每日签到</div>';
-    html += '<div class="sign-grid">';
-    for (var d = 1; d <= MAX_SIGN_DAYS; d++) {
-        var reward = getSignReward(d, state);
-        var txt = '';
-        if (reward.coins) txt += '💰' + reward.coins;
-        if (reward.material) txt += (txt ? '<br>' : '') + reward.material + '×' + reward.materialCount;
-        if (reward.seed) txt += (txt ? '<br>' : '') + reward.seed + '种×' + reward.seedCount;
+html += '<div class="sign-grid">';
+for (var d = 1; d <= MAX_SIGN_DAYS; d++) {
+    var reward = getSignReward(d, state);
 
-        var cls = 'sign-day';
-        if (state.lastDate && d <= state.day) cls += ' claimed';
-        if (!signed && d === nextDay) cls += ' active';
-
-        html += '<div class="' + cls + '">' +
-            '<div class="day-label">第' + d + '天</div>' +
-            '<div class="reward">' + txt + '</div>' +
-        '</div>';
+    var row = '';
+    if (reward.coins) {
+        row += '<div class="sign-reward-row">' +
+                   '<img src="images/icon-coin.webp" alt="" onerror="this.style.display=\'none\'">' +
+                   '<span class="txt">' + reward.coins + '</span>' +
+               '</div>';
     }
-    html += '</div>';
+    if (reward.material) {
+        row += '<div class="sign-reward-row">' +
+                   '<img src="images/materials/' + encodeURI(reward.material) + '.webp" alt="" onerror="this.style.display=\'none\'">' +
+                   '<span class="txt">×' + reward.materialCount + '</span>' +
+               '</div>';
+    }
+    if (reward.seed) {
+        row += '<div class="sign-reward-row">' +
+                   '<img src="images/seeds/' + encodeURI(reward.seed) + '.webp" alt="" onerror="this.style.display=\'none\'">' +
+                   '<span class="txt">×' + reward.seedCount + '</span>' +
+               '</div>';
+    }
+
+    var cls = 'sign-day';
+    if (state.lastDate && d <= state.day) cls += ' claimed';
+    if (!signed && d === nextDay) cls += ' active';
+
+    html += '<div class="' + cls + '">' +
+        '<div class="day-label">第' + d + '天</div>' +
+        row +
+    '</div>';
+}
+html += '</div>';
 
     if (signed) {
         html += '<div style="font-size:13px;color:#666;margin-bottom:10px;">今日已签到，明天再来～</div>';
         html += '<button class="modal-btn secondary close-modal-btn">关闭</button>';
     } else {
-        var r = getSignReward(nextDay, state);
-        var desc = [];
-        if (r.coins) desc.push(r.coins + ' 铜币');
-        if (r.material) desc.push(r.material + ' ×' + r.materialCount);
-        if (r.seed) desc.push(r.seed + '种子 ×' + r.seedCount);
-        html += '<div style="font-size:13px;color:#8b5e3c;margin-bottom:10px;">今日签到可得：' + desc.join(' + ') + '</div>';
-        html += '<button class="modal-btn" id="signConfirmBtn">立即签到</button>';
-        html += '<button class="modal-btn secondary close-modal-btn">取消</button>';
+    var r = getSignReward(nextDay, state);
+    html += '<div style="font-size:13px;color:#8b5e3c;margin:10px 0 6px;">今日签到可得：</div>';
+
+    if (r.coins) {
+        html += '<div class="sign-reward-line">' +
+                    '<img src="images/icon-coin.webp" alt="" onerror="this.style.display=\'none\'">' +
+                    '<span>铜币 ×' + r.coins + '</span>' +
+                '</div>';
     }
+    if (r.material) {
+        html += '<div class="sign-reward-line">' +
+                    '<img src="images/materials/' + encodeURI(r.material) + '.webp" alt="" onerror="this.style.display=\'none\'">' +
+                    '<span>' + r.material + ' ×' + r.materialCount + '</span>' +
+                '</div>';
+    }
+    if (r.seed) {
+        html += '<div class="sign-reward-line">' +
+                    '<img src="images/seeds/' + encodeURI(r.seed) + '.webp" alt="" onerror="this.style.display=\'none\'">' +
+                    '<span>' + r.seed + '种子 ×' + r.seedCount + '</span>' +
+                '</div>';
+    }
+
+    html += '<button class="modal-btn" id="signConfirmBtn" style="margin-top:12px;">立即签到</button>';
+    html += '<button class="modal-btn secondary close-modal-btn">取消</button>';
+}
 
     document.getElementById('mainModalContent').innerHTML = html;
     document.getElementById('mainModalOverlay').classList.add('active');
@@ -335,11 +367,29 @@ function doSign() {
 
     renderMainTop();
 
-    var html = '<div class="modal-title">🎉 签到成功</div>' +
-        '<div style="font-size:15px;color:#33691e;font-weight:bold;margin:14px 0;line-height:1.8;">' +
-            msg.join('<br>') +
-        '</div>' +
-        '<button class="modal-btn" id="signAfterBtn">知道了</button>';
+    var rowsHtml = '';
+if (r.coins) {
+    rowsHtml += '<div class="sign-reward-line">' +
+                    '<img src="images/icon-coin.webp" alt="" onerror="this.style.display=\'none\'">' +
+                    '<span>铜币 ×' + r.coins + '</span>' +
+                '</div>';
+}
+if (r.material) {
+    rowsHtml += '<div class="sign-reward-line">' +
+                    '<img src="images/materials/' + encodeURI(r.material) + '.webp" alt="" onerror="this.style.display=\'none\'">' +
+                    '<span>' + r.material + ' ×' + r.materialCount + '</span>' +
+                '</div>';
+}
+if (r.seed) {
+    rowsHtml += '<div class="sign-reward-line">' +
+                    '<img src="images/seeds/' + encodeURI(r.seed) + '.webp" alt="" onerror="this.style.display=\'none\'">' +
+                    '<span>' + r.seed + '种子 ×' + r.seedCount + '</span>' +
+                '</div>';
+}
+
+var html = '<div class="modal-title">🎉 签到成功</div>' +
+    '<div style="margin:14px 0;">' + rowsHtml + '</div>' +
+    '<button class="modal-btn" id="signAfterBtn">知道了</button>';
     document.getElementById('mainModalContent').innerHTML = html;
     document.getElementById('mainModalOverlay').classList.add('active');
     document.getElementById('signAfterBtn').addEventListener('click', function () {
