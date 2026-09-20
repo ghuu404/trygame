@@ -181,6 +181,172 @@ function showMainModal(title, html, btnText, callback) {
     });
 }
 
+/* ==================== 签到 ==================== */
+var MAX_SIGN_DAYS = 7;
+
+/* 从 SHOP_ITEMS 里动态取素材池和种子池，跟商店共用一份数据，避免重复维护 */
+var ALL_MATERIALS = SHOP_ITEMS.filter(function (i) { return i.category === 'materials'; })
+    .map(function (i) { return i.name; });
+var SEED_POOL = SHOP_ITEMS.filter(function (i) { return i.category === 'seeds'; })
+    .map(function (i) { return i.name; });
+
+function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+function yesterdayStr() {
+    var d = new Date(Date.now() - 86400000);
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+function getSignState() {
+    return {
+        lastDate: localStorage.getItem('signLastDate') || '',
+        day: parseInt(localStorage.getItem('signDay') || 0, 10) || 0,
+        materialIdx: parseInt(localStorage.getItem('signMaterialIdx') || 0, 10) || 0,
+        seedIdx: parseInt(localStorage.getItem('signSeedIdx') || 0, 10) || 0
+    };
+}
+function saveSignState(s) {
+    localStorage.setItem('signLastDate', s.lastDate);
+    localStorage.setItem('signDay', String(s.day));
+    localStorage.setItem('signMaterialIdx', String(s.materialIdx));
+    localStorage.setItem('signSeedIdx', String(s.seedIdx));
+}
+function isSignedToday() { return getSignState().lastDate === todayStr(); }
+
+function getNextSignDay() {
+    var s = getSignState();
+    if (s.lastDate === todayStr()) return s.day;
+    if (s.lastDate === yesterdayStr()) return (s.day % MAX_SIGN_DAYS) + 1;
+    return 1;
+}
+
+/* ★ 签到奖励表：铜币全部翻倍，第 3 天送素材、第 5 天加倍金币、第 7 天送种子 */
+function getSignReward(day, state) {
+    var r = { coins: 0, material: null, materialCount: 0, seed: null, seedCount: 0 };
+    switch (day) {
+        case 1: r.coins = 10; break;
+        case 2: r.coins = 10; break;
+        case 3:
+            r.material = ALL_MATERIALS[state.materialIdx % ALL_MATERIALS.length];
+            r.materialCount = 5;   /* ★ 第 3 天送辅料 ×5 */
+            break;
+        case 4: r.coins = 10; break;
+        case 5: r.coins = 20; break;
+        case 6: r.coins = 16; break;
+        case 7:
+            r.coins = 20;
+            r.seed = SEED_POOL[state.seedIdx % SEED_POOL.length];
+            r.seedCount = 3;
+            break;
+    }
+    return r;
+}
+
+function addItem(category, name, count) {
+    if (!name || count <= 0) return;
+    var w = getWarehouse();
+    if (!w[category]) w[category] = {};
+    w[category][name] = (w[category][name] || 0) + count;
+    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
+}
+
+function openSignModal() {
+    var state = getSignState();
+    var signed = isSignedToday();
+    var nextDay = getNextSignDay();
+
+    var html = '<div class="modal-title">📅 每日签到</div>';
+    html += '<div class="sign-grid">';
+    for (var d = 1; d <= MAX_SIGN_DAYS; d++) {
+        var reward = getSignReward(d, state);
+        var txt = '';
+        if (reward.coins) txt += '💰' + reward.coins;
+        if (reward.material) txt += (txt ? '<br>' : '') + reward.material + '×' + reward.materialCount;
+        if (reward.seed) txt += (txt ? '<br>' : '') + reward.seed + '种×' + reward.seedCount;
+
+        var cls = 'sign-day';
+        if (state.lastDate && d <= state.day) cls += ' claimed';
+        if (!signed && d === nextDay) cls += ' active';
+
+        html += '<div class="' + cls + '">' +
+            '<div class="day-label">第' + d + '天</div>' +
+            '<div class="reward">' + txt + '</div>' +
+        '</div>';
+    }
+    html += '</div>';
+
+    if (signed) {
+        html += '<div style="font-size:13px;color:#666;margin-bottom:10px;">今日已签到，明天再来～</div>';
+        html += '<button class="modal-btn secondary close-modal-btn">关闭</button>';
+    } else {
+        var r = getSignReward(nextDay, state);
+        var desc = [];
+        if (r.coins) desc.push(r.coins + ' 铜币');
+        if (r.material) desc.push(r.material + ' ×' + r.materialCount);
+        if (r.seed) desc.push(r.seed + '种子 ×' + r.seedCount);
+        html += '<div style="font-size:13px;color:#8b5e3c;margin-bottom:10px;">今日签到可得：' + desc.join(' + ') + '</div>';
+        html += '<button class="modal-btn" id="signConfirmBtn">立即签到</button>';
+        html += '<button class="modal-btn secondary close-modal-btn">取消</button>';
+    }
+
+    document.getElementById('mainModalContent').innerHTML = html;
+    document.getElementById('mainModalOverlay').classList.add('active');
+
+    var closeBtn = document.querySelector('#mainModalContent .close-modal-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            document.getElementById('mainModalOverlay').classList.remove('active');
+        });
+    }
+    var okBtn = document.getElementById('signConfirmBtn');
+    if (okBtn) okBtn.addEventListener('click', doSign);
+}
+
+function doSign() {
+    var state = getSignState();
+    if (state.lastDate === todayStr()) { alert('今日已签到'); return; }
+
+    var newDay;
+    if (state.lastDate === yesterdayStr()) newDay = (state.day % MAX_SIGN_DAYS) + 1;
+    else newDay = 1;
+
+    var r = getSignReward(newDay, state);
+    var msg = [];
+
+    if (r.coins) {
+        addCoins(r.coins);
+        msg.push('💰 +' + r.coins + ' 铜币');
+    }
+    if (r.material) {
+        addItem('materials', r.material, r.materialCount);
+        state.materialIdx++;
+        msg.push('🎁 ' + r.material + ' ×' + r.materialCount);
+    }
+    if (r.seed) {
+        addItem('seeds', r.seed, r.seedCount);
+        state.seedIdx++;
+        msg.push('🌱 ' + r.seed + '种子 ×' + r.seedCount);
+    }
+
+    state.lastDate = todayStr();
+    state.day = newDay;
+    saveSignState(state);
+
+    renderMainTop();
+
+    var html = '<div class="modal-title">🎉 签到成功</div>' +
+        '<div style="font-size:15px;color:#33691e;font-weight:bold;margin:14px 0;line-height:1.8;">' +
+            msg.join('<br>') +
+        '</div>' +
+        '<button class="modal-btn" id="signAfterBtn">知道了</button>';
+    document.getElementById('mainModalContent').innerHTML = html;
+    document.getElementById('mainModalOverlay').classList.add('active');
+    document.getElementById('signAfterBtn').addEventListener('click', function () {
+        document.getElementById('mainModalOverlay').classList.remove('active');
+    });
+}
+
 /* ==================== 仓库 ==================== */
 function openWarehouse() {
     var w = getWarehouse();
@@ -347,7 +513,6 @@ function bindMainEvents() {
     }
 
     var placeholders = [
-    { id: 'btnSign', title: '签到' },
     { id: 'btnMedBook', title: '医书' },
     { id: 'btnHerbBook', title: '药书' }
 ];
@@ -360,13 +525,16 @@ for (var j = 0; j < placeholders.length; j++) {
     })(placeholders[j]);
 }
 
-/* ★ 仓库单独绑定到 openWarehouse */
+/* ★ 仓库绑定 */
 var whBtn = document.getElementById('btnWarehouse');
 if (whBtn) whBtn.addEventListener('click', openWarehouse);
 
-    var shopBtn = document.getElementById('btnShop');
-    if (shopBtn) shopBtn.addEventListener('click', openShop);
-}
+/* ★ 签到绑定 */
+var signBtn = document.getElementById('btnSign');
+if (signBtn) signBtn.addEventListener('click', openSignModal);
+
+var shopBtn = document.getElementById('btnShop');
+if (shopBtn) shopBtn.addEventListener('click', openShop);
 
 /* ==================== 初始化 ==================== */
 bindImageFallback();
