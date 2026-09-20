@@ -333,6 +333,12 @@ function renderDiagTop() {
     if (powerText) powerText.textContent = Math.floor(getPower());
     if (coinText) coinText.textContent = getCoins();
     if (queueCountEl) queueCountEl.textContent = queueVisibleCount;
+
+    /* ★ 新增：更新称号 */
+    var nameEl = document.getElementById('diagPlayerName');
+    if (nameEl && typeof window.getRankName === 'function') {
+        nameEl.textContent = window.getRankName(getPower());
+    }
 }
 window.renderDiagTop = renderDiagTop;
 

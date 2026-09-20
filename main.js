@@ -117,6 +117,27 @@ function getPower() {
 }
 window.getPower = getPower;
 
+/* ==================== 等级称号 ==================== */
+var RANKS = [
+    { min: 0,     max: 500,      name: '小药童' },
+    { min: 501,   max: 1500,     name: '见习医徒' },
+    { min: 1501,  max: 3500,     name: '赤脚医生' },
+    { min: 3501,  max: 7500,     name: '游方郎中' },
+    { min: 7501,  max: 15500,    name: '坐堂大夫' },
+    { min: 15501, max: 31500,    name: '郡邑名医' },
+    { min: 31501, max: 63500,    name: '宫廷太医' },
+    { min: 63501, max: Infinity, name: '杏林圣手' }
+];
+
+function getRankName(power) {
+    var p = Math.floor(power);
+    for (var i = 0; i < RANKS.length; i++) {
+        if (p >= RANKS[i].min && p <= RANKS[i].max) return RANKS[i].name;
+    }
+    return RANKS[RANKS.length - 1].name;
+}
+window.getRankName = getRankName;
+
 function getStamina() {
     var now = Date.now();
     var stamina = parseInt(localStorage.getItem('stamina') || MAX_STAMINA);
@@ -157,11 +178,19 @@ function renderMainTop() {
     el = document.getElementById('mainStaminaText');
     if (el) el.textContent = getStamina() + ' / ' + MAX_STAMINA;
 
+    /* ★ 更新玩家称号 */
+    el = document.getElementById('mainPlayerName');
+    if (el) el.textContent = getRankName(getPower());
+
     var unlocked = getPower() >= UNLOCK_POWER;
     var spots = document.querySelectorAll('.spot');
     for (var i = 0; i < spots.length; i++) {
         var m = spots[i].getAttribute('data-module');
-        if (m === 'diagnose') { spots[i].classList.remove('locked'); continue; }
+        /* ★ 行医和采药永远解锁；其余模块需要医力达 100 */
+        if (m === 'diagnose' || m === 'collect') {
+            spots[i].classList.remove('locked');
+            continue;
+        }
         if (unlocked) spots[i].classList.remove('locked');
         else spots[i].classList.add('locked');
     }
