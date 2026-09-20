@@ -181,6 +181,59 @@ function showMainModal(title, html, btnText, callback) {
     });
 }
 
+/* ==================== 仓库 ==================== */
+function openWarehouse() {
+    var w = getWarehouse();
+    var html = '<div class="modal-title">📦 仓库</div>';
+
+    var sections = [
+        { key: 'herbs',     title: '🌿 药材', path: 'images/herbs/' },
+        { key: 'seeds',     title: '🌱 种子', path: 'images/seeds/' },
+        { key: 'materials', title: '🍯 辅料', path: 'images/materials/' },
+        { key: 'processed', title: '⚗️ 饮片', path: 'images/processed/' }
+    ];
+
+    for (var i = 0; i < sections.length; i++) {
+        var sec = sections[i];
+        var items = w[sec.key] || {};
+        var keys = Object.keys(items).filter(function (k) { return items[k] > 0; });
+
+        html += '<div class="wh-section">' + sec.title + '</div>';
+
+        if (keys.length === 0) {
+            html += '<div class="wh-empty">暂无</div>';
+            continue;
+        }
+
+        html += '<div class="wh-grid">';
+        for (var j = 0; j < keys.length; j++) {
+            var name = keys[j];
+            var count = items[name];
+            html += '<div class="wh-item">' +
+                '<img class="auto-hide" src="' + sec.path + encodeURI(name) + '.webp" alt="">' +
+                '<div class="wh-name">' + name + '</div>' +
+                '<div class="wh-count">x' + count + '</div>' +
+            '</div>';
+        }
+        html += '</div>';
+    }
+
+    html += '<button class="modal-btn secondary close-modal-btn" style="margin-top:14px;">关闭</button>';
+
+    document.getElementById('mainModalContent').innerHTML = html;
+    document.getElementById('mainModalOverlay').classList.add('active');
+
+    /* 图片加载失败自动隐藏 */
+    window.bindImgFallback(document.getElementById('mainModalContent'));
+
+    /* 关闭按钮 */
+    var closeBtn = document.querySelector('#mainModalContent .close-modal-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            document.getElementById('mainModalOverlay').classList.remove('active');
+        });
+    }
+}
 /* ==================== 商店（图片走 data-fallback 属性） ==================== */
 function openShop() {
     var html = '<div class="modal-title">🛒 商店</div>';
@@ -294,19 +347,22 @@ function bindMainEvents() {
     }
 
     var placeholders = [
-        { id: 'btnSign', title: '签到' },
-        { id: 'btnMedBook', title: '医书' },
-        { id: 'btnHerbBook', title: '药书' },
-        { id: 'btnWarehouse', title: '仓库' }
-    ];
-    for (var j = 0; j < placeholders.length; j++) {
-        (function(item) {
-            var el = document.getElementById(item.id);
-            if (el) el.addEventListener('click', function() {
-                showMainModal(item.title, '这个功能还在开发中～', '知道了', null);
-            });
-        })(placeholders[j]);
-    }
+    { id: 'btnSign', title: '签到' },
+    { id: 'btnMedBook', title: '医书' },
+    { id: 'btnHerbBook', title: '药书' }
+];
+for (var j = 0; j < placeholders.length; j++) {
+    (function(item) {
+        var el = document.getElementById(item.id);
+        if (el) el.addEventListener('click', function() {
+            showMainModal(item.title, '这个功能还在开发中～', '知道了', null);
+        });
+    })(placeholders[j]);
+}
+
+/* ★ 仓库单独绑定到 openWarehouse */
+var whBtn = document.getElementById('btnWarehouse');
+if (whBtn) whBtn.addEventListener('click', openWarehouse);
 
     var shopBtn = document.getElementById('btnShop');
     if (shopBtn) shopBtn.addEventListener('click', openShop);

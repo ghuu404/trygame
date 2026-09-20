@@ -1024,3 +1024,122 @@ body {
     padding: 0 20px;
     line-height: 1.4;
 }
+/* ==================== 商店 ==================== */
+.shop-coins {
+    font-size: 14px;
+    font-weight: bold;
+    color: #b85c00;
+    text-align: right;
+    margin-bottom: 8px;
+}
+.shop-section {
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #3a2a1a;
+    margin: 10px 0 6px;
+    border-bottom: 1px dashed #d4c4a8;
+    padding-bottom: 3px;
+}
+.shop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 8px;
+    margin-bottom: 4px;
+}
+.shop-item {
+    background: #fff;
+    border: 2px solid #d4c4a8;
+    border-radius: 8px;
+    padding: 8px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.shop-item .item-icon { font-size: 22px; line-height: 1; }
+.shop-item .item-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #3a2a1a;
+    margin-top: 3px;
+}
+.shop-item .item-price {
+    font-size: 12px;
+    color: #b85c00;
+    font-weight: bold;
+    margin-top: 2px;
+}
+.shop-buy {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 14px;
+    border-radius: 12px;
+    background: #d4a574;
+    border: 2px solid #8b5e3c;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 4px;
+}
+.shop-buy:disabled {
+    background: #e0e0e0;
+    border-color: #999;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* ==================== 仓库 ==================== */
+.wh-section {
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #33691e;
+    margin: 12px 0 6px;
+    border-bottom: 1px dashed #d4c4a8;
+    padding-bottom: 3px;
+}
+.wh-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 6px;
+    margin-bottom: 4px;
+}
+.wh-item {
+    background: #fff;
+    border: 1px solid #d4c4a8;
+    border-radius: 8px;
+    padding: 6px 4px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.wh-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-bottom: 3px;
+    display: block;
+}
+.wh-name {
+    font-size: 11px;
+    font-weight: bold;
+    color: #3a2a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.2;
+}
+.wh-count {
+    font-size: 10px;
+    color: #8b5e3c;
+    font-weight: bold;
+    margin-top: 1px;
+}
+.wh-empty {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    padding: 6px 0;
+    font-style: italic;
+}
