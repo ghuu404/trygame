@@ -70,6 +70,20 @@ body {
     border: 2px solid #d4c4a8; color: #8b5e3c; z-index: 10;
 }
 
+/* ===== 底部固定医生人像 ===== */
+#doctorFigure {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    height: 42vh;          /* 用 vh 定义尺寸，屏幕越高医生越大，比例不变 */
+    width: auto;           /* 宽度按原图比例自动 → 不变形 */
+    max-width: 95vw;       /* 窄屏时不超过屏幕宽度 */
+    z-index: 2;            /* 在背景之上、症状面板之下 */
+    pointer-events: none;  /* 不挡任何点击 */
+    user-select: none;
+    display: block;
+}
 /* ===== 病人区 ===== */
 #patientArea {
     position: absolute; left: 0; right: 0;
@@ -285,6 +299,8 @@ body {
 <div id="backBtn" onclick="location.href='index.html'">←</div>
 <div id="versionTag"></div>
 <div id="toast"></div>
+<img id="doctorFigure" src="images/doctor-figure.webp" alt=""
+     onerror="this.style.display='none'">
 
 <div id="topBar">
     <div id="playerBox">
@@ -616,17 +632,18 @@ body {
                        [0] = 问诊位，[1] = 第 1 排位，...
        POS_STYLES   ：每个队列位置的视觉参数（透视效果）
        ========================================================= */
-    var QUEUE_VISIBLE = 5;
+    var QUEUE_VISIBLE = 6;
     var FORMULA_QUEUE = [];
 
     var POS_STYLES = [
-        { x: 0,   y: 0,    scale: 1.00, opacity: 1.00, z: 100 },  /* 问诊位 */
-        { x: 26,  y: -8,   scale: 0.72, opacity: 0.95, z: 90  },
-        { x: 46,  y: -15,  scale: 0.55, opacity: 0.88, z: 80  },
-        { x: 62,  y: -22,  scale: 0.42, opacity: 0.78, z: 70  },
-        { x: 76,  y: -28,  scale: 0.32, opacity: 0.68, z: 60  },
-        { x: 88,  y: -33,  scale: 0.24, opacity: 0.00, z: 50  }   /* 隐藏位（新病人入场用）*/
-    ];
+    { x: 0,   y: -2,  scale: 1.00, opacity: 1.00, z: 100 },  /* 问诊位 */
+    { x: 22,  y: -9,  scale: 0.76, opacity: 0.95, z: 90  },
+    { x: 40,  y: -16, scale: 0.58, opacity: 0.88, z: 80  },
+    { x: 56,  y: -22, scale: 0.44, opacity: 0.78, z: 70  },
+    { x: 70,  y: -28, scale: 0.34, opacity: 0.68, z: 60  },
+    { x: 82,  y: -33, scale: 0.26, opacity: 0.58, z: 55  },
+    { x: 92,  y: -38, scale: 0.19, opacity: 0.00, z: 50  }   /* 隐藏位（入场用）*/
+];
 
     var queueStage = document.getElementById('queueStage');
     var symptomPanel = document.getElementById('symptomPanel');
