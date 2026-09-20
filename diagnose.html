@@ -69,30 +69,37 @@ body {
     padding: 3px 10px; border-radius: 12px;
     border: 2px solid #d4c4a8; color: #8b5e3c; z-index: 10;
 }
+
+/* ===== 病人区 ===== */
 #patientArea {
     position: absolute; left: 0; right: 0;
     top: 9%; bottom: 30%;
     display: flex; align-items: flex-end; justify-content: center;
     z-index: 5; pointer-events: none;
 }
-#patientStage {
-    position: relative; height: 36vh; width: 27vh;
+#queueStage {
+    position: relative;
+    height: 36vh; width: 27vh;
     max-height: 320px; max-width: 240px;
-    pointer-events: auto; z-index: 20;
+    pointer-events: none; z-index: 20;
 }
-#patientFigure {
-    position: absolute; inset: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+.queue-person {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 27vh;
+    height: 36vh;
+    max-height: 320px;
+    max-width: 240px;
+    transform-origin: center bottom;
+    transition: transform 0.65s cubic-bezier(0.25, 0.8, 0.35, 1),
+                opacity 0.5s ease;
+    pointer-events: none;
+    will-change: transform, opacity;
 }
-#patientFigure.enter { animation: walkIn 0.55s ease-out forwards; }
-#patientFigure.exit { animation: walkOut 0.55s ease-in forwards; }
-@keyframes walkIn {
-    from { transform: scale(0.667); opacity: 0.6; }
-    to { transform: scale(1); opacity: 1; }
-}
-@keyframes walkOut {
-    from { transform: translateX(0) scale(1); opacity: 1; }
-    to { transform: translateX(-180px) scale(0.3); opacity: 0; }
+.queue-person[data-pos="0"] {
+    pointer-events: auto;
+    z-index: 100;
 }
 .patient-img {
     position: absolute; inset: 0;
@@ -295,7 +302,7 @@ body {
 <div id="queueInfo">👥 排队：<span id="queueCount">0</span></div>
 
 <div id="patientArea">
-    <div id="patientStage"></div>
+    <div id="queueStage"></div>
 </div>
 
 <div id="noPatientOverlay">
@@ -324,80 +331,57 @@ body {
     'use strict';
 
     /* =========================================================
-       FORMULAS
-       ---------
-       顺序即解锁顺序：
-         索引 0  ~ 19  → 第 1 档（医力 1-1000）
-         索引 20 ~ 39  → 第 2 档（医力 1001-2000）
-         索引 40 ~ 59  → 第 3 档（医力 2001-3000）
-         索引 60+      → 第 4 档（医力 3000+，为将来预留）
-
-       同组病人共用一张病人图 → 症状相近的方子放在一起。
+       FORMULAS：60 首方
+       ---------------------------------------------------------
+       索引 0  ~ 19  → 第 1 档（医力 1-1000）
+       索引 20 ~ 39  → 第 2 档（医力 1001-2000）
+       索引 40 ~ 59  → 第 3 档（医力 2001-3000）
+       索引 60+      → 第 4 档（医力 3000+）
        ========================================================= */
     var FORMULAS = [
-
-        /* ============================================================
-           第 1 档（索引 0-19）：太阳病基础方
-           医力 1-1000 时出场
-           ============================================================ */
-
-        /* --- patient_guizhi 组 --- */
+        /* --- 第 1 档：太阳病基础方 --- */
         { name: '桂枝汤', patient: 'images/patients/patient_guizhi.webp',
           speak: '大夫，我发热，一直出汗，特别怕风。',
           s: { head: ['头痛'], chest: ['发热','汗出','恶风'], belly: [], limbs: [], pulse: ['脉浮缓'] } },
         { name: '桂枝加葛根汤', patient: 'images/patients/patient_guizhi.webp',
           speak: '大夫，我后背脖子僵得难受，发热出汗，还怕风。',
           s: { head: ['项背强几几'], chest: ['发热','汗出','恶风'], belly: [], limbs: [], pulse: ['脉浮缓'] } },
-
-        /* --- patient_mahuang 组 --- */
         { name: '麻黄汤', patient: 'images/patients/patient_mahuang.webp',
           speak: '大夫，我头痛发热，浑身骨节都疼，一点汗都出不来，还喘。',
           s: { head: ['头痛'], chest: ['发热','无汗','恶风','喘'], belly: [], limbs: ['身疼','腰痛','骨节疼痛'], pulse: ['脉浮紧'] } },
         { name: '麻黄附子细辛汤', patient: 'images/patients/patient_mahuang.webp',
           speak: '大夫，我发热怕冷，浑身没劲，脉却沉得很。',
           s: { head: [], chest: ['发热','恶寒'], belly: [], limbs: ['倦卧'], pulse: ['脉沉'] } },
-
-        /* --- patient_gegen 组 --- */
         { name: '葛根汤', patient: 'images/patients/patient_gegen.webp',
           speak: '大夫，我脖子后背僵硬得难受，发热怕冷，不出汗。',
           s: { head: ['项背强几几'], chest: ['发热','无汗','恶风'], belly: [], limbs: [], pulse: ['脉浮'] } },
         { name: '葛根芩连汤', patient: 'images/patients/patient_gegen.webp',
           speak: '大夫，我一直拉肚子，喘气还出汗，脉跳得很快。',
           s: { head: [], chest: ['喘','汗出'], belly: ['下利不止'], limbs: [], pulse: ['脉促'] } },
-
-        /* --- patient_xiaoqinglong 组 --- */
         { name: '小青龙汤', patient: 'images/patients/patient_xiaoqinglong.webp',
           speak: '大夫，我怕冷发热，一直咳嗽，还干呕。',
           s: { head: [], chest: ['发热','恶寒','心下有水气','咳'], belly: [], limbs: ['干呕'], pulse: [] } },
         { name: '射干麻黄汤', patient: 'images/patients/patient_xiaoqinglong.webp',
           speak: '大夫，我咳嗽气往上冲，喉咙里像水鸡叫一样响。',
           s: { head: [], chest: ['咳而上气','喉中水鸡声'], belly: [], limbs: [], pulse: [] } },
-
-        /* --- patient_daqinglong 组 --- */
         { name: '大青龙汤', patient: 'images/patients/patient_daqinglong.webp',
           speak: '大夫，我发热怕冷，浑身疼得厉害，一点汗都出不来，心里烦躁得很。',
           s: { head: ['烦躁'], chest: ['发热','恶寒','身疼痛','不汗出'], belly: [], limbs: [], pulse: [] } },
         { name: '越婢汤', patient: 'images/patients/patient_daqinglong.webp',
           speak: '大夫，我全身都肿了，怕风，一直出汗。',
           s: { head: [], chest: ['一身悉肿','恶风','续自汗出'], belly: [], limbs: [], pulse: ['脉浮'] } },
-
-        /* --- patient_xiaochaihu 组 --- */
         { name: '小柴胡汤', patient: 'images/patients/patient_xiaochaihu.webp',
           speak: '大夫，我一会冷一会热，胸口两肋胀得难受，不想吃饭，老想吐。',
           s: { head: ['心烦'], chest: ['往来寒热','胸胁苦满'], belly: ['不欲饮食','喜呕'], limbs: [], pulse: ['脉弦'] } },
         { name: '柴胡桂枝汤', patient: 'images/patients/patient_xiaochaihu.webp',
           speak: '大夫，我有点发热有点怕冷，四肢关节疼，还有点想吐。',
           s: { head: [], chest: ['发热微恶寒','支节烦疼','微呕','心下支结'], belly: [], limbs: [], pulse: [] } },
-
-        /* --- patient_dachaihu 组 --- */
         { name: '大柴胡汤', patient: 'images/patients/patient_dachaihu.webp',
           speak: '大夫，我一会冷一会热，心口下面堵得慌，又吐又拉。',
           s: { head: [], chest: ['往来寒热'], belly: ['心下痞硬','呕吐','下利'], limbs: [], pulse: ['脉弦'] } },
         { name: '柴胡加龙骨牡蛎汤', patient: 'images/patients/patient_dachaihu.webp',
           speak: '大夫，我胸口胀得慌，心烦害怕，小便不通畅，还胡言乱语。',
           s: { head: ['烦惊'], chest: ['胸满','谵语'], belly: ['小便不利'], limbs: ['一身尽重'], pulse: [] } },
-
-        /* --- patient_baihu 组 --- */
         { name: '白虎汤', patient: 'images/patients/patient_baihu.webp',
           speak: '大夫，我浑身滚烫，出大汗，渴得厉害。',
           s: { head: [], chest: ['身大热','汗大出','口大渴'], belly: [], limbs: [], pulse: ['脉洪大'] } },
@@ -407,8 +391,6 @@ body {
         { name: '竹叶石膏汤', patient: 'images/patients/patient_baihu.webp',
           speak: '大夫，我病刚好，浑身没劲，气往上逆，想吐。',
           s: { head: [], chest: ['虚羸少气','气逆欲吐'], belly: [], limbs: [], pulse: [] } },
-
-        /* --- patient_dachengqi 组 --- */
         { name: '大承气汤', patient: 'images/patients/patient_dachengqi.webp',
           speak: '大夫，我肚子胀痛，大便好几天不通了，下午发热，手脚出汗。',
           s: { head: ['潮热'], chest: [], belly: ['腹满痛','大便不通'], limbs: ['手足汗出'], pulse: [] } },
@@ -419,28 +401,19 @@ body {
           speak: '大夫，我小肚子又急又结，人烦得发狂。',
           s: { head: ['其人如狂'], chest: [], belly: ['少腹急结'], limbs: [], pulse: [] } },
 
-        /* ============================================================
-           第 2 档（索引 20-39）：三阴病 + 杂病
-           医力 1001-2000 时出场
-           ============================================================ */
-
-        /* --- patient_xiaochengqi 组 --- */
+        /* --- 第 2 档：三阴病 + 杂病 --- */
         { name: '小承气汤', patient: 'images/patients/patient_xiaochengqi.webp',
           speak: '大夫，我肚子胀得厉害，大便干硬，心里烦躁。',
           s: { head: ['微烦'], chest: [], belly: ['腹大满','大便硬'], limbs: [], pulse: [] } },
         { name: '大黄牡丹汤', patient: 'images/patients/patient_xiaochengqi.webp',
           speak: '大夫，我小肚子肿起来一块，一按就疼，还发热出汗怕冷。',
           s: { head: [], chest: ['时时发热','自汗出','复恶寒'], belly: ['少腹肿痞','按之即痛'], limbs: [], pulse: [] } },
-
-        /* --- patient_tiaowei 组 --- */
         { name: '调胃承气汤', patient: 'images/patients/patient_tiaowei.webp',
           speak: '大夫，我身上发热，肚子胀。',
           s: { head: [], chest: ['蒸蒸发热'], belly: ['腹胀满'], limbs: [], pulse: [] } },
         { name: '大黄甘草汤', patient: 'images/patients/patient_tiaowei.webp',
           speak: '大夫，我吃完东西马上就吐。',
           s: { head: [], chest: [], belly: ['食已即吐'], limbs: [], pulse: [] } },
-
-        /* --- patient_lizhong 组 --- */
         { name: '理中汤', patient: 'images/patients/patient_lizhong.webp',
           speak: '大夫，我肚子胀，又吐又拉，不想吃饭，肚子一阵一阵疼。',
           s: { head: [], chest: [], belly: ['腹满','吐利','不欲食','时腹自痛'], limbs: [], pulse: [] } },
@@ -450,55 +423,39 @@ body {
         { name: '吴茱萸汤', patient: 'images/patients/patient_lizhong.webp',
           speak: '大夫，我吃点东西就想吐，还吐清涎，头也疼得厉害。',
           s: { head: ['头痛'], chest: [], belly: ['食谷欲呕','干呕吐涎沫'], limbs: [], pulse: [] } },
-
-        /* --- patient_sini 组 --- */
         { name: '四逆汤', patient: 'images/patients/patient_sini.webp',
           speak: '大夫，我手脚冰凉，拉肚子都是没消化的东西。',
           s: { head: [], chest: [], belly: ['下利清谷'], limbs: ['四肢厥逆'], pulse: ['脉微欲绝'] } },
         { name: '通脉四逆汤', patient: 'images/patients/patient_sini.webp',
           speak: '大夫，我拉肚子全是没消化的东西，手脚冰凉，可身上反而发热，脸也红。',
           s: { head: ['面色赤'], chest: ['里寒外热','身反不恶寒'], belly: ['下利清谷'], limbs: ['手足厥逆'], pulse: ['脉微欲绝'] } },
-
-        /* --- patient_zhenwu 组 --- */
         { name: '真武汤', patient: 'images/patients/patient_zhenwu.webp',
           speak: '大夫，我头晕心慌，身上肌肉跳，小便不通畅。',
           s: { head: ['头眩'], chest: ['心下悸','身瞤动'], belly: ['小便不利'], limbs: [], pulse: [] } },
         { name: '苓桂术甘汤', patient: 'images/patients/patient_zhenwu.webp',
           speak: '大夫，我胸口下面胀满，气往上冲，一起身就头晕。',
           s: { head: ['起则头眩'], chest: ['心下逆满','气上冲胸'], belly: [], limbs: [], pulse: ['脉沉紧'] } },
-
-        /* --- patient_wuling 组 --- */
         { name: '五苓散', patient: 'images/patients/patient_wuling.webp',
           speak: '大夫，我渴得想喝水，喝了又吐出来，小便不通畅。',
           s: { head: [], chest: ['渴欲饮水','水入则吐'], belly: ['小便不利'], limbs: [], pulse: [] } },
         { name: '猪苓汤', patient: 'images/patients/patient_wuling.webp',
           speak: '大夫，我发热口渴老想喝水，小便不通畅，心烦得睡不着。',
           s: { head: ['心烦不得眠'], chest: ['发热','渴欲饮水'], belly: ['小便不利'], limbs: [], pulse: ['脉浮'] } },
-
-        /* --- patient_banxia 组 --- */
         { name: '半夏泻心汤', patient: 'images/patients/patient_banxia.webp',
           speak: '大夫，我心口堵得慌，又吐又肠鸣，还拉肚子。',
           s: { head: [], chest: [], belly: ['心下痞满','呕而肠鸣','下利'], limbs: [], pulse: [] } },
         { name: '小陷胸汤', patient: 'images/patients/patient_banxia.webp',
           speak: '大夫，我心口下面按一下就疼，脉浮滑。',
           s: { head: [], chest: ['正在心下','按之则痛'], belly: [], limbs: [], pulse: ['脉浮滑'] } },
-
-        /* --- patient_zhizi 组 --- */
         { name: '栀子豉汤', patient: 'images/patients/patient_zhizi.webp',
           speak: '大夫，我心里烦得睡不着觉，辗转反侧。',
           s: { head: ['虚烦不得眠','心中懊憹'], chest: [], belly: [], limbs: [], pulse: [] } },
-
-        /* --- patient_yinchen 组 --- */
         { name: '茵陈蒿汤', patient: 'images/patients/patient_yinchen.webp',
           speak: '大夫，我浑身发黄，像橘子皮那么黄，小便不通畅，肚子有点胀。',
           s: { head: [], chest: ['身黄如橘子色'], belly: ['小便不利','腹微满'], limbs: [], pulse: [] } },
-
-        /* --- 单独病人图 --- */
         { name: '当归四逆汤', patient: 'images/patients/patient_dangguisini.webp',
           speak: '大夫，我手脚冰凉得厉害，怎么也暖不热。',
           s: { head: [], chest: [], belly: [], limbs: ['手足厥寒'], pulse: ['脉细欲绝'] } },
-
-        /* --- patient_xiaojianzhong 组 --- */
         { name: '小建中汤', patient: 'images/patients/patient_xiaojianzhong.webp',
           speak: '大夫，我肚子一阵一阵绞痛，心里慌得很。',
           s: { head: ['心中悸而烦'], chest: [], belly: ['腹中急痛'], limbs: [], pulse: [] } },
@@ -506,17 +463,10 @@ body {
           speak: '大夫，我心慌得厉害，脉跳一下停一下。',
           s: { head: [], chest: ['心动悸'], belly: [], limbs: [], pulse: ['脉结代'] } },
 
-        /* ============================================================
-           第 3 档（索引 40-58）：《金匮要略》方
-           医力 2001-3000 时出场
-           ============================================================ */
-
-        /* --- 痉病 --- */
+        /* --- 第 3 档：金匮要略方 --- */
         { name: '栝蒌桂枝汤', patient: 'images/patients/patient_guizhi.webp',
           speak: '我像是感冒了，身上出汗，脖子后背僵硬发紧，转动不灵活，浑身拘紧不舒服。',
           s: { head: ['身体强几几然'], chest: ['汗出'], belly: [], limbs: ['身体拘紧'], pulse: ['脉反沉迟'] } },
-
-        /* --- 湿病 --- */
         { name: '麻黄加术汤', patient: 'images/patients/patient_mahuang.webp',
           speak: '我全身酸痛，酸胀烦扰，浑身难受，身上裹着湿冷感。',
           s: { head: [], chest: ['身烦疼'], belly: [], limbs: ['身重'], pulse: ['脉浮紧'] } },
@@ -535,13 +485,9 @@ body {
         { name: '甘草附子汤', patient: 'images/patients/patient_mahuang.webp',
           speak: '我关节扯着疼，弯不了伸不开，一碰就剧痛；容易出汗，一动就气短，小便不畅，怕冷不想脱衣服，身上有点浮肿。',
           s: { head: [], chest: ['汗出','短气','恶风不欲去衣'], belly: ['小便不利'], limbs: ['骨节疼烦','掣痛不得屈伸','身微肿'], pulse: [] } },
-
-        /* --- 中暍 --- */
         { name: '一物瓜蒂汤', patient: 'images/patients/patient_baihu.webp',
           speak: '夏天受凉水之后，身上发热、浑身酸痛沉重，浑身乏力。',
           s: { head: [], chest: ['身热'], belly: [], limbs: ['疼重'], pulse: ['脉微弱'] } },
-
-        /* --- 百合病 --- */
         { name: '百合知母汤', patient: 'images/patients/patient_zhizi.webp',
           speak: '之前吃过发汗药之后，心烦燥热，口渴，心里难受，坐卧不安，食欲时好时坏。',
           s: { head: ['心烦'], chest: ['口渴'], belly: ['食欲时好时坏'], limbs: ['坐卧不安'], pulse: [] } },
@@ -563,8 +509,6 @@ body {
         { name: '百合滑石散', patient: 'images/patients/patient_zhizi.webp',
           speak: '原先没有发烧，后来开始身上发热，心烦，小便短黄。',
           s: { head: ['心烦'], chest: ['发热'], belly: ['小便短黄'], limbs: [], pulse: [] } },
-
-        /* --- 狐惑病 --- */
         { name: '甘草泻心汤', patient: 'images/patients/patient_banxia.webp',
           speak: '总想睡觉，但又睡不着，躺卧都不安稳；咽喉溃烂疼，说话声音嘶哑；不想吃饭，闻到饭菜味道就难受；脸上颜色一阵红一阵暗。',
           s: { head: ['默默欲眠','目不得闭'], chest: ['声喝'], belly: ['不欲饮食','恶闻食臭'], limbs: ['卧起不安','面目乍赤乍黑乍白'], pulse: [] } },
@@ -574,36 +518,23 @@ body {
         { name: '雄黄熏方', patient: 'images/patients/patient_banxia.webp',
           speak: '肛门部位溃烂疼痛，局部灼热不适。',
           s: { head: [], chest: [], belly: [], limbs: ['肛部蚀烂'], pulse: [] } },
-
-        /* --- 疮痈肠痈 --- */
-    { name: '赤小豆当归散', patient: 'images/patients/patient_yinchen.webp',
-      speak: '身上不发烧，心里有点烦，只想躺着，容易出汗；发病三四天眼睛发红，到七八天眼周发黑；胃口反而变好，体内已经成脓。',
-      s: { head: ['微烦','默默但欲卧'], chest: ['无热','汗出'], belly: ['能食'], limbs: ['目赤如鸠眼','目四眦黑'], pulse: ['脉数'] } },
-
-    /* --- 阴阳毒 --- */
-    { name: '升麻鳖甲汤', patient: 'images/patients/patient_banxia.webp',
-      speak: '脸上长出红斑，像织锦花纹一样，咽喉疼，咳嗽、吐脓血。',
-      s: { head: ['面赤斑斑如锦纹'], chest: ['咽喉痛','唾脓血'], belly: [], limbs: [], pulse: [] } }
-
-    /* ============================================================
-       第 4 档：以后继续加
-       直接往这里追加即可，第 60 项之后自动归入此档
-       ============================================================ */
-];
+        { name: '赤小豆当归散', patient: 'images/patients/patient_yinchen.webp',
+          speak: '身上不发烧，心里有点烦，只想躺着，容易出汗；发病三四天眼睛发红，到七八天眼周发黑；胃口反而变好，体内已经成脓。',
+          s: { head: ['微烦','默默但欲卧'], chest: ['无热','汗出'], belly: ['能食'], limbs: ['目赤如鸠眼','目四眦黑'], pulse: ['脉数'] } },
+        { name: '升麻鳖甲汤', patient: 'images/patients/patient_banxia.webp',
+          speak: '脸上长出红斑，像织锦花纹一样，咽喉疼，咳嗽、吐脓血。',
+          s: { head: ['面赤斑斑如锦纹'], chest: ['咽喉痛','唾脓血'], belly: [], limbs: [], pulse: [] } }
+    ];
 
     /* =========================================================
-       医力门控：根据当前医力决定可用方数量
-       - 1   ~ 1000 → 20 个
-       - 1001~ 2000 → 40 个
-       - 2001~ 3000 → 60 个
-       - 3000+     → 全部（为将来扩展预留）
+       医力门控
        ========================================================= */
     function getFormulaLimit() {
         var power = getPower();
         if (power <= 1000) return 20;
         if (power <= 2000) return 40;
         if (power <= 3000) return 60;
-        return 999; // 未来开放更多
+        return 999;
     }
     function getUsableFormulaCount() {
         return Math.min(getFormulaLimit(), FORMULAS.length);
@@ -627,7 +558,9 @@ body {
         localStorage.setItem('coins', String(t));
     }
 
-    // ===== 方子池（一轮一轮随机，按当前可用范围洗牌）=====
+    /* =========================================================
+       方子池（一轮一轮随机，按当前可用范围洗牌）
+       ========================================================= */
     function loadPool() {
         try {
             var p = JSON.parse(localStorage.getItem('formulaPool') || 'null');
@@ -657,7 +590,6 @@ body {
         var savedLimit = parseInt(localStorage.getItem('formulaPoolLimit') || '0', 10);
         var pool = loadPool();
 
-        // 池不存在、为空、或可用范围变了 → 重新洗牌
         if (!pool || pool.length === 0 || savedLimit !== limit) {
             pool = reshufflePool(limit);
             localStorage.setItem('formulaPoolLimit', String(limit));
@@ -677,8 +609,208 @@ body {
         return idx;
     }
 
-    // ===== 排队系统 =====
-    var QUEUE_GROW_INTERVAL = 1 * 60 * 1000;   // 1分钟 +1
+    /* =========================================================
+       队列视觉系统
+       ---------------------------------------------------------
+       FORMULA_QUEUE：按排队顺序预先抽好的方子索引数组
+                       [0] = 问诊位，[1] = 第 1 排位，...
+       POS_STYLES   ：每个队列位置的视觉参数（透视效果）
+       ========================================================= */
+    var QUEUE_VISIBLE = 5;
+    var FORMULA_QUEUE = [];
+
+    var POS_STYLES = [
+        { x: 0,   y: 0,    scale: 1.00, opacity: 1.00, z: 100 },  /* 问诊位 */
+        { x: 26,  y: -8,   scale: 0.72, opacity: 0.95, z: 90  },
+        { x: 46,  y: -15,  scale: 0.55, opacity: 0.88, z: 80  },
+        { x: 62,  y: -22,  scale: 0.42, opacity: 0.78, z: 70  },
+        { x: 76,  y: -28,  scale: 0.32, opacity: 0.68, z: 60  },
+        { x: 88,  y: -33,  scale: 0.24, opacity: 0.00, z: 50  }   /* 隐藏位（新病人入场用）*/
+    ];
+
+    var queueStage = document.getElementById('queueStage');
+    var symptomPanel = document.getElementById('symptomPanel');
+    var queueCountEl = document.getElementById('queueCount');
+    var optionBtns = document.querySelectorAll('.option-btn');
+    var powerText = document.getElementById('powerText');
+    var coinText = document.getElementById('coinText');
+    var coinGain = document.getElementById('coinGain');
+    var modalOverlay = document.getElementById('modalOverlay');
+    var modalBox = document.getElementById('modalBox');
+    var toastEl = document.getElementById('toast');
+
+    var state = null;
+    var waiting = false;
+    var currentPatientEl = null;
+
+    function ensureFormulaQueue() {
+        while (FORMULA_QUEUE.length < QUEUE_VISIBLE + 1) {
+            FORMULA_QUEUE.push(pickNextFormulaIndex());
+        }
+    }
+
+    function applyPos(el, pos) {
+        var s = POS_STYLES[pos];
+        if (!s) s = POS_STYLES[POS_STYLES.length - 1];
+        el.style.transform =
+            'translateX(-50%) translate(' + s.x + 'px, ' + s.y + 'vh) scale(' + s.scale + ')';
+        el.style.opacity = String(s.opacity);
+        el.style.zIndex = String(s.z);
+        el.setAttribute('data-pos', String(pos));
+    }
+
+    function addHitAreas(parent) {
+        var parts = [
+            { part: 'head',  cls: 'hit-head'  },
+            { part: 'chest', cls: 'hit-chest' },
+            { part: 'belly', cls: 'hit-belly' },
+            { part: 'limbs', cls: 'hit-limbs' },
+            { part: 'pulse', cls: 'hit-pulse' }
+        ];
+        for (var k = 0; k < parts.length; k++) {
+            (function(p) {
+                var el = document.createElement('div');
+                el.className = 'hit-area ' + p.cls;
+                el.setAttribute('data-part', p.part);
+                el.addEventListener('click', function(ev) {
+                    ev.stopPropagation();
+                    onPartClick(p.part, el);
+                });
+                parent.appendChild(el);
+            })(parts[k]);
+        }
+    }
+
+    function buildQueuePerson(formulaIdx, pos) {
+        var formula = FORMULAS[formulaIdx];
+        var div = document.createElement('div');
+        div.className = 'queue-person';
+
+        var img = document.createElement('img');
+        img.className = 'patient-img';
+        img.alt = '';
+        img.onerror = function() { this.style.display = 'none'; };
+        img.src = formula.patient || '';
+        div.appendChild(img);
+
+        if (pos === 0) addHitAreas(div);
+
+        applyPos(div, pos);
+        return div;
+    }
+
+    /* 从空开始渲染整个队列（无动画，用于初始化 / 切换档位重开） */
+    function fillQueue() {
+        queueStage.innerHTML = '';
+        ensureFormulaQueue();
+
+        var created = [];
+        for (var i = QUEUE_VISIBLE - 1; i >= 0; i--) {
+            var person = buildQueuePerson(FORMULA_QUEUE[i], i);
+            person.style.transition = 'none';
+            queueStage.appendChild(person);
+            created.push(person);
+        }
+        requestAnimationFrame(function() {
+            created.forEach(function(p) { p.style.transition = ''; });
+        });
+
+        currentPatientEl = queueStage.querySelector('.queue-person[data-pos="0"]');
+
+        state = {
+            formula: FORMULAS[FORMULA_QUEUE[0]],
+            checked: { head: false, chest: false, belly: false, limbs: false, pulse: false },
+            attempts: 0,
+            phase: 'look'
+        };
+        resetUI();
+    }
+
+    /* 队首走人 + 全队列前移一格 + 队尾补新人 */
+    function advanceQueue() {
+        var first = queueStage.querySelector('.queue-person[data-pos="0"]');
+
+        if (first) {
+            /* 让队首病人往左下方走出去 */
+            first.setAttribute('data-pos', 'exit');
+            first.style.transition =
+                'transform 0.65s cubic-bezier(0.55, 0, 0.5, 1), opacity 0.5s ease';
+            first.style.transform =
+                'translateX(-280%) translateY(18vh) scale(0.55)';
+            first.style.opacity = '0';
+            first.style.zIndex = '250';
+            first.style.pointerEvents = 'none';
+            setTimeout(function() { first.remove(); }, 700);
+        }
+
+        /* 数据层：队首出列，队尾补一个 */
+        FORMULA_QUEUE.shift();
+        ensureFormulaQueue();
+
+        /* 队列里剩下的人各往前走一格，图片和位置都跟着更新 */
+        var moving = queueStage.querySelectorAll('.queue-person:not([data-pos="exit"])');
+        for (var i = 0; i < moving.length; i++) {
+            var p = moving[i];
+            var cur = parseInt(p.getAttribute('data-pos'), 10);
+            if (isNaN(cur) || cur < 1) continue;
+            var next = cur - 1;
+
+            var img = p.querySelector('img');
+            if (img) img.src = FORMULAS[FORMULA_QUEUE[next]].patient || '';
+
+            if (next === 0) {
+                /* 变成问诊位：加 5 个热区、恢复可点击 */
+                addHitAreas(p);
+            }
+            applyPos(p, next);
+        }
+
+        /* 队尾补一个，从隐藏位走进来 */
+        var tailPos = QUEUE_VISIBLE - 1;
+        var newPerson = buildQueuePerson(FORMULA_QUEUE[tailPos], tailPos + 1);
+        newPerson.style.transition = 'none';
+        queueStage.appendChild(newPerson);
+        requestAnimationFrame(function() {
+            newPerson.style.transition = '';
+            applyPos(newPerson, tailPos);
+        });
+
+        /* 更新 state */
+        currentPatientEl = queueStage.querySelector('.queue-person[data-pos="0"]');
+        state = {
+            formula: FORMULAS[FORMULA_QUEUE[0]],
+            checked: { head: false, chest: false, belly: false, limbs: false, pulse: false },
+            attempts: 0,
+            phase: 'look'
+        };
+        resetUI();
+    }
+
+    function resetUI() {
+        symptomPanel.innerHTML = '<span class="placeholder">先点击病人的头、胸、腹、腿进行望诊...</span>';
+
+        var limit = getUsableFormulaCount();
+        var idx = FORMULA_QUEUE[0];
+        var pool = [];
+        for (var i = 0; i < limit; i++) {
+            if (i !== idx) pool.push(FORMULAS[i].name);
+        }
+        shuffleArray(pool);
+        var options = [FORMULAS[idx].name, pool[0], pool[1]];
+        shuffleArray(options);
+
+        for (var p = 0; p < optionBtns.length; p++) {
+            optionBtns[p].textContent = options[p];
+            optionBtns[p].disabled = false;
+            optionBtns[p].className = 'option-btn';
+        }
+        waiting = false;
+    }
+
+    /* =========================================================
+       排队数量系统
+       ========================================================= */
+    var QUEUE_GROW_INTERVAL = 1 * 60 * 1000;
     var QUEUE_BASE_MAX = 20;
     var queueCount = 0;
 
@@ -743,26 +875,15 @@ body {
                 queueCountEl.textContent = queueCount;
                 if (isNoPatientShown()) {
                     hideNoPatient();
-                    spawnPatient();
+                    fillQueue();
                 }
             }
         }, QUEUE_GROW_INTERVAL);
     }
 
-    var patientStage = document.getElementById('patientStage');
-    var symptomPanel = document.getElementById('symptomPanel');
-    var queueCountEl = document.getElementById('queueCount');
-    var optionBtns = document.querySelectorAll('.option-btn');
-    var powerText = document.getElementById('powerText');
-    var coinText = document.getElementById('coinText');
-    var coinGain = document.getElementById('coinGain');
-    var modalOverlay = document.getElementById('modalOverlay');
-    var modalBox = document.getElementById('modalBox');
-    var toastEl = document.getElementById('toast');
-
-    var state = null;
-    var waiting = false;
-
+    /* =========================================================
+       渲染 & 交互
+       ========================================================= */
     function renderTop() {
         powerText.textContent = Math.floor(getPower());
         coinText.textContent = getCoins();
@@ -782,17 +903,17 @@ body {
 
     function enterSpeakPhase() {
         state.phase = 'speak';
-        var fig = document.getElementById('patientFigure');
-        if (fig) {
-            var oldBubble = fig.querySelector('.speak-bubble');
+        if (currentPatientEl) {
+            var oldBubble = currentPatientEl.querySelector('.speak-bubble');
             if (oldBubble) oldBubble.remove();
             var bubble = document.createElement('div');
             bubble.className = 'speak-bubble';
             bubble.textContent = '「' + state.formula.speak + '」';
-            fig.appendChild(bubble);
+            currentPatientEl.appendChild(bubble);
+
+            var pulseEl = currentPatientEl.querySelector('.hit-pulse');
+            if (pulseEl) pulseEl.classList.add('hint-glow');
         }
-        var pulseEl = patientStage.querySelector('.hit-pulse');
-        if (pulseEl) pulseEl.classList.add('hint-glow');
     }
 
     function onPartClick(part, el) {
@@ -807,7 +928,9 @@ body {
         state.checked[part] = true;
         el.classList.add('checked');
 
-        var oldHints = patientStage.querySelectorAll('.hint');
+        if (!currentPatientEl) return;
+
+        var oldHints = currentPatientEl.querySelectorAll('.hint');
         for (var i = 0; i < oldHints.length; i++) {
             if (oldHints[i].getAttribute('data-part') === part) oldHints[i].remove();
         }
@@ -823,7 +946,7 @@ body {
         } else {
             hint.textContent = symptoms.join('、');
         }
-        patientStage.appendChild(hint);
+        currentPatientEl.appendChild(hint);
 
         if (symptoms.length > 0) {
             var ph = symptomPanel.querySelector('.placeholder');
@@ -844,81 +967,10 @@ body {
 
         if (part === 'pulse') {
             state.phase = 'choose';
-            var pEl = patientStage.querySelector('.hit-pulse');
+            var pEl = currentPatientEl.querySelector('.hit-pulse');
             if (pEl) pEl.classList.remove('hint-glow');
             symptomPanel.scrollTop = symptomPanel.scrollHeight;
         }
-    }
-
-    function createPatientFigure() {
-        var fig = document.createElement('div');
-        fig.id = 'patientFigure';
-
-        var img = document.createElement('img');
-        img.className = 'patient-img';
-        img.alt = '';
-        img.onerror = function() { this.style.display = 'none'; };
-        img.src = state.formula.patient || '';
-        fig.appendChild(img);
-
-        var parts = [
-            { part: 'head',  cls: 'hit-head'  },
-            { part: 'chest', cls: 'hit-chest' },
-            { part: 'belly', cls: 'hit-belly' },
-            { part: 'limbs', cls: 'hit-limbs' },
-            { part: 'pulse', cls: 'hit-pulse' }
-        ];
-        for (var k = 0; k < parts.length; k++) {
-            (function(p) {
-                var el = document.createElement('div');
-                el.className = 'hit-area ' + p.cls;
-                el.setAttribute('data-part', p.part);
-                el.addEventListener('click', function(ev) {
-                    ev.stopPropagation();
-                    onPartClick(p.part, el);
-                });
-                fig.appendChild(el);
-            })(parts[k]);
-        }
-
-        return fig;
-    }
-
-    function spawnPatient() {
-        patientStage.innerHTML = '';
-
-        var idx = pickNextFormulaIndex();
-        var formula = FORMULAS[idx];
-        var limit = getUsableFormulaCount();
-
-        // 干扰项也只从可用范围内抽
-        var pool = [];
-        for (var i = 0; i < limit; i++) {
-            if (i !== idx) pool.push(FORMULAS[i].name);
-        }
-        shuffleArray(pool);
-        var options = [formula.name, pool[0], pool[1]];
-        shuffleArray(options);
-
-        state = {
-            formula: formula,
-            checked: { head: false, chest: false, belly: false, limbs: false, pulse: false },
-            attempts: 0,
-            phase: 'look'
-        };
-
-        symptomPanel.innerHTML = '<span class="placeholder">先点击病人的头、胸、腹、腿进行望诊...</span>';
-
-        for (var p = 0; p < optionBtns.length; p++) {
-            optionBtns[p].textContent = options[p];
-            optionBtns[p].disabled = false;
-            optionBtns[p].className = 'option-btn';
-        }
-
-        var fig = createPatientFigure();
-        patientStage.appendChild(fig);
-        fig.classList.add('enter');
-        waiting = false;
     }
 
     function showModal(title, html, btnText, callback) {
@@ -939,29 +991,36 @@ body {
         setTimeout(function() { coinGain.classList.remove('show'); }, 1200);
     }
 
-    function patientLeave(callback) {
-        var fig = document.getElementById('patientFigure');
-        if (!fig) { callback(); return; }
-        fig.classList.remove('enter');
-        fig.classList.add('exit');
-        setTimeout(callback, 300);
-    }
-
+    /* 答对/答错后进入下一位病人 */
     function nextPatient() {
         queueCount = Math.max(0, queueCount - 1);
         queueCountEl.textContent = queueCount;
         saveQueue();
 
         if (queueCount <= 0) {
-            patientLeave(function() {
-                patientStage.innerHTML = '';
+            /* 没病人了：让队首走出去，然后显示"暂无病人" */
+            var first = queueStage.querySelector('.queue-person[data-pos="0"]');
+            if (first) {
+                first.setAttribute('data-pos', 'exit');
+                first.style.transform =
+                    'translateX(-280%) translateY(18vh) scale(0.55)';
+                first.style.opacity = '0';
+                first.style.zIndex = '250';
+                first.style.pointerEvents = 'none';
+            }
+            setTimeout(function() {
+                queueStage.innerHTML = '';
                 showNoPatient();
-            });
+            }, 700);
             return;
         }
-        patientLeave(function() { spawnPatient(); });
+
+        advanceQueue();
     }
 
+    /* =========================================================
+       选项按钮
+       ========================================================= */
     for (var b = 0; b < optionBtns.length; b++) {
         (function(btn) {
             btn.addEventListener('click', function() {
@@ -987,7 +1046,7 @@ body {
                     showCoinGain(10);
                     waiting = true;
 
-                    setTimeout(function() { nextPatient(); }, 400);
+                    setTimeout(function() { nextPatient(); }, 500);
                 } else {
                     state.attempts++;
                     btn.classList.add('wrong');
@@ -1016,15 +1075,18 @@ body {
         })(optionBtns[b]);
     }
 
-    var CURRENT_VERSION = 'v160';
+    var CURRENT_VERSION = 'v170';
     document.getElementById('versionTag').textContent = CURRENT_VERSION;
 
+    /* =========================================================
+       启动
+       ========================================================= */
     loadQueue();
     queueCountEl.textContent = queueCount;
     startQueueTimer();
 
     if (queueCount > 0) {
-        spawnPatient();
+        fillQueue();
     } else {
         showNoPatient();
     }
