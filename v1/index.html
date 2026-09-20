@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>百草奇遇记</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box;
+    font-family: "KaiTi", "STKaiti", "楷体", "Kaiti SC", serif; }
+html, body { height: 100%; overflow: hidden; }
+body {
+    user-select: none; position: relative;
+    background: url('images/main-bg.webp') no-repeat center center;
+    background-size: cover;
+    background-color: #f5ead3;
+}
+
+#topBar {
+    position: absolute; top: 10px; left: 10px; right: 10px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    z-index: 10;
+}
+#leftPanel { display: flex; flex-direction: column; gap: 5px; }
+#playerRow { display: flex; align-items: center; gap: 8px; }
+#avatar {
+    width: 54px; height: 54px;
+    border-radius: 8px; border: 3px solid #8b5e3c;
+    background: #f1f8e9; overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+#avatar img { width: 100%; height: 100%; object-fit: cover; }
+#playerDetails { display: flex; flex-direction: column; }
+#playerName {
+    font-size: 14px; font-weight: bold; color: #3a2a1a;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.9);
+}
+#playerPower {
+    font-size: 12px; color: #8b5e3c; margin-top: 2px; font-weight: bold;
+    background: rgba(255,255,255,0.8);
+    padding: 1px 8px; border-radius: 10px; width: fit-content;
+}
+#subButtons { display: flex; gap: 4px; margin-left: 2px; }
+.sub-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 46px; height: 46px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer; transition: all 0.15s;
+    overflow: hidden; position: relative;
+}
+.sub-btn:active { background: #f5e6d3; transform: scale(0.93); }
+.sub-btn img {
+    width: 95%; height: 95%;
+    object-fit: contain;
+    border-radius: 6px;
+}
+.sub-btn .text {
+    font-size: 9px; color: #3a2a1a; font-weight: bold;
+    position: absolute; bottom: 2px;
+    text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+}
+#rightPanel { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.resource {
+    font-size: 13px; background: rgba(255,255,255,0.88);
+    padding: 3px 10px; border-radius: 12px;
+    border: 2px solid #d4c4a8; font-weight: bold;
+    white-space: nowrap; color: #8b5e3c;
+}
+.right-btn {
+    font-size: 13px;
+    background: rgba(255,255,255,0.88);
+    padding: 3px 10px; border-radius: 12px;
+    border: 2px solid #d4c4a8; font-weight: bold;
+    white-space: nowrap; color: #8b5e3c;
+    cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.15s;
+}
+.right-btn:active { transform: scale(0.95); background: #f5e6d3; }
+
+/* 五个地点 */
+.spot {
+    position: absolute; width: 84px; height: 84px;
+    border-radius: 50%; background: rgba(255,255,255,0.9);
+    border: 3px solid #8b5e3c;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; text-decoration: none;
+    transition: transform 0.15s; overflow: hidden;
+    opacity: 0.75
+}
+.spot:active { transform: scale(0.92); }
+.spot img {
+    position: absolute; width: 100%; height: 100%;
+    object-fit: cover; border-radius: 50%;
+}
+.spot .label {
+    position: relative; z-index: 2;
+    font-size: 13px; font-weight: bold; color: #fff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+    background: rgba(58, 42, 26, 0.78);
+    padding: 1px 8px; border-radius: 8px; bottom: -28px;
+}
+
+/* 锁定状态 */
+.spot.locked {
+    filter: grayscale(0.85);
+    opacity: 0.5;
+}
+.spot.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: -2px; right: -2px;
+    font-size: 22px;
+    z-index: 100;
+    text-shadow: 0 0 4px #fff;
+}
+.spot.locked .label {
+    background: rgba(120, 120, 120, 0.85);
+}
+
+/* 按图片布局的位置 */
+#spot-collect  { left: 10%;  top: 20%; }        /* 采药：左上 */
+#spot-plant    { right: 8%; top: 18%; }        /* 种植：右上 */
+#spot-process  { left: 20%; top: 42%; }        /* 炮炙：中偏左 */
+#spot-dispense { left: 12%;  bottom: 18%; }     /* 抓药：左下 */
+#spot-diagnose { right: 8%; bottom: 18%; }     /* 行医：右下 */
+
+/* 底部导航栏 */
+#bottomBar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 66px;
+    background: rgba(58, 42, 26, 0.92);
+    display: flex; justify-content: space-around; align-items: center;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.25); z-index: 10;
+}
+.nav-btn {
+    display: flex; flex-direction: column; align-items: center;
+    text-decoration: none; color: #fff;
+    cursor: pointer; transition: transform 0.15s; flex: 1;
+    position: relative;
+}
+.nav-btn:active { transform: scale(0.9); }
+.nav-btn .nav-icon { font-size: 20px; line-height: 1; }
+.nav-btn .nav-label { font-size: 11px; margin-top: 3px; font-weight: bold; }
+.nav-btn.locked { opacity: 0.4; }
+.nav-btn.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 0; right: 50%;
+    transform: translateX(20px);
+    font-size: 12px;
+}
+
+/* 弹窗 */
+#modalOverlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center;
+    z-index: 999;
+}
+#modalOverlay.active { display: flex; }
+.modal-box {
+    background: #f5f0e8; border-radius: 18px;
+    padding: 22px 26px; text-align: center;
+    border: 3px solid #8b5e3c;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    max-width: 320px; width: 85%;
+    max-height: 85vh; overflow-y: auto;
+}
+.modal-title { font-size: 20px; font-weight: bold; color: #3a2a1a; margin-bottom: 12px; }
+.modal-text { font-size: 15px; color: #555; margin-bottom: 16px; line-height: 1.6; }
+.modal-btn {
+    display: block; width: 100%;
+    padding: 10px; margin: 6px 0;
+    font-family: inherit; font-size: 15px; font-weight: bold;
+    background: #d4a574; color: #fff;
+    border: 2px solid #8b5e3c;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.modal-btn:active { transform: scale(0.97); }
+.modal-btn.secondary {
+    background: #e0e0e0; border-color: #999; color: #555;
+}
+
+/* 签到格子 */
+.sign-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 5px; margin: 10px 0;
+}
+.sign-day {
+    background: #fff; border: 2px solid #d4c4a8;
+    border-radius: 8px; padding: 6px 3px;
+    font-size: 10px; text-align: center; min-height: 58px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: #3a2a1a; line-height: 1.3;
+}
+.sign-day.active {
+    border-color: #8b5e3c; background: #f5e6d3;
+    box-shadow: 0 0 0 2px #d4a574;
+}
+.sign-day.claimed { background: #e8d9c2; opacity: 0.65; }
+.sign-day .day-label { font-weight: bold; font-size: 10px; color: #888; }
+.sign-day .reward { font-weight: bold; font-size: 10px; margin-top: 2px; }
+
+/* 仓库 */
+.warehouse-section {
+    text-align: left; font-size: 14px; font-weight: bold;
+    color: #3a2a1a; margin: 10px 0 6px;
+    border-bottom: 1px dashed #d4c4a8; padding-bottom: 3px;
+}
+.warehouse-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 5px; margin-bottom: 4px;
+}
+.wh-item {
+    background: #fff; border: 1px solid #d4c4a8;
+    border-radius: 6px; padding: 5px 4px;
+    font-size: 11px; color: #3a2a1a;
+    text-align: center;
+    display: flex; flex-direction: column; gap: 2px;
+}
+.wh-count { font-weight: bold; color: #8b5e3c; font-size: 12px; }
+.wh-empty { font-size: 12px; color: #999; }
+
+/* 商店 */
+.shop-section {
+    text-align: left; font-size: 14px; font-weight: bold;
+    color: #3a2a1a; margin: 10px 0 6px;
+    border-bottom: 1px dashed #d4c4a8; padding-bottom: 3px;
+}
+.shop-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 6px; margin-bottom: 4px;
+}
+.shop-item {
+    background: #fff; border: 2px solid #d4c4a8;
+    border-radius: 8px; padding: 8px 6px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 3px;
+}
+.shop-item .item-icon { font-size: 22px; line-height: 1; }
+.shop-item .item-name { font-size: 13px; font-weight: bold; color: #3a2a1a; }
+.shop-item .item-price { font-size: 12px; color: #b85c00; font-weight: bold; }
+.shop-buy {
+    font-size: 12px; font-weight: bold;
+    padding: 4px 14px; border-radius: 12px;
+    background: #d4a574; border: 2px solid #8b5e3c;
+    color: #fff; cursor: pointer;
+    transition: all 0.15s; margin-top: 2px;
+}
+.shop-buy:active { transform: scale(0.94); }
+.shop-buy:disabled {
+    background: #e0e0e0; border-color: #999;
+    color: #999; cursor: not-allowed;
+}
+.shop-coins {
+    font-size: 14px; font-weight: bold; color: #b85c00;
+    text-align: right; margin-bottom: 8px;
+}
+</style>
+</head>
+<body>
+
+<div id="topBar">
+    <div id="leftPanel">
+        <div id="playerRow">
+            <div id="avatar"><img src="images/avatar.webp" alt="头像" onerror="this.style.display='none'"></div>
+            <div id="playerDetails">
+                <div id="playerName">小药童</div>
+                <div id="playerPower">医力 <span id="powerText">1</span></div>
+            </div>
+        </div>
+        <div id="subButtons">
+            <div class="sub-btn" id="btnSign">
+                <img src="images/btn-sign.webp" alt="签到" onerror="this.style.display='none';this.parentNode.innerHTML='📅<span class=\'text\'>签到</span>'">
+                <span class="text">签到</span>
+            </div>
+            <div class="sub-btn" id="btnMedBook">
+                <img src="images/btn-medbook.webp" alt="医书" onerror="this.style.display='none';this.parentNode.innerHTML='📖<span class=\'text\'>医书</span>'">
+                <span class="text">医书</span>
+            </div>
+            <div class="sub-btn" id="btnHerbBook">
+                <img src="images/btn-herbbook.webp" alt="药书" onerror="this.style.display='none';this.parentNode.innerHTML='📕<span class=\'text\'>药书</span>'">
+                <span class="text">药书</span>
+            </div>
+            <div class="sub-btn" id="btnShop">
+                <img src="images/btn-shop.webp" alt="商店" onerror="this.style.display='none';this.parentNode.innerHTML='🛒<span class=\'text\'>商店</span>'">
+                <span class="text">商店</span>
+            </div>
+        </div>
+    </div>
+    <div id="rightPanel">
+        <div class="resource"><img src="images/icon-coin.webp" style="width:16px;height:16px;vertical-align:middle;margin-right:3px;" onerror="this.style.display='none'"> <span id="coinText">0</span></div>
+        <div class="resource">⚡ <span id="staminaText">5/5</span></div>
+        <div class="right-btn" id="btnWarehouse">📦 仓库</div>
+    </div>
+</div>
+
+<a class="spot" id="spot-collect" href="collect.html" data-module="collect">
+    <img src="images/spot-collect.webp" alt="采药" onerror="this.style.display='none'">
+    <div class="label">采药</div>
+</a>
+<a class="spot" id="spot-plant" href="plant.html" data-module="plant">
+    <img src="images/spot-plant.webp" alt="种植" onerror="this.style.display='none'">
+    <div class="label">种植</div>
+</a>
+<a class="spot" id="spot-process" href="process.html" data-module="process">
+    <img src="images/spot-process.webp" alt="炮炙" onerror="this.style.display='none'">
+    <div class="label">炮炙</div>
+</a>
+<a class="spot" id="spot-dispense" href="dispense.html" data-module="dispense">
+    <img src="images/spot-dispense.webp" alt="抓药" onerror="this.style.display='none'">
+    <div class="label">抓药</div>
+</a>
+<a class="spot" id="spot-diagnose" href="diagnose.html" data-module="diagnose">
+    <img src="images/spot-diagnose.webp" alt="行医" onerror="this.style.display='none'">
+    <div class="label">行医</div>
+</a>
+
+
+
+<div id="modalOverlay">
+    <div class="modal-box" id="modalContent"></div>
+</div>
+
+<script src="shop-data.js"></script>
+<script>
+// ===== 常量 =====
+var MAX_STAMINA = 5;
+var STAMINA_RECOVER_MS = 10 * 60 * 1000;
+var MATERIALS = ['黄酒', '大米', '蜂蜜'];
+var SEED_POOL = ['生姜', '栀子', '芍药', '甘草', '白术', '泽泻', '半夏'];
+var MAX_DAYS = 7;
+var UNLOCK_POWER = 100;   // 解锁其他模块所需医力
+
+// ===== 商店商品 =====
+
+// ===== 仓库系统 =====
+var WAREHOUSE_KEY = 'warehouse';
+function getWarehouse() {
+    try {
+        return JSON.parse(localStorage.getItem(WAREHOUSE_KEY)) ||
+            { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    } catch(e) {
+        return { herbs: {}, seeds: {}, materials: {}, processed: {} };
+    }
+}
+function saveWarehouse(w) {
+    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
+}
+function addItem(category, name, count) {
+    if (!name || count <= 0) return;
+    var w = getWarehouse();
+    if (!w[category]) w[category] = {};
+    w[category][name] = (w[category][name] || 0) + count;
+    saveWarehouse(w);
+}
+
+// ===== 医力系统（无上限）=====
+function getPower() {
+    var v = localStorage.getItem('power');
+    return v ? parseFloat(v) : 1;  // 初始医力 1
+}
+function addPower(n) {
+    var p = getPower() + n;
+    localStorage.setItem('power', String(p));
+    return p;
+}
+function isUnlocked() {
+    return getPower() >= UNLOCK_POWER;
+}
+
+// ===== 日期 =====
+function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+}
+function yesterdayStr() {
+    var d = new Date(Date.now() - 86400000);
+    return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+}
+
+// ===== 体力 =====
+var MAX_STAMINA = 5;
+var STAMINA_RECOVER_MS = 10 * 60 * 1000;
+
+function getStamina() {
+    var now = Date.now();
+    var stamina = parseInt(localStorage.getItem('stamina') || MAX_STAMINA);
+    var lastTime = parseInt(localStorage.getItem('staminaTime') || now);
+    if (stamina >= MAX_STAMINA) {
+        localStorage.setItem('staminaTime', String(now));
+        localStorage.setItem('stamina', String(MAX_STAMINA));
+        return MAX_STAMINA;
+    }
+    var elapsed = now - lastTime;
+    if (elapsed >= STAMINA_RECOVER_MS) {
+        var gained = Math.floor(elapsed / STAMINA_RECOVER_MS);
+        stamina = Math.min(MAX_STAMINA, stamina + gained);
+        var remainder = elapsed % STAMINA_RECOVER_MS;
+        localStorage.setItem('staminaTime', String(now - remainder));
+    }
+    localStorage.setItem('stamina', String(stamina));
+    return stamina;
+}
+
+// ===== 铜币 =====
+function getCoins() { return parseInt(localStorage.getItem('coins') || 0); }
+function addCoins(n) {
+    var t = getCoins() + n;
+    localStorage.setItem('coins', String(t));
+    return t;
+}
+function spendCoins(n) {
+    var cur = getCoins();
+    if (cur < n) return false;
+    localStorage.setItem('coins', String(cur - n));
+    return true;
+}
+
+// ===== 签到 =====
+function getSignState() {
+    return {
+        lastDate: localStorage.getItem('signLastDate') || '',
+        day: parseInt(localStorage.getItem('signDay') || 0),
+        materialIdx: parseInt(localStorage.getItem('signMaterialIdx') || 0),
+        seedIdx: parseInt(localStorage.getItem('signSeedIdx') || 0)
+    };
+}
+function saveSignState(s) {
+    localStorage.setItem('signLastDate', s.lastDate);
+    localStorage.setItem('signDay', s.day);
+    localStorage.setItem('signMaterialIdx', s.materialIdx);
+    localStorage.setItem('signSeedIdx', s.seedIdx);
+}
+function isSignedToday() { return getSignState().lastDate === todayStr(); }
+function getNextSignDay() {
+    var s = getSignState();
+    if (s.lastDate === todayStr()) return s.day;
+    if (s.lastDate === yesterdayStr()) return (s.day % MAX_DAYS) + 1;
+    return 1;
+}
+function getSignReward(day, state) {
+    var r = { coins: 0, material: null, seed: null, seedCount: 0 };
+    switch (day) {
+        case 1: case 2: case 3: r.coins = 5; break;
+        case 4: r.coins = 5; r.material = MATERIALS[state.materialIdx % MATERIALS.length]; break;
+        case 5: case 6: r.coins = 8; break;
+        case 7: r.coins = 10; r.seedCount = 3; r.seed = SEED_POOL[state.seedIdx % SEED_POOL.length]; break;
+    }
+    return r;
+}
+
+
+// ===== 渲染 =====
+function renderTop() {
+    document.getElementById('coinText').textContent = getCoins();
+    document.getElementById('powerText').textContent = Math.floor(getPower());
+    var s = getStamina();
+    var el = document.getElementById('staminaText');
+    if (el) el.textContent = s + ' / ' + MAX_STAMINA;
+}
+function renderLocks() {
+    var unlocked = isUnlocked();
+    var lockedModules = ['collect', 'plant', 'process', 'dispense'];
+
+    document.querySelectorAll('.spot, .nav-btn').forEach(function(el) {
+        var m = el.getAttribute('data-module');
+        if (!m) return;
+        if (m === 'diagnose') {
+            el.classList.remove('locked');
+            return;
+        }
+        if (unlocked) {
+            el.classList.remove('locked');
+        } else {
+            el.classList.add('locked');
+        }
+    });
+}
+
+// ===== 未解锁时点击提示 =====
+function bindSpotClicks() {
+    document.querySelectorAll('.spot, .nav-btn').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            if (el.classList.contains('locked')) {
+                e.preventDefault();
+                showModal('模块未解锁',
+                    '医力达到 <b>' + UNLOCK_POWER + '</b> 即可解锁此模块。<br>当前医力：<b>' + Math.floor(getPower()) + '</b>',
+                    '知道了', function() { closeModal(); });
+            }
+        });
+    });
+}
+
+// ===== 弹窗 =====
+function showModal(title, html, btnText, callback) {
+    document.getElementById('modalContent').innerHTML =
+        '<div class="modal-title">' + title + '</div>' +
+        '<div class="modal-text">' + html + '</div>' +
+        '<button class="modal-btn" id="modalActionBtn">' + btnText + '</button>';
+    document.getElementById('modalOverlay').classList.add('active');
+    document.getElementById('modalActionBtn').onclick = callback;
+}
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+}
+
+// ===== 签到弹窗 =====
+function openSignModal() {
+    var state = getSignState();
+    var signed = isSignedToday();
+    var nextDay = getNextSignDay();
+    var html = '<div class="modal-title">📅 每日签到</div>';
+    html += '<div class="sign-grid">';
+    for (var d = 1; d <= 7; d++) {
+        var reward = getSignReward(d, state);
+        var txt = reward.coins + '💰';
+        if (reward.material) txt += '<br>' + reward.material + 'x1';
+        if (reward.seed) txt += '<br>' + reward.seed + 'x' + reward.seedCount;
+        var cls = 'sign-day';
+        if (d <= state.day) cls += ' claimed';
+        if (!signed && d === nextDay) cls += ' active';
+        html += '<div class="' + cls + '"><div class="day-label">第' + d + '天</div><div class="reward">' + txt + '</div></div>';
+    }
+    html += '</div>';
+    if (signed) {
+        html += '<div style="font-size:13px;color:#666;margin-bottom:10px;">今日已签到，明天再来～</div>';
+        html += '<button class="modal-btn secondary" onclick="closeModal()">关闭</button>';
+    } else {
+        var r = getSignReward(nextDay, state);
+        var desc = r.coins + ' 铜币';
+        if (r.material) desc += ' + ' + r.material + ' x1';
+        if (r.seed) desc += ' + ' + r.seed + '种子 x' + r.seedCount;
+        html += '<div style="font-size:13px;color:#8b5e3c;margin-bottom:10px;">今日签到可得：' + desc + '</div>';
+        html += '<button class="modal-btn" onclick="doSign()">立即签到</button>';
+        html += '<button class="modal-btn secondary" onclick="closeModal()">取消</button>';
+    }
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+function doSign() {
+    var state = getSignState();
+    if (state.lastDate === todayStr()) { alert('今日已签到'); return; }
+    var newDay;
+    if (state.lastDate === yesterdayStr()) newDay = (state.day % MAX_DAYS) + 1;
+    else newDay = 1;
+    var r = getSignReward(newDay, state);
+    if (r.coins) addCoins(r.coins);
+    if (r.material) { addItem('materials', r.material, 1); state.materialIdx += 1; }
+    if (r.seed) { addItem('seeds', r.seed, r.seedCount); state.seedIdx += 1; }
+    state.lastDate = todayStr();
+    state.day = newDay;
+    saveSignState(state);
+    var msg = '签到成功！\n获得 ' + r.coins + ' 铜币';
+    if (r.material) msg += '\n+ ' + r.material + ' x1（已入仓库）';
+    if (r.seed) msg += '\n+ ' + r.seed + '种子 x' + r.seedCount + '（已入仓库）';
+    alert(msg);
+    renderTop();
+    openSignModal();
+}
+
+// ===== 仓库弹窗 =====
+function openWarehouse() {
+    var w = getWarehouse();
+    var html = '<div class="modal-title">📦 仓库</div>';
+    var sections = [
+        { key: 'herbs', title: '🌿 药材', empty: '暂无药材，去采药吧' },
+        { key: 'seeds', title: '🌱 种子', empty: '暂无种子，签到或购买获得' },
+        { key: 'materials', title: '🍯 辅料', empty: '暂无辅料，签到或购买获得' },
+        { key: 'processed', title: '⚗️ 饮片', empty: '暂无饮片，去炮炙药材吧' }
+    ];
+    for (var s = 0; s < sections.length; s++) {
+        var sec = sections[s];
+        html += '<div class="warehouse-section">' + sec.title + '</div>';
+        var items = w[sec.key] || {};
+        var keys = Object.keys(items).filter(function(k) { return items[k] > 0; });
+        if (keys.length === 0) {
+            html += '<div class="wh-empty">' + sec.empty + '</div>';
+        } else {
+            html += '<div class="warehouse-grid">';
+            for (var i = 0; i < keys.length; i++) {
+                html += '<div class="wh-item"><span>' + keys[i] + '</span><span class="wh-count">x' + items[keys[i]] + '</span></div>';
+            }
+            html += '</div>';
+        }
+    }
+    html += '<button class="modal-btn secondary" onclick="closeModal()" style="margin-top:14px;">关闭</button>';
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+// ===== 商店弹窗 =====
+function openShop() {
+    var html = '<div class="modal-title">🛒 商店</div>';
+    html += '<div class="shop-coins">💰 当前铜币：<span id="shopCoinText">' + getCoins() + '</span></div>';
+
+    // 🌿 药材
+    html += '<div class="shop-section">🌿 药材</div><div class="shop-grid">';
+    SHOP_ITEMS.filter(function(i) { return i.category === 'herbs'; }).forEach(function(item) {
+        var idx = SHOP_ITEMS.indexOf(item);
+        var canBuy = getCoins() >= item.price;
+        html += '<div class="shop-item">' +
+    '<img src="images/herbs/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+    '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
+    '<span class="item-name">' + item.display + '</span>' +
+    '<span class="item-price">💰 ' + item.price + '</span>' +
+    '<button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
+    });
+    html += '</div>';
+
+    // 🍯 辅料
+    html += '<div class="shop-section">🍯 辅料</div><div class="shop-grid">';
+    SHOP_ITEMS.filter(function(i) { return i.category === 'materials'; }).forEach(function(item) {
+        var idx = SHOP_ITEMS.indexOf(item);
+        var canBuy = getCoins() >= item.price;
+        html += '<div class="shop-item">' +
+    '<img src="images/materials/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+    '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
+    '<span class="item-name">' + item.display + '</span>' +
+    '<span class="item-price">💰 ' + item.price + '</span>' +
+    '<button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
+    });
+    html += '</div>';
+
+    // 🌱 种子
+    html += '<div class="shop-section">🌱 种子</div><div class="shop-grid">';
+    SHOP_ITEMS.filter(function(i) { return i.category === 'seeds'; }).forEach(function(item) {
+        var idx = SHOP_ITEMS.indexOf(item);
+        var canBuy = getCoins() >= item.price;
+        html += '<div class="shop-item">' +
+    '<img src="images/seeds/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';">' +
+    '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
+    '<span class="item-name">' + item.display + '</span>' +
+    '<span class="item-price">💰 ' + item.price + '</span>' +
+    '<button class="shop-buy" onclick="buyItem(' + idx + ')" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
+    });
+    html += '</div>';
+
+    html += '<button class="modal-btn secondary" onclick="closeModal()" style="margin-top:14px;">关闭</button>';
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+function buyItem(idx) {
+    var item = SHOP_ITEMS[idx];
+    if (!item) return;
+    if (getCoins() < item.price) { alert('铜币不足！'); return; }
+    if (!spendCoins(item.price)) { alert('铜币不足！'); return; }
+    addItem(item.category, item.name, 1);
+    renderTop();
+    openShop();
+}
+
+// ===== 医书 / 药书 =====
+function openMedBook() {
+    document.getElementById('modalContent').innerHTML =
+        '<div class="modal-title">📖 医书</div>' +
+        '<div style="font-size:13px;color:#555;text-align:left;line-height:1.7;">' +
+        '<p>医书记录你行医时遇到的症状和对应的方证。</p>' +
+        '<p style="margin-top:8px;color:#999;">目前还没有记录，去行医模块接诊病人吧。</p>' +
+        '</div><button class="modal-btn secondary" onclick="closeModal()">关闭</button>';
+    document.getElementById('modalOverlay').classList.add('active');
+}
+function openHerbBook() {
+    document.getElementById('modalContent').innerHTML =
+        '<div class="modal-title">📕 药书</div>' +
+        '<div style="font-size:13px;color:#555;text-align:left;line-height:1.7;">' +
+        '<p>药书记录你炮炙过的药材和使用的炮炙方法。</p>' +
+        '<p style="margin-top:8px;color:#999;">目前还没有记录，去炮炙模块加工药材吧。</p>' +
+        '</div><button class="modal-btn secondary" onclick="closeModal()">关闭</button>';
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+// ===== 初始化 =====
+renderTop();
+renderLocks();
+bindSpotClicks();
+
+setInterval(function() {
+    renderTop();
+    renderLocks();
+}, 30000);
+
+document.getElementById('btnSign').addEventListener('click', openSignModal);
+document.getElementById('btnMedBook').addEventListener('click', openMedBook);
+document.getElementById('btnHerbBook').addEventListener('click', openHerbBook);
+document.getElementById('btnShop').addEventListener('click', openShop);
+document.getElementById('btnWarehouse').addEventListener('click', openWarehouse);
+</script>
+<div id="mainDisclaimer" style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:10px;color:rgba(58,42,26,0.65);text-shadow:0 0 3px rgba(255,255,255,0.9);pointer-events:none;padding:0 20px;line-height:1.4;">本游戏内容仅供科普参考，不作为医疗建议。用药请遵医嘱。</div>
+</body>
+</html>
