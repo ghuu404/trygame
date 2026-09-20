@@ -74,13 +74,13 @@ body {
 #doctorFigure {
     position: absolute;
     left: 50%;
-    bottom: -4vh;
+    bottom: 0;
     transform: translateX(-50%);
-    height: 42vh;          /* 用 vh 定义尺寸，屏幕越高医生越大，比例不变 */
-    width: auto;           /* 宽度按原图比例自动 → 不变形 */
-    max-width: 95vw;       /* 窄屏时不超过屏幕宽度 */
-    z-index: 2;            /* 在背景之上、症状面板之下 */
-    pointer-events: none;  /* 不挡任何点击 */
+    height: 28vh;           /* ← 关键：等于症状框的 bottom 值 */
+    width: auto;
+    max-width: 95vw;
+    z-index: 2;
+    pointer-events: none;
     user-select: none;
     display: block;
 }
