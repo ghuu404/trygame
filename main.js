@@ -535,6 +535,7 @@ if (signBtn) signBtn.addEventListener('click', openSignModal);
 
 var shopBtn = document.getElementById('btnShop');
 if (shopBtn) shopBtn.addEventListener('click', openShop);
+}
 
 /* ==================== 初始化 ==================== */
 bindImageFallback();
