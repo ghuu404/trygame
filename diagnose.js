@@ -351,6 +351,7 @@ function isLookDone() {
 function onPartClick(part, el) {
     if (!state) return;
     if (state.checked[part]) return;
+    if (window.playSound) window.playSound('click');
     if (part === 'pulse' && state.phase === 'look') {
         showDiagToast('请先完成望诊');
         return;
@@ -434,6 +435,7 @@ function onOptionClick(btn) {
     var correct = state.formula.name;
 
     if (chosen === correct) {
+        if (window.playSound) window.playSound('success');
         btn.classList.add('correct');
         for (var i = 0; i < optionBtns.length; i++) optionBtns[i].disabled = true;
         addCoins(10);
@@ -443,6 +445,7 @@ function onOptionClick(btn) {
         waiting = true;
         setTimeout(function() { nextPatient(); }, 500);
     } else {
+        if (window.playSound) window.playSound('fail');
         state.attempts++;
         btn.classList.add('wrong');
         btn.disabled = true;

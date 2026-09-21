@@ -395,6 +395,7 @@ function doSign() {
     saveSignState(state);
 
     renderMainTop();
+    if (window.playSound) window.playSound('success');
 
     var rowsHtml = '';
 if (r.coins) {
@@ -643,6 +644,7 @@ if (item.category === 'materials' || item.category === 'seeds') {
     w.processed[item.name] = (w.processed[item.name] || 0) + 1;
 }
 localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
+if (window.playSound) window.playSound('coin'); 
 
     renderMainTop();
     openShop();
@@ -694,6 +696,13 @@ var shopBtn = document.getElementById('btnShop');
 if (shopBtn) shopBtn.addEventListener('click', openShop);
 }
 
+    /* ★ 音效开关 */
+    var soundBtn = document.getElementById('btnSoundToggle');
+    if (soundBtn) {
+        soundBtn.addEventListener('click', function () {
+            window.toggleSoundMute();
+        });
+    }
 /* ==================== 初始化 ==================== */
 bindImageFallback();
 bindMainEvents();

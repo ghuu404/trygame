@@ -1269,3 +1269,26 @@ body {
     margin: 0 auto 3px auto;
     transform-origin: center center;
 }
+/* ==================== 音效开关 ==================== */
+.sound-toggle {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.88);
+    border: 2px solid #d4c4a8;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    margin-left: 0;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.sound-toggle:active {
+    transform: scale(0.92);
+}

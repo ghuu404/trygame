@@ -488,6 +488,7 @@ function addToPlate(name) {
     var current = plate[name] || 0;
     if (current >= need.amount) return;
     if ((processedInventory[name] || 0) <= 0) return;
+    if (window.playSound) window.playSound('click');
 
     processedInventory[name] -= 1;
     plate[name] = current + 1;
@@ -523,6 +524,7 @@ function onPack() {
         var h = currentOrder.herbs[i];
         if ((plate[h.name] || 0) !== h.amount) return;
     }
+    if (window.playSound) window.playSound('success');
     var bag = {
         id: 'bag_' + Date.now(),
         name: currentOrder.name,

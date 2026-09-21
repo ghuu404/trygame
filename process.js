@@ -472,6 +472,7 @@ function useTool(key) {
     if (!currentHerb) { showProcModal('提示', '请先选择药材。', true); return; }
     if (currentProcessed) { showProcModal('提示', '已完成，点"收好"。', true); return; }
     if (!currentRoute || currentRoute.steps.length === 0) {
+        if (window.playSound) window.playSound('click');
         showProcModal('提示', '【' + currentHerb + '】无需炮制。', true);
         return;
     }
@@ -595,6 +596,7 @@ function playMaterialAnim(name, callback) {
 /* ==================== 收好 / 放弃 ==================== */
 function onFinish() {
     if (!currentHerb || !currentRoute) return;
+    if (window.playSound) window.playSound('success');
     var resultName = currentRoute.result;
     processedInventory[resultName] = (processedInventory[resultName] || 0) + 10;
     saveProcessed();

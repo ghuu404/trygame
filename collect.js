@@ -294,6 +294,7 @@ function clickCard(el, name) {
         showCollectToast('卡槽已满，整理一下', 'bad');
         return;
     }
+    if (window.playSound) window.playSound('click');
     el.style.opacity = '0';
     el.style.pointerEvents = 'none';
     setTimeout(function() { updateBlocked(); }, 250);
@@ -316,10 +317,12 @@ function checkMatch() {
             });
             renderSlot();
             if (isWeed(name)) {
+                if (window.playSound) window.playSound('fail');
                 showCollectToast('这是杂草，扔掉了', 'bad');
                 return;
             }
             addHerb(name, 3);
+            if (window.playSound) window.playSound('pick');
             collectedGroups++;
             renderCollectTop();
             showCollectToast('采得 ' + name + ' ×3', 'good');
@@ -332,6 +335,7 @@ function checkMatch() {
 function checkWin() {
     if (collectedGroups >= TARGET_GROUPS) {
         gameActive = false;
+        if (window.playSound) window.playSound('success'); 
         showCollectModal(
             '🎉 收获满满！',
             '本局收集了 ' + collectedGroups + ' 组药材<br>是否继续采药？<br><span style="color:#8b5e3c;">继续将消耗 1 点体力</span>',
