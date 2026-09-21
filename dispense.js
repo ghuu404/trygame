@@ -23,46 +23,25 @@ function setCoins(n) { localStorage.setItem('coins', String(n)); }
 
 /* ==================== 处方显示名映射 ==================== */
 var DISPLAY_MAP = {
-    '麻黄饮片': '麻黄',
-    '桂枝饮片': '桂枝',
-    '杏仁饮片': '杏仁',
-    '炙甘草': '炙甘草',
-    '芍药饮片': '芍药',
-    '生姜饮片': '生姜',
-    '干姜饮片': '干姜',
-    '大枣饮片': '大枣',
-    '葛根饮片': '葛根',
-    '细辛饮片': '细辛',
-    '柴胡饮片': '柴胡',
-    '黄芩饮片': '黄芩',
-    '知母饮片': '知母',
-    '炮附子': '附子',
-    '炒白术': '白术',
-    '大黄饮片': '大黄',
-    '厚朴饮片': '厚朴',
-    '枳实饮片': '枳实',
-    '猪苓饮片': '猪苓',
-    '当归饮片': '当归',
-    '泽泻饮片': '泽泻',
-    '栀子饮片': '栀子',
-    '半夏饮片': '半夏',
-    '茯苓饮片': '茯苓',
-    '五味子饮片': '五味子',
-    '茵陈饮片': '茵陈',
-    '人参饮片': '人参',
-    '黄连饮片': '黄连',
-    '通草饮片': '通草',
-    '碎石膏': '石膏',
-    '芒硝': '芒硝',
-    '淡豆豉': '淡豆豉',
-    '饴糖': '饴糖',
-    '粳米': '粳米'
+    '麻黄饮片': '麻黄', '桂枝饮片': '桂枝', '杏仁饮片': '杏仁',
+    '炙甘草': '炙甘草', '芍药饮片': '芍药', '生姜饮片': '生姜',
+    '干姜饮片': '干姜', '大枣饮片': '大枣', '葛根饮片': '葛根',
+    '细辛饮片': '细辛', '柴胡饮片': '柴胡', '黄芩饮片': '黄芩',
+    '知母饮片': '知母', '炮附子': '附子', '炒白术': '白术',
+    '大黄饮片': '大黄', '厚朴饮片': '厚朴', '枳实饮片': '枳实',
+    '猪苓饮片': '猪苓', '当归饮片': '当归', '泽泻饮片': '泽泻',
+    '栀子饮片': '栀子', '半夏饮片': '半夏', '茯苓饮片': '茯苓',
+    '五味子饮片': '五味子', '茵陈饮片': '茵陈', '人参饮片': '人参',
+    '黄连饮片': '黄连', '通草饮片': '通草', '碎石膏': '石膏',
+    '芒硝': '芒硝', '淡豆豉': '淡豆豉', '饴糖': '饴糖', '粳米': '粳米'
 };
 function dispName(name) {
     return DISPLAY_MAP[name] || name;
 }
-/* ==================== 处方数据 ==================== */
+
+/* ==================== 处方数据（35 方） ==================== */
 var PRESCRIPTIONS = [
+    /* ==================== 原有 20 方 ==================== */
     { name: '麻黄汤', herbs: [
         { name: '麻黄饮片', amount: 3 },
         { name: '桂枝饮片', amount: 2 },
@@ -204,12 +183,113 @@ var PRESCRIPTIONS = [
         { name: '生姜饮片', amount: 3 },
         { name: '大枣饮片', amount: 3 },
         { name: '饴糖', amount: 2 }
+    ]},
+
+    /* ==================== 新增 15 方（可用现有药材组方） ==================== */
+    { name: '桂枝加葛根汤', herbs: [
+        { name: '桂枝饮片', amount: 3 },
+        { name: '芍药饮片', amount: 3 },
+        { name: '炙甘草', amount: 2 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 },
+        { name: '葛根饮片', amount: 4 }
+    ]},
+    { name: '麻黄附子细辛汤', herbs: [
+        { name: '麻黄饮片', amount: 2 },
+        { name: '炮附子', amount: 1 },
+        { name: '细辛饮片', amount: 2 }
+    ]},
+    { name: '葛根芩连汤', herbs: [
+        { name: '葛根饮片', amount: 4 },
+        { name: '黄芩饮片', amount: 3 },
+        { name: '黄连饮片', amount: 3 },
+        { name: '炙甘草', amount: 2 }
+    ]},
+    { name: '越婢汤', herbs: [
+        { name: '麻黄饮片', amount: 4 },
+        { name: '碎石膏', amount: 4 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 },
+        { name: '炙甘草', amount: 2 }
+    ]},
+    { name: '柴胡桂枝汤', herbs: [
+        { name: '柴胡饮片', amount: 4 },
+        { name: '黄芩饮片', amount: 2 },
+        { name: '人参饮片', amount: 2 },
+        { name: '半夏饮片', amount: 3 },
+        { name: '桂枝饮片', amount: 2 },
+        { name: '芍药饮片', amount: 2 },
+        { name: '炙甘草', amount: 2 },
+        { name: '生姜饮片', amount: 2 },
+        { name: '大枣饮片', amount: 3 }
+    ]},
+    { name: '白虎加人参汤', herbs: [
+        { name: '知母饮片', amount: 3 },
+        { name: '碎石膏', amount: 4 },
+        { name: '炙甘草', amount: 1 },
+        { name: '粳米', amount: 3 },
+        { name: '人参饮片', amount: 2 }
+    ]},
+    { name: '大黄甘草汤', herbs: [
+        { name: '大黄饮片', amount: 3 },
+        { name: '炙甘草', amount: 2 }
+    ]},
+    { name: '甘草干姜汤', herbs: [
+        { name: '炙甘草', amount: 4 },
+        { name: '干姜饮片', amount: 2 }
+    ]},
+    { name: '通脉四逆汤', herbs: [
+        { name: '炮附子', amount: 1 },
+        { name: '干姜饮片', amount: 3 },
+        { name: '炙甘草', amount: 2 }
+    ]},
+    { name: '苓桂术甘汤', herbs: [
+        { name: '茯苓饮片', amount: 4 },
+        { name: '桂枝饮片', amount: 3 },
+        { name: '炒白术', amount: 2 },
+        { name: '炙甘草', amount: 2 }
+    ]},
+    { name: '麻黄加术汤', herbs: [
+        { name: '麻黄饮片', amount: 3 },
+        { name: '桂枝饮片', amount: 2 },
+        { name: '炙甘草', amount: 1 },
+        { name: '杏仁饮片', amount: 3 },
+        { name: '炒白术', amount: 4 }
+    ]},
+    { name: '桂枝附子汤', herbs: [
+        { name: '桂枝饮片', amount: 4 },
+        { name: '炮附子', amount: 1 },
+        { name: '生姜饮片', amount: 3 },
+        { name: '大枣饮片', amount: 3 },
+        { name: '炙甘草', amount: 2 }
+    ]},
+    { name: '白术附子汤', herbs: [
+        { name: '炒白术', amount: 2 },
+        { name: '炮附子', amount: 1 },
+        { name: '炙甘草', amount: 1 },
+        { name: '生姜饮片', amount: 1 },
+        { name: '大枣饮片', amount: 2 }
+    ]},
+    { name: '甘草附子汤', herbs: [
+        { name: '炙甘草', amount: 2 },
+        { name: '炮附子', amount: 1 },
+        { name: '炒白术', amount: 2 },
+        { name: '桂枝饮片', amount: 4 }
+    ]},
+    { name: '甘草泻心汤', herbs: [
+        { name: '炙甘草', amount: 4 },
+        { name: '黄芩饮片', amount: 3 },
+        { name: '人参饮片', amount: 3 },
+        { name: '干姜饮片', amount: 3 },
+        { name: '黄连饮片', amount: 1 },
+        { name: '大枣饮片', amount: 3 },
+        { name: '半夏饮片', amount: 3 }
     ]}
 ];
 
 /* ==================== 元素 ==================== */
 var orderTitleEl, orderListEl, plateGridEl, stockListEl, btnPack;
-var coinTextEl, bagModalEl, bagNameEl, bagImgEl, bagEmojiEl;
+var coinTextEl, bagModalEl, bagNameEl;
 var dispBound = false;
 
 var currentOrderIndex = 0;
@@ -219,7 +299,7 @@ var allPlates = {};
 
 /* ==================== 初始化 ==================== */
 function initDispense() {
-    /* ★ 每次进入页面都重新从 localStorage 读，才能看到主页买的药材 */
+    /* ★ 每次进入页面都重新从 localStorage 读取 */
     warehouse = getWarehouse();
     processedInventory = warehouse.processed;
 
@@ -231,15 +311,12 @@ function initDispense() {
     coinTextEl = document.getElementById('dispCoinText');
     bagModalEl = document.getElementById('dispBagModal');
     bagNameEl = document.getElementById('dispBagName');
-    bagImgEl = document.getElementById('dispBagImg');
-    bagEmojiEl = document.getElementById('dispBagEmoji');
 
     if (!dispBound) {
         bindDispenseEvents();
         dispBound = true;
     }
 
-    // 恢复药盘
     try {
         allPlates = JSON.parse(localStorage.getItem('dispensePlates')) || {};
     } catch(e) { allPlates = {}; }
@@ -271,7 +348,8 @@ function bindDispenseEvents() {
         bagModalEl.classList.remove('active');
         plate = {};
         savePlate();
-        renderAll();
+        /* ★ 打包完成后自动切到下一张方子 */
+        nextOrder();
     });
 }
 
@@ -300,7 +378,6 @@ function savePlates() {
 }
 function savePlate() {
     allPlates[currentOrderIndex] = plate;
-    // 清理空药盘
     var keys = Object.keys(allPlates);
     for (var i = 0; i < keys.length; i++) {
         var k = keys[i];
@@ -341,7 +418,7 @@ function renderPlate() {
             var div = document.createElement('div');
             div.className = 'disp-plate-herb';
             var img = document.createElement('img');
-            img.src = 'images/processed/' + name + '.webp';
+            img.src = 'images/processed/' + encodeURI(name) + '.webp';
             img.addEventListener('error', function() {
                 this.style.display = 'none';
                 var span = document.createElement('span');
@@ -378,7 +455,7 @@ function renderStock() {
             var div = document.createElement('div');
             div.className = 'disp-stock-item';
             var img = document.createElement('img');
-            img.src = 'images/processed/' + name + '.webp';
+            img.src = 'images/processed/' + encodeURI(name) + '.webp';
             img.addEventListener('error', function() {
                 this.style.display = 'none';
             });
@@ -446,7 +523,6 @@ function onPack() {
         var h = currentOrder.herbs[i];
         if ((plate[h.name] || 0) !== h.amount) return;
     }
-
     var bag = {
         id: 'bag_' + Date.now(),
         name: currentOrder.name,
@@ -461,25 +537,13 @@ function onPack() {
     setCoins(getCoins() + 50);
     updateCoinDisplay();
 
-    /* 显示弹窗 */
+    /* 更新药包弹窗（假设药包图是 images/medicine-bag.webp，命名不对或没有也能跑） */
     bagNameEl.textContent = bag.name;
-
-    /* 图片加载失败时切 emoji 兜底 */
-    bagImgEl.style.display = 'block';
-    bagEmojiEl.style.display = 'none';
-
-    var onImgErr = function() {
-        bagImgEl.style.display = 'none';
-        bagEmojiEl.style.display = 'block';
-    };
-    bagImgEl.onerror = onImgErr;
-
-    /* 每次重新赋值 src，触发一次加载（防止缓存导致的 onerror 不触发） */
-    bagImgEl.src = 'images/medicine-bag.webp';
-
-    /* 检查是否已经加载失败过（缓存情况） */
-    if (bagImgEl.complete && bagImgEl.naturalWidth === 0) {
-        onImgErr();
+    var bagImgEl = document.getElementById('dispBagImg');
+    if (bagImgEl) {
+        bagImgEl.style.display = 'block';
+        bagImgEl.src = 'images/medicine-bag.webp';
+        bagImgEl.onerror = function() { this.style.display = 'none'; };
     }
 
     bagModalEl.classList.add('active');
