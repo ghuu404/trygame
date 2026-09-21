@@ -479,54 +479,91 @@ function openWarehouse() {
         });
     }
 }
-/* ==================== 商店（图片走 data-fallback 属性） ==================== */
+/* ==================== 商店（带库存显示） ==================== */
+function getStockCount(category, name) {
+    var w = getWarehouse();
+    if (category === 'processed') {
+        return (w.processed && w.processed[name]) || 0;
+    }
+    return (w[category] && w[category][name]) || 0;
+}
+
 function openShop() {
     var html = '<div class="modal-title">🛒 商店</div>';
     html += '<div class="shop-coins">💰 当前铜币：<span>' + getCoins() + '</span></div>';
 
+    /* 辅料 */
     html += '<div class="shop-section">🍯 辅料</div><div class="shop-grid">';
-    SHOP_ITEMS.filter(function(i) { return i.category === 'materials'; }).forEach(function(item) {
+    SHOP_ITEMS.filter(function (i) { return i.category === 'materials'; }).forEach(function (item) {
         var idx = SHOP_ITEMS.indexOf(item);
         var canBuy = getCoins() >= item.price;
+        var stock = getStockCount('materials', item.name);
         html += '<div class="shop-item">' +
             '<img data-fallback src="images/materials/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
             '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
             '<span class="item-name">' + item.display + '</span>' +
             '<span class="item-price">💰 ' + item.price + '</span>' +
+            '<span class="item-stock" data-stock-cat="materials" data-stock-name="' + item.name + '">x' + stock + '</span>' +
             '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';
 
+    /* 种子 */
     html += '<div class="shop-section">🌱 种子</div><div class="shop-grid">';
-    SHOP_ITEMS.filter(function(i) { return i.category === 'seeds'; }).forEach(function(item) {
+    SHOP_ITEMS.filter(function (i) { return i.category === 'seeds'; }).forEach(function (item) {
         var idx = SHOP_ITEMS.indexOf(item);
         var canBuy = getCoins() >= item.price;
+        var stock = getStockCount('seeds', item.name);
         html += '<div class="shop-item">' +
             '<img data-fallback src="images/seeds/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
             '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
             '<span class="item-name">' + item.display + '</span>' +
             '<span class="item-price">💰 ' + item.price + '</span>' +
+            '<span class="item-stock" data-stock-cat="seeds" data-stock-name="' + item.name + '">x' + stock + '</span>' +
             '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';
 
+    /* 饮片 */
     html += '<div class="shop-section">⚗️ 饮片</div><div class="shop-grid">';
-SHOP_ITEMS.filter(function(i) { return i.category === 'processed'; }).forEach(function(item) {
-    var idx = SHOP_ITEMS.indexOf(item);
-    var canBuy = getCoins() >= item.price;
-    html += '<div class="shop-item">' +
-        '<img data-fallback src="images/processed/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
-        '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
-        '<span class="item-name">' + item.display + '</span>' +
-        '<span class="item-price">💰 ' + item.price + '</span>' +
-        '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
-});
-html += '</div>';
+    SHOP_ITEMS.filter(function (i) { return i.category === 'processed'; }).forEach(function (item) {
+        var idx = SHOP_ITEMS.indexOf(item);
+        var canBuy = getCoins() >= item.price;
+        var stock = getStockCount('processed', item.name);
+        html += '<div class="shop-item">' +
+            '<img data-fallback src="images/processed/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
+            '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
+            '<span class="item-name">' + item.display + '</span>' +
+            '<span class="item-price">💰 ' + item.price + '</span>' +
+            '<span class="item-stock" data-stock-cat="processed" data-stock-name="' + item.name + '">x' + stock + '</span>' +
+            '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
+    });
+    html += '</div>';
 
     html += '<button class="modal-btn secondary close-modal-btn" style="margin-top:14px;">关闭</button>';
 
     document.getElementById('mainModalContent').innerHTML = html;
     document.getElementById('mainModalOverlay').classList.add('active');
+
+    window.bindImgWithSiblingFallback(document.getElementById('mainModalContent'));
+
+    var closeBtns = document.querySelectorAll('#mainModalContent .close-modal-btn');
+    for (var c = 0; c < closeBtns.length; c++) {
+        closeBtns[c].addEventListener('click', function () {
+            document.getElementById('mainModalOverlay').classList.remove('active');
+        });
+    }
+
+    var buyBtns = document.querySelectorAll('#mainModalContent .shop-buy');
+    for (var b = 0; b < buyBtns.length; b++) {
+        (function (btn) {
+            btn.addEventListener('click', function () {
+                var idx = parseInt(btn.getAttribute('data-buy-index'));
+                buyItem(idx);
+            });
+        })(buyBtns[b]);
+    }
+}
 
     /* 绑定图片兜底 */
     window.bindImgWithSiblingFallback(document.getElementById('mainModalContent'));
