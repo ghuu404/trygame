@@ -219,7 +219,7 @@ var allPlates = {};
 
 /* ==================== 初始化 ==================== */
 function initDispense() {
-    /* ★ 每次进入页面都重新从 localStorage 读取 */
+    /* ★ 每次进入页面都重新从 localStorage 读，才能看到主页买的药材 */
     warehouse = getWarehouse();
     processedInventory = warehouse.processed;
 
