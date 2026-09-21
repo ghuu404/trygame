@@ -505,10 +505,12 @@ function openShop() {
             '<img data-fallback src="images/materials/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
             '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
             '<span class="item-name">' + item.display + '</span>' +
-            '<span class="item-price">' +
-    '<img src="images/icon-coin.webp" alt=""> ' + item.price + ' · ' +
-    '<span class="item-stock" data-stock-cat="materials" data-stock-name="' + item.name + '">x' + stock + '</span>' +
-'</span>' +
+            '<div class="shop-item-footer">' +
+    '<span class="item-price">' +
+        '<img src="images/icon-coin.webp" alt=""> ' + item.price +
+    '</span>' +
+    '<span class="item-stock" data-stock-cat="materials" data-stock-name="' + item.name + '">' + stock + '</span>' +
+'</div>' +
             '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';
@@ -523,10 +525,12 @@ function openShop() {
             '<img data-fallback src="images/seeds/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
             '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
             '<span class="item-name">' + item.display + '</span>' +
-            '<span class="item-price">' +
-    '<img src="images/icon-coin.webp" alt=""> ' + item.price + ' · ' +
-    '<span class="item-stock" data-stock-cat="seeds" data-stock-name="' + item.name + '">x' + stock + '</span>' +
-'</span>' +
+            '<div class="shop-item-footer">' +
+    '<span class="item-price">' +
+        '<img src="images/icon-coin.webp" alt=""> ' + item.price +
+    '</span>' +
+    '<span class="item-stock" data-stock-cat="seeds" data-stock-name="' + item.name + '">' + stock + '</span>' +
+'</div>' +
             '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';
@@ -541,10 +545,12 @@ function openShop() {
             '<img data-fallback src="images/processed/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
             '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
             '<span class="item-name">' + item.display + '</span>' +
-            '<span class="item-price">' +
-    '<img src="images/icon-coin.webp" alt=""> ' + item.price + ' · ' +
-    '<span class="item-stock" data-stock-cat="processed" data-stock-name="' + item.name + '">x' + stock + '</span>' +
-'</span>' +
+            '<div class="shop-item-footer">' +
+    '<span class="item-price">' +
+        '<img src="images/icon-coin.webp" alt=""> ' + item.price +
+    '</span>' +
+    '<span class="item-stock" data-stock-cat="processed" data-stock-name="' + item.name + '">' + stock + '</span>' +
+'</div>' +
             '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
     });
     html += '</div>';

@@ -1227,34 +1227,31 @@ body {
     object-fit: contain;
     vertical-align: middle;
 }
-/* 商店价格行：铜币图 + 价格 + 库存 横排 */
-.shop-item .item-price {
+/* 商品卡片的底部行：价格在左，库存在右 */
+.shop-item-footer {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 3px;
+    padding: 0 6px;
+    box-sizing: border-box;
+}
+.shop-item-footer .item-price {
+    display: flex;
+    align-items: center;
     gap: 3px;
     font-size: 12px;
     color: #b85c00;
     font-weight: bold;
-    margin-top: 2px;
-    flex-wrap: wrap;
 }
-.shop-item .item-price img {
+.shop-item-footer .item-price img {
     width: 14px;
     height: 14px;
     object-fit: contain;
 }
-.shop-item .item-price .item-stock {
+.shop-item-footer .item-stock {
+    font-size: 12px;
     color: #8b5e3c;
-}
-.shop-coins {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 4px;
-}
-.shop-coins img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
+    font-weight: bold;
 }
