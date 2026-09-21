@@ -1255,3 +1255,9 @@ body {
     color: #8b5e3c;
     font-weight: bold;
 }
+
+.shop-coins img {
+    width: 16px !important;
+    height: 16px !important;
+    object-fit: contain !important;
+}

@@ -491,8 +491,8 @@ function getStockCount(category, name) {
 function openShop() {
     var html = '<div class="modal-title">🛒 商店</div>';
     html += '<div class="shop-coins">' +
-    '<img src="images/icon-coin.webp" alt="">' +
-    '<span>当前铜币：' + getCoins() + '</span>' +
+    '<img src="images/icon-coin.webp" alt="" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;">' +
+    '<span style="margin-left:4px;">当前铜币：' + getCoins() + '</span>' +
 '</div>';
 
     /* 辅料 */
