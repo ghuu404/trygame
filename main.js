@@ -565,26 +565,6 @@ function openShop() {
     }
 }
 
-    /* 绑定图片兜底 */
-    window.bindImgWithSiblingFallback(document.getElementById('mainModalContent'));
-
-    var closeBtns = document.querySelectorAll('#mainModalContent .close-modal-btn');
-    for (var c = 0; c < closeBtns.length; c++) {
-        closeBtns[c].addEventListener('click', function() {
-            document.getElementById('mainModalOverlay').classList.remove('active');
-        });
-    }
-
-    var buyBtns = document.querySelectorAll('#mainModalContent .shop-buy');
-    for (var b = 0; b < buyBtns.length; b++) {
-        (function(btn) {
-            btn.addEventListener('click', function() {
-                var idx = parseInt(btn.getAttribute('data-buy-index'));
-                buyItem(idx);
-            });
-        })(buyBtns[b]);
-    }
-}
 
 function buyItem(idx) {
     var item = SHOP_ITEMS[idx];
