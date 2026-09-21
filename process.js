@@ -538,7 +538,10 @@ function openShop() {
             html += '<div style="background:#f0e6d8;border:2px solid #aed581;border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;">' +
                 '<img class="auto-hide" src="images/materials/' + name + '.webp" style="width:50px;height:50px;object-fit:contain;">' +
                 '<div style="font-size:14px;font-weight:bold;color:#33691e;margin-top:4px;">' + name + '</div>' +
-                '<div style="font-size:13px;font-weight:bold;color:#c62828;">💰 ' + info.price + '</div>' +
+                '<div style="font-size:13px;font-weight:bold;color:#c62828;display:flex;align-items:center;justify-content:center;gap:2px;">' +
+    '<img class="auto-hide" src="images/icon-coin.webp" style="width:14px;height:14px;object-fit:contain;">' +
+    '<span>' + info.price + '</span>' +
+'</div>' +
                 '<div class="shop-stock" style="font-size:11px;color:#777;">库存：' + count + '</div>' +
                 '<button class="proc-shop-buy" data-material="' + name + '" data-price="' + info.price + '" style="width:100%;padding:6px 0;border:2px solid #558b2f;border-radius:18px;background:#aed581;color:#33691e;font-weight:bold;font-size:13px;cursor:pointer;font-family:inherit;margin-top:4px;">购买</button>' +
             '</div>';
