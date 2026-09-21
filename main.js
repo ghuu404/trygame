@@ -98,7 +98,7 @@ window.switchPage = switchPage;
 function bindImageFallback() {
     window.bindImgFallback(document);
 }
-
+normalizeShopImgs(document.getElementById('mainModalContent'));
 /* ==================== 仓库 / 医力 / 体力 / 铜币 ==================== */
 var WAREHOUSE_KEY = 'warehouse';
 function getWarehouse() {
@@ -580,6 +580,52 @@ function openShop() {
     }
 }
 
+/* 归一化商店图片显示大小：检测每张图的实际内容，统一缩放到内容占 32px */
+function normalizeShopImgs(root) {
+    var imgs = root.querySelectorAll('.shop-item > img[data-fallback]');
+    for (var i = 0; i < imgs.length; i++) {
+        (function (img) {
+            function measure() {
+                try {
+                    var w = img.naturalWidth, h = img.naturalHeight;
+                    if (!w || !h) return;
+                    var c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    var ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    var data = ctx.getImageData(0, 0, w, h).data;
+                    var minX = w, minY = h, maxX = -1, maxY = -1;
+                    for (var y = 0; y < h; y++) {
+                        for (var x = 0; x < w; x++) {
+                            var idx = (y * w + x) * 4;
+                            if (data[idx + 3] > 10) {
+                                if (x < minX) minX = x;
+                                if (x > maxX) maxX = x;
+                                if (y < minY) minY = y;
+                                if (y > maxY) maxY = y;
+                            }
+                        }
+                    }
+                    if (maxX < 0) return;
+                    var cw = maxX - minX + 1;
+                    var ch = maxY - minY + 1;
+                    var cMax = Math.max(cw, ch);
+                    var imgMax = Math.max(w, h);
+                    var contentRatio = cMax / imgMax;
+                    /* 目标：让内容在 40×40 显示框里约 32px */
+                    var targetRatio = 32 / 40;
+                    var s = targetRatio / contentRatio;
+                    if (s < 0.3) s = 0.3;
+                    if (s > 1.5) s = 1.5;
+                    img.style.transform = 'scale(' + s.toFixed(2) + ')';
+                    img.style.transformOrigin = 'center center';
+                } catch (e) {}
+            }
+            if (img.complete && img.naturalWidth > 0) measure();
+            else img.addEventListener('load', measure);
+        })(imgs[i]);
+    }
+}
 
 function buyItem(idx) {
     var item = SHOP_ITEMS[idx];
