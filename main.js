@@ -28,8 +28,8 @@ var SHOP_ITEMS = [
     { category: 'seeds', name: '半夏', display: '半夏种子', price: 3, icon: '🌱' },
     { category: 'seeds', name: '泽泻', display: '泽泻种子', price: 4, icon: '💧' },
     { category: 'seeds', name: '栀子', display: '栀子种子', price: 2, icon: '🌼' },
-    { category: 'herbs', name: '饴糖',   display: '饴糖',   price: 4, icon: '🍬' },
-    { category: 'herbs', name: '淡豆豉', display: '淡豆豉', price: 3, icon: '🫘' }
+    { category: 'processed', name: '饴糖',  display: '饴糖',   price: 4, icon: '🍬' },
+    { category: 'processed', name: '淡豆豉',display: '淡豆豉', price: 3, icon: '🫘' }
 ];
 
 /* ==================== 图片兜底工具（替代内联 onerror） ==================== */
@@ -510,18 +510,18 @@ function openShop() {
     });
     html += '</div>';
 
-    html += '<div class="shop-section">🌿 药材</div><div class="shop-grid">';
-    SHOP_ITEMS.filter(function(i) { return i.category === 'herbs'; }).forEach(function(item) {
-        var idx = SHOP_ITEMS.indexOf(item);
-        var canBuy = getCoins() >= item.price;
-        html += '<div class="shop-item">' +
-            '<img data-fallback src="images/herbs/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
-            '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
-            '<span class="item-name">' + item.display + '</span>' +
-            '<span class="item-price">💰 ' + item.price + '</span>' +
-            '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
-    });
-    html += '</div>';
+    html += '<div class="shop-section">⚗️ 饮片</div><div class="shop-grid">';
+SHOP_ITEMS.filter(function(i) { return i.category === 'processed'; }).forEach(function(item) {
+    var idx = SHOP_ITEMS.indexOf(item);
+    var canBuy = getCoins() >= item.price;
+    html += '<div class="shop-item">' +
+        '<img data-fallback src="images/processed/' + item.name + '.webp" style="width:40px;height:40px;object-fit:contain;">' +
+        '<span class="item-icon" style="display:none;">' + item.icon + '</span>' +
+        '<span class="item-name">' + item.display + '</span>' +
+        '<span class="item-price">💰 ' + item.price + '</span>' +
+        '<button class="shop-buy" data-buy-index="' + idx + '" ' + (canBuy ? '' : 'disabled') + '>购买</button></div>';
+});
+html += '</div>';
 
     html += '<button class="modal-btn secondary close-modal-btn" style="margin-top:14px;">关闭</button>';
 
@@ -557,18 +557,18 @@ function buyItem(idx) {
     localStorage.setItem('coins', String(cur - item.price));
 
     var w = getWarehouse();
-    if (item.category === 'herbs') {
-        w.processed[item.name] = (w.processed[item.name] || 0) + 1;
-    } else {
-        if (!w[item.category]) w[item.category] = {};
-        w[item.category][item.name] = (w[item.category][item.name] || 0) + 1;
-    }
-    localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
+if (item.category === 'materials' || item.category === 'seeds') {
+    if (!w[item.category]) w[item.category] = {};
+    w[item.category][item.name] = (w[item.category][item.name] || 0) + 1;
+} else {
+    /* herbs 和 processed 都进饮片仓 */
+    w.processed[item.name] = (w.processed[item.name] || 0) + 1;
+}
+localStorage.setItem(WAREHOUSE_KEY, JSON.stringify(w));
 
     renderMainTop();
     openShop();
 }
-
 /* ==================== 主页面事件 ==================== */
 function bindMainEvents() {
     var spots = document.querySelectorAll('.spot');
